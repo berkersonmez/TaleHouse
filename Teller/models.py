@@ -30,6 +30,7 @@ class TalePart(models.Model):
     content = RichTextField(_('content'))
     created_at = models.DateTimeField(_('creation date'), auto_now_add=True)
     is_active = models.BooleanField(_('is active'), default=True)
+    is_start = models.BooleanField(_('is start part'), default=False)
     poll_end_date = models.DateTimeField(_('vote end date'), blank=True, null=True)
     slug = models.SlugField(_('slug'), max_length=150, unique=True)
 

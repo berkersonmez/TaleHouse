@@ -1,0 +1,25 @@
+{% load staticfiles %}
+<script src="{% static 'dracula-graph/js/raphael-min.js' %}"></script>
+<script src="{% static 'dracula-graph/js/dracula_graffle.js' %}"></script>
+<script src="{% static 'dracula-graph/js/dracula_graph.js' %}"></script>
+<script src="{% static 'dracula-graph/js/dracula_algorithms.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var canvas = $('#canvas');
+        var width = canvas.width();
+        var height = 500;
+        var g = new Graph();
+        var st = {
+            "font-size": 8
+        };
+        g.edgeFactory.template.style.directed = true;
+        {% for tale_part in tale_part_list %}
+            g.addNode("{{ tale_part.name }}");
+        {% endfor %}
+        {% for tale_link in tale_link_list %}
+            g.addEdge("{{ tale_link.source.name }}", "{{ tale_link.destination.name }}", {label: "{{ tale_link.action }}"});
+        {% endfor %}
+        var layouter = new Graph.Layout.Ordered(g, topological_sort(g));
+        var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
+    });
+</script>

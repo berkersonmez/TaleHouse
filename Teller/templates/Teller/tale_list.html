@@ -1,0 +1,23 @@
+{% extends "base-navbar.html" %}
+{% load i18n %}
+{% block title %}{% trans 'Tale List' %}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Your Tales' %}</h2>
+
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Details' %}</th>
+                </tr>
+                {% for tale in tale_list %}
+                    <tr>
+                        <td>{{ tale.name }}</td>
+                        <td><a href="{% url 'tale_details' tale.slug %}">{% trans 'Details' %}</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

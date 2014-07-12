@@ -1,3 +1,7 @@
 body {
     padding-top: 54px;
 }
+
+#canvas {
+    background-color: #f9f9f9;
+}

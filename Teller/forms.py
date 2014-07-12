@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from ckeditor.widgets import CKEditorWidget
 from django.core import validators
+import datetime
 from Teller.models import Language, TalePart, Tale
 
 
@@ -38,7 +39,7 @@ class UserAddForm(forms.Form):
 
 
 class TalePartForm(forms.Form):
-    tale = forms.ModelChoiceField(queryset=Tale.objects.all(), required=True)
+    tale = forms.ModelChoiceField(queryset=Tale.objects.all(), required=True, to_field_name='slug')
     name = forms.CharField(label=_('Name'))
     content = forms.CharField(widget=CKEditorWidget(), label=_('Content'))
     is_active = forms.BooleanField(label=_('Is active?'), required=False, initial=True)
@@ -48,6 +49,19 @@ class TalePartForm(forms.Form):
         super(TalePartForm, self).__init__(*args, **kwargs)
         if not user is None:
             self.fields['tale'].queryset = Tale.objects.filter(user=user)
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        tale = self.cleaned_data.get("tale")
+        if name and TalePart.objects.filter(name=name, tale=tale).count() > 0:
+            raise forms.ValidationError("There is another tale part with the same name.")
+        return name
+
+    def clean_poll_end_date(self):
+        poll_end_date = self.cleaned_data.get("poll_end_date")
+        if poll_end_date and poll_end_date < datetime.date.today():
+            raise forms.ValidationError("Poll end date should be a future date.")
+        return poll_end_date
 
 
 class TaleAddForm(forms.Form):

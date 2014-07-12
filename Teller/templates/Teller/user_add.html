@@ -1,6 +1,6 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
-{% block title %}Sign up{% endblock %}
+{% block title %}{% trans 'Sign up' %}{% endblock %}
 {% block body %}
     <!-- Example row of columns -->
     <div class="row">
@@ -24,7 +24,7 @@
                     {% render_field user_add_form.email class="form-control" %}
                     <span class="help-block">{{ user_add_form.email.errors }}</span>
                 </div>
-                <button type="submit" class="btn btn-success">Sign in</button>
+                <button type="submit" class="btn btn-success">{% trans 'Sign up' %}</button>
             </form>
         </div>
     </div>

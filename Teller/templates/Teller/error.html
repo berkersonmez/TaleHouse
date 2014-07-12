@@ -1,10 +1,12 @@
 {% extends "base-navbar.html" %}
-{% block title %}An error occured{% endblock %}
+{% load i18n %}
+{% block title %}{% trans 'An error occured' %}{% endblock %}
 {% block body %}
-      <div class="row">
+    <div class="row">
         <div class="col-md-12">
-          <h2>Error: {{ error }}</h2>
-          <p><a href="{{ request.META.HTTP_REFERER }}">Go back</a></p>
+            <h2>{% trans 'Error' %}: {{ error }}</h2>
+
+            <p><a href="{{ request.META.HTTP_REFERER }}">{% trans 'Go back' %}</a></p>
         </div>
-      </div>
+    </div>
 {% endblock %}

@@ -19,9 +19,8 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ profile.user.username }} <span
                                     class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="{% url 'tale_add_part' %}">Add Tale Part</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
+                                <li><a href="{% url 'tale_add' %}">Create Tale</a></li>
+                                <li><a href="{% url 'tale_add_part' %}">Create Tale Part</a></li>
                                 <li class="divider"></li>
                                 <li><a href="{% url 'user_logout' %}">Log out</a></li>
                             </ul>

@@ -1,21 +1,43 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
-{% block title %}Write Tale Part{% endblock %}
+{% load i18n %}
+{% block title %}{% trans 'Write Tale Part' %}{% endblock %}
 {% block body %}
+    {{ tale_add_part_form.media }}
     <!-- Example row of columns -->
     <div class="row">
         <div class="col-md-12">
-            <form action="{% url 'user_login' %}" role="form" method="post">
+            <h2>{% trans 'Create Tale Part' %}</h2>
+            {{ tale_add_part_form.non_field_errors }}
+            <form action="{% url 'tale_add_part' %}" role="form" method="post">
                 {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">{{ tale_add_part_form.tale.label }}</label>
+                    {% render_field tale_add_part_form.tale class="form-control" %}
+                    <span class="help-block">{{ tale_add_part_form.tale.errors }}</span>
+                </div>
                 <div class="form-group">
                     <label for="id_name">{{ tale_add_part_form.name.label }}</label>
                     {% render_field tale_add_part_form.name class="form-control" %}
+                    <span class="help-block">{{ tale_add_part_form.name.errors }}</span>
                 </div>
                 <div class="form-group">
                     <label for="id_content">{{ tale_add_part_form.content.label }}</label>
                     {{ tale_add_part_form.content }}
+                    <span class="help-block">{{ tale_add_part_form.content.errors }}</span>
                 </div>
-                <button type="submit" class="btn btn-success">Sign in</button>
+                <div class="form-group">
+                    <label for="id_content">{{ tale_add_part_form.poll_end_date.label }}</label>
+                    {% render_field tale_add_part_form.poll_end_date class="form-control" %}
+                    <span class="help-block">{{ tale_add_part_form.poll_end_date.errors }}</span>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        {% render_field tale_add_part_form.is_active %} {{ tale_add_part_form.is_active.label }}
+                    </label>
+                    <span class="help-block">{{ tale_add_part_form.is_active.errors }}</span>
+                </div>
+                <button type="submit" class="btn btn-success">{% trans 'Create Tale Part' %}</button>
             </form>
         </div>
     </div>

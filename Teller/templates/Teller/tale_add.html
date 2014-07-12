@@ -1,0 +1,34 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block title %}{% trans 'Create Tale' %}{% endblock %}
+{% block body %}
+    {{ tale_add_form.media }}
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Create Tale' %}</h2>
+            {{ tale_add_form.non_field_errors }}
+            <form action="{% url 'tale_add' %}" role="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">{{ tale_add_form.name.label }}</label>
+                    {% render_field tale_add_form.name class="form-control" %}
+                    <span class="help-block">{{ tale_add_form.name.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_language">{{ tale_add_form.language.label }}</label>
+                    {% render_field tale_add_form.language class="form-control" %}
+                    <span class="help-block">{{ tale_add_form.language.errors }}</span>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        {% render_field tale_add_form.is_poll_tale %} {{ tale_add_form.is_poll_tale.label }}
+                    </label>
+                    <span class="help-block">{{ tale_add_form.is_poll_tale.errors }}</span>
+                </div>
+                <button type="submit" class="btn btn-success">{% trans 'Create Tale' %}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

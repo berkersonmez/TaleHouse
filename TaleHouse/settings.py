@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -100,9 +101,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR,  'templates'),
+    os.path.join(BASE_DIR, 'templates'),
 )
-
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
@@ -112,6 +112,36 @@ STATIC_ROOT = os.path.join("/home/talehouse_static")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
+MEDIA_URL = "/upload/"
+
 CKEDITOR_UPLOAD_PATH = "ckeditor/"
 
 CKEDITOR_IMAGE_BACKEND = "pillow"
+
+CKEDITOR_CONFIGS = {
+    'admin': {
+        'toolbar': 'Full',
+    },
+    'default': {
+        'toolbar': [
+            ['Undo', 'Redo',
+             '-', 'Bold', 'Italic', 'Underline', 'Format',
+             '-', 'SpellChecker', 'Scayt',
+             '-', 'Maximize',
+            ],
+            ['Image',
+            ],
+            ['HorizontalRule',
+             '-', 'BulletedList', 'NumberedList',
+             '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord',
+             '-', 'SpecialChar',
+             '-', 'About',
+            ]
+        ],
+        'width': '100%',
+        'font_names': '"Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif',
+        'contentsCss': STATIC_URL + 'bootstrap-lumen/css/bootstrap.ckeditor.css'
+    },
+}
+
+CKEDITOR_RESTRICT_BY_USER = True

@@ -13,6 +13,15 @@ class UserProfileAdmin(UserAdmin):
     inlines = (ProfileInline, )
 
 
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+
+    def user(self, obj):
+        return obj.user.username
+
+    user.short_description = 'User'
+
+
 class TaleAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
@@ -24,6 +33,6 @@ admin.site.unregister(User)
 admin.site.register(User, UserProfileAdmin)
 admin.site.register(Tale, TaleAdmin)
 admin.site.register(TalePart, TalePartAdmin)
-admin.site.register(Profile)
+admin.site.register(Profile, ProfileAdmin)
 admin.site.register(TaleLink)
 admin.site.register(Language)

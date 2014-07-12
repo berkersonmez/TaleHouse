@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     user = models.OneToOneField(User, verbose_name=_('user'))
     selected_links = models.ManyToManyField('TaleLink', verbose_name=_('selected links'), blank=True, null=True)
-    slug = models.SlugField(_('slug'), max_length=150, unique=True)
 
 
 class Tale(models.Model):

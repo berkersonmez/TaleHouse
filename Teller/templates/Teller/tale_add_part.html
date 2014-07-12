@@ -1,0 +1,22 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% block title %}Write Tale Part{% endblock %}
+{% block body %}
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <form action="{% url 'user_login' %}" role="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">{{ tale_add_part_form.name.label }}</label>
+                    {% render_field tale_add_part_form.name class="form-control" %}
+                </div>
+                <div class="form-group">
+                    <label for="id_content">{{ tale_add_part_form.content.label }}</label>
+                    {{ tale_add_part_form.content }}
+                </div>
+                <button type="submit" class="btn btn-success">Sign in</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,9 +1,215 @@
 from django.utils.text import slugify
-from Teller.forms import TalePartForm, TaleAddForm
+from Teller.forms import TalePartForm, TaleAddForm, TaleLinkAddForm, TaleEditPartForm, TaleLinkEditForm
 from Teller.models import Tale, Profile, TalePart, TaleLink
 from Teller.shortcuts.teller_shortcuts import render_with_defaults
 from django.shortcuts import redirect
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+
+
+# TODO: This can be better:
+def part_status(key):
+    vals = {'VOTE': 0, 'ERROR': 1, 'END': 2, 'READ': 3, 'DATE_CONSTRAINT': 4}
+    return vals[key]
+
+
+def part_status_vals():
+    return {'VOTE': 0, 'ERROR': 1, 'END': 2, 'READ': 3, 'DATE_CONSTRAINT': 4}
+
+
+def add_lists_to_context(context, tale):
+    tale_part_list = TalePart.objects.filter(tale=tale)
+    tale_link_list = None
+    if tale_part_list.count() > 0:
+        tale_link_list = TaleLink.objects.filter(tale=tale)
+    context.update({'tale_link_list': tale_link_list, 'tale_part_list': tale_part_list})
+    return context
+
+
+def get_last_part(tale, user, page_no):
+    page_no = int(page_no)
+    if page_no <= 0 and page_no != -1:
+        page_no = 1
+    i = 0
+    try:
+        current_part = TalePart.objects.get(tale=tale, is_start=True)
+    except TalePart.DoesNotExist:
+        return {'message': _('Tale does not have a starting part'), 'status': part_status('ERROR')}
+    while page_no == -1 or i < page_no:
+        i += 1
+        if not current_part.is_active:
+            return {'message': _('This tale part is not activated yet'), 'status': part_status('ERROR'), 'page': i}
+        links = TaleLink.objects.filter(tale=tale, source=current_part)
+        if links.count() == 0:
+            return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
+                    'part': current_part, 'page': i}
+        selected_link = links.filter(profile=user)
+        if selected_link.count() == 0:
+            return {'part': current_part, 'status': part_status('VOTE'), 'links': links, 'page': i}
+        if i == page_no:
+            return {'part': current_part, 'status': part_status('READ'), 'links': links,
+                    'selected_link': selected_link[0], 'page': i}
+        current_part = selected_link[0].destination
+    return {'status': part_status('ERROR'), 'message': _('Unknown error')}
+
+
+def get_last_part_poll(tale, user, page_no):
+    page_no = int(page_no)
+    if page_no <= 0 and page_no != -1:
+        page_no = 1
+    i = 0
+    try:
+        current_part = TalePart.objects.get(tale=tale, is_start=True)
+    except TalePart.DoesNotExist:
+        return {'message': _('Tale does not have a starting part'), 'status': part_status('ERROR')}
+    while page_no == -1 or i < page_no:
+        i += 1
+        if not current_part.is_active:
+            return {'message': _('This tale part is not activated yet'), 'status': part_status('ERROR'), 'page': i}
+        links = TaleLink.objects.filter(tale=tale, source=current_part)
+        if links.count() == 0:
+            return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
+                    'part': current_part, 'page': i}
+        selected_link = links.filter(profile=user)
+        if current_part.poll_end_date > timezone.now() and selected_link.count() == 0:
+            return {'part': current_part, 'status': part_status('VOTE'), 'links': links, 'page': i}
+        link_votes = links.annotate(num_votes=Count('profile')).values_list('num_votes')
+        links_with_votes = zip(links, link_votes)
+        if current_part.poll_end_date > timezone.now() and selected_link.count() > 0:
+            return {'part': current_part, 'status': part_status('DATE_CONSTRAINT'), 'selected_link': selected_link[0],
+                    'links': links_with_votes, 'page': i}
+        voted_link = links.annotate(num_votes=Count('profile')).order_by('-num_votes')[0]
+        if i == page_no:
+            return {'part': current_part, 'status': part_status('READ'), 'links': links_with_votes,
+                    'selected_link': voted_link, 'page': i}
+        current_part = voted_link.destination
+    return {'status': part_status('ERROR'), 'message': _('Unknown error')}
+
+
+def tale_read(request, tale_slug, page_no=-1):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', 'Tale not found')
+    if tale.is_poll_tale:
+        result = get_last_part_poll(tale, profile, page_no)
+    else:
+        result = get_last_part(tale, profile, page_no)
+    context = {'tale': tale, 'profile': profile, 'result': result, 'status_enum': part_status_vals()}
+    return render_with_defaults(request, 'Teller/tale_read.html', context)
+
+
+def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', 'Tale not found')
+    try:
+        tale_link = TaleLink.objects.get(id=tale_link_id, tale=tale)
+    except TaleLink.DoesNotExist:
+        return redirect('error_info', 'Tale link not found')
+    try:
+        tale_part = TalePart.objects.get(id=tale_part_id, tale=tale)
+    except TalePart.DoesNotExist:
+        return redirect('error_info', 'Tale part not found')
+    if TaleLink.objects.filter(source=tale_part).filter(profile=profile).count() > 0:
+        return redirect('error_info', 'You have already selected a link for this part')
+    if tale.is_poll_tale and tale_part.poll_end_date < timezone.now():
+        return redirect('error_info', 'You cannot vote for this link at this time')
+    profile.selected_links.add(tale_link)
+    page_no_int = int(page_no) + 1
+    return redirect('tale_read', tale_slug, page_no_int)
+
+
+def tale_reset(request, tale_slug):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', 'Tale not found')
+    voted_links = TaleLink.objects.filter(tale=tale).filter(profile=profile)
+    if tale.is_poll_tale:
+        return redirect('error_info', 'Poll tale votes cannot be revoked')
+    for link in voted_links:
+        link.profile_set.remove(profile)
+    return redirect('tale_read', tale.slug, -1)
+
+
+def tale_add_link(request, tale_slug):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(user=profile, slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', 'Tale not found')
+    if request.method == 'POST':
+        form = TaleLinkAddForm(tale, data=request.POST)
+        if form.is_valid():
+            action = form.cleaned_data['action']
+            source = form.cleaned_data['source']
+            destination = form.cleaned_data['destination']
+            tale_link = TaleLink.objects.create(source=source,
+                                                destination=destination,
+                                                action=action,
+                                                tale=tale)
+            if tale_link is None:
+                return redirect('error_info', 'Tale link could not be created')
+            return redirect('tale_details', tale.slug)
+    else:
+        form = TaleLinkAddForm(tale)
+    context = {'tale_add_link_form': form,
+               'tale': tale}
+    context = add_lists_to_context(context, tale)
+    return render_with_defaults(request, 'Teller/tale_add_link.html', context)
+
+
+def tale_edit_link(request, tale_link_id):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
+    except TaleLink.DoesNotExist:
+        return redirect('error_info', 'Tale link not found')
+    tale = tale_link.tale
+    if request.method == 'POST':
+        form = TaleLinkEditForm(tale, tale_link.action, data=request.POST)
+        if form.is_valid():
+            tale_link.action = form.cleaned_data['action']
+            tale_link.source = form.cleaned_data['source']
+            tale_link.destination = form.cleaned_data['destination']
+            tale_link.save()
+            return redirect('tale_details', tale.slug)
+    else:
+        form = TaleLinkEditForm(tale, tale_link.action, tale_link)
+    context = {'tale_edit_link_form': form, 'tale_link': tale_link}
+    context = add_lists_to_context(context, tale)
+    return render_with_defaults(request, 'Teller/tale_edit_link.html', context)
+
+
+def tale_delete_link(request, tale_link_id):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
+    except TaleLink.DoesNotExist:
+        return redirect('error_info', 'Tale link not found')
+    if tale_link.tale.is_poll_tale and Profile.objects.filter(selected_links=tale_link).count() > 0:
+        return redirect('error_info', 'Poll tale link is voted and cannot be deleted')
+    tale = tale_link.tale
+    tale_link.delete()
+    return redirect('tale_details', tale.slug)
 
 
 def tale_add_part(request, tale_slug=0):
@@ -11,8 +217,13 @@ def tale_add_part(request, tale_slug=0):
         return redirect('error_info', 'Not registered user')
     profile = Profile.objects.get(user__id=request.user.id)
 
+    tale = None
     if tale_slug != 0:
-        form = TalePartForm(profile, initial={'tale': tale_slug})
+        try:
+            tale = Tale.objects.get(slug=tale_slug, user=profile)
+        except Tale.DoesNotExist:
+            return redirect('error_info', 'Tale not found')
+        form = TalePartForm(profile, tale, initial={'tale': tale_slug})
     elif request.method == 'POST':
         form = TalePartForm(profile, data=request.POST)
         if form.is_valid():
@@ -21,7 +232,6 @@ def tale_add_part(request, tale_slug=0):
             content = form.cleaned_data['content']
             is_active = form.cleaned_data['is_active']
             poll_end_date = form.cleaned_data['poll_end_date']
-            slug = slugify(name)
             is_start = TalePart.objects.filter(tale=tale, is_start=True).count() == 0
             if tale is None:
                 redirect('error_info', 'Tale not found')
@@ -30,16 +240,55 @@ def tale_add_part(request, tale_slug=0):
                                                 content=content,
                                                 is_active=is_active,
                                                 poll_end_date=poll_end_date,
-                                                slug=slug,
                                                 is_start=is_start)
             if tale_part is None:
                 return redirect('error_info', 'Tale part could not be created')
-            return redirect('index')
+            return redirect('tale_details', tale.slug)
     else:
         form = TalePartForm(profile)
-
     context = {'tale_add_part_form': form}
+    context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_add_part.html', context)
+
+
+def tale_edit_part(request, tale_part_id):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
+    except TalePart.DoesNotExist:
+        return redirect('error_info', 'Tale part not found')
+    tale = tale_part.tale
+    if request.method == 'POST':
+        form = TaleEditPartForm(profile, tale, tale_part.name, data=request.POST)
+        if form.is_valid():
+            tale_part.name = form.cleaned_data['name']
+            tale_part.content = form.cleaned_data['content']
+            tale_part.is_active = form.cleaned_data['is_active']
+            tale_part.poll_end_date = form.cleaned_data['poll_end_date']
+            tale_part.save()
+            return redirect('tale_details', tale.slug)
+    else:
+        form = TaleEditPartForm(profile, tale, tale_part.name, tale_part)
+    context = {'tale_edit_part_form': form, 'tale_part': tale_part}
+    context = add_lists_to_context(context, tale)
+    return render_with_defaults(request, 'Teller/tale_edit_part.html', context)
+
+
+def tale_delete_part(request, tale_part_id):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
+    except TalePart.DoesNotExist:
+        return redirect('error_info', 'Tale part not found')
+    if TaleLink.objects.filter(Q(source=tale_part) | Q(destination=tale_part)).count() > 0:
+        return redirect('error_info', 'Links of the tale part should be deleted first')
+    tale = tale_part.tale
+    tale_part.delete()
+    return redirect('tale_details', tale.slug)
 
 
 def tale_add(request):
@@ -67,6 +316,20 @@ def tale_add(request):
     return render_with_defaults(request, 'Teller/tale_add.html', context)
 
 
+def tale_delete(request, tale_id):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(id=tale_id, user=profile)
+    except Tale.DoesNotExist:
+        return redirect('error_info', 'Tale not found')
+    TaleLink.objects.filter(tale=tale).delete()
+    TalePart.objects.filter(tale=tale).delete()
+    tale.delete()
+    return redirect('tale_list')
+
+
 def tale_details(request, tale_slug):
     if not request.user.is_authenticated():
         return redirect('error_info', 'Not registered user')
@@ -75,13 +338,8 @@ def tale_details(request, tale_slug):
         tale = Tale.objects.get(user=profile, slug=tale_slug)
     except Tale.DoesNotExist:
         return redirect('error_info', 'Tale not found')
-    tale_part_list = TalePart.objects.filter(tale=tale)
-    tale_link_list = None
-    if tale_part_list.count() > 0:
-        tale_link_list = TaleLink.objects.filter(
-            reduce(lambda x, y: x | y, [Q(source=part) | Q(destination=part) for part in tale_part_list])
-        )
-    context = {'tale': tale, 'tale_part_list': tale_part_list, 'tale_link_list': tale_link_list}
+    context = {'tale': tale}
+    context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_details.html', context)
 
 

@@ -5,6 +5,11 @@
 <script src="{% static 'dracula-graph/js/dracula_algorithms.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        function s_decode(str) {
+            var div = document.createElement('div');
+            div.innerHTML = str;
+            return div.firstChild.nodeValue;
+        }
         var canvas = $('#canvas');
         var width = canvas.width();
         var height = 500;
@@ -12,14 +17,29 @@
         var st = {
             "font-size": 8
         };
+
         g.edgeFactory.template.style.directed = true;
         {% for tale_part in tale_part_list %}
-            g.addNode("{{ tale_part.name }}");
+            g.addNode(s_decode("{{ tale_part.name }}"));
         {% endfor %}
         {% for tale_link in tale_link_list %}
-            g.addEdge("{{ tale_link.source.name }}", "{{ tale_link.destination.name }}", {label: "{{ tale_link.action }}"});
+            g.addEdge(s_decode("{{ tale_link.source.name }}"),
+                    s_decode("{{ tale_link.destination.name }}"),
+                    {label: s_decode("{{ tale_link.action }}")});
         {% endfor %}
         var layouter = new Graph.Layout.Ordered(g, topological_sort(g));
         var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
+
+        var timer_id;
+
+        $(window).resize(function () {
+
+            clearTimeout(timer_id);
+
+            timer_id = setTimeout(function () {
+                renderer.width = canvas.width();
+                renderer.draw();
+            }, 300);
+        });
     });
 </script>

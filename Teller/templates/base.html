@@ -16,6 +16,8 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <link href="{% static 'Teller/css/style.css' %}" rel="stylesheet">
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="{% static 'jquery/js/jquery-1.11.1.min.js' %}"></script>
   </head>
   <body>
     {% block navbar %}{% endblock %}
@@ -30,8 +32,6 @@
     {% endblock %}
     </div>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="{% static 'jquery/js/jquery-1.11.1.min.js' %}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{% static 'bootstrap3/js/bootstrap.min.js' %}"></script>
     {% block scriptblock %}{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block title %}{% trans 'Edit Tale Part' %}{% endblock %}
+{% block body %}
+    {{ tale_edit_part_form.media }}
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Edit Tale Part' %}</h2>
+            {{ tale_edit_part_form.non_field_errors }}
+            <form action="{% url 'tale_edit_part' tale_part.id %}" role="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">{{ tale_edit_part_form.tale.label }}</label>
+                    {% render_field tale_edit_part_form.tale class="form-control" %}
+                    <span class="help-block">{{ tale_edit_part_form.tale.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_name">{{ tale_edit_part_form.name.label }}</label>
+                    {% render_field tale_edit_part_form.name class="form-control" %}
+                    <span class="help-block">{{ tale_edit_part_form.name.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_content">{{ tale_edit_part_form.content.label }}</label>
+                    {{ tale_edit_part_form.content }}
+                    <span class="help-block">{{ tale_edit_part_form.content.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_content">{{ tale_edit_part_form.poll_end_date.label }}</label>
+                    {% render_field tale_edit_part_form.poll_end_date class="form-control" %}
+                    <span class="help-block">{{ tale_edit_part_form.poll_end_date.errors }}</span>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        {% render_field tale_edit_part_form.is_active %} {{ tale_edit_part_form.is_active.label }}
+                    </label>
+                    <span class="help-block">{{ tale_edit_part_form.is_active.errors }}</span>
+                </div>
+                <button type="submit" class="btn btn-success">{% trans 'Edit Tale Part' %}</button>
+            </form>
+            {% if tale_part_list %}
+                <h3>{% trans 'Tale Graph' %}</h3>
+                <div id="canvas"></div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+    {% if tale_part_list %}
+        {% include "tale_tree.html" %}
+    {% endif %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(':disabled').each(
+                    function () {
+                        $(this).after('<input type="hidden" name="' + $(this).attr('name') + '" value="' + $(this).val() + '" />');
+                    }
+            );
+        });
+    </script>
+{% endblock %}

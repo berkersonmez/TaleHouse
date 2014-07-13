@@ -1,0 +1,102 @@
+{% extends "base-navbar.html" %}
+{% load i18n %}
+{% block title %}{% trans 'An error occured' %}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{{ tale.name }}
+                {% if not tale.is_poll_tale %}
+                    <small><a href="{% url 'tale_reset' tale.slug %}">{% trans 'Reset Progress' %}</a></small>
+                {% endif %}
+            </h2>
+            <p>
+                <small>
+                    {% trans 'Page' %}: {{ result.page }} - <a href="{% url 'tale_read' tale.slug -1 %}">Go to last
+                    page</a>
+                </small>
+            </p>
+            {% if result.status == status_enum.ERROR %}
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{% trans 'Tale cannot progress' %}</h3>
+                    </div>
+                    <div class="panel-body">
+                        {{ result.message }}
+                    </div>
+                </div>
+            {% else %}
+                {{ result.part.content|safe }}
+                {% if result.status == status_enum.VOTE %}
+                    {% for link in result.links %}
+                        <p class="bs-component tale-action-button">
+                            <a href="{% url 'tale_vote' tale.slug link.id result.part.id result.page %}" type="button"
+                               class="btn btn-default btn-block">
+                                {{ link.action }}
+                            </a>
+                        </p>
+                    {% endfor %}
+                {% elif result.status == status_enum.READ and tale.is_poll_tale %}
+                    {% for link, vote_count in result.links %}
+                        <p class="bs-component tale-action-button">
+                            <a href="#" type="button" class="btn
+                        {% if link.id == result.selected_link.id %}
+                        btn-primary
+                        {% else %}
+                        btn-default
+                        {% endif %}
+                        disabled
+                        btn-block">
+                                {{ link.action }} ({{ vote_count.0 }} votes)
+                            </a>
+                        </p>
+                    {% endfor %}
+                {% elif result.status == status_enum.READ and not tale.is_poll_tale %}
+                    {% for link in result.links %}
+                        <p class="bs-component tale-action-button">
+                            <a href="#" type="button" class="btn
+                        {% if link.id == result.selected_link.id %}
+                        btn-primary
+                        {% else %}
+                        btn-default
+                        {% endif %}
+                        disabled
+                        btn-block">
+                                {{ link.action }}
+                            </a>
+                        </p>
+                    {% endfor %}
+                {% elif result.status == status_enum.DATE_CONSTRAINT %}
+                    {% for link, vote_count in result.links %}
+                        <p class="bs-component tale-action-button">
+                            <a href="#" type="button" class="btn
+                        {% if link.id == result.selected_link.id %}
+                        btn-success
+                        {% else %}
+                        btn-default
+                        {% endif %}
+                        disabled
+                        btn-block">
+                                {{ link.action }} ({{ vote_count.0 }} votes)
+                            </a>
+                        </p>
+                    {% endfor %}
+                    <h3 class="text-center">
+                        {% blocktrans with result.part.poll_end_date as date %}
+                            The tale will progress when the poll ends at {{ date }}
+                        {% endblocktrans %}
+                    </h3>
+                {% elif result.status == status_enum.END %}
+                    <p class="lead text-center">{% trans 'The End.' %}</p>
+                {% endif %}
+            {% endif %}
+            <div class="bs-component">
+                <ul class="pager">
+                    <li class="previous"><a
+                            href="{% url 'tale_read' tale.slug result.page|add:-1 %}">← {% trans 'Previous' %}</a></li>
+                    <li class="next"><a href="{% url 'tale_read' tale.slug result.page|add:1 %}">{% trans 'Next' %}
+                        →</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

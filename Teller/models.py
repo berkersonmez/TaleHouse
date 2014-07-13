@@ -32,7 +32,6 @@ class TalePart(models.Model):
     is_active = models.BooleanField(_('is active'), default=True)
     is_start = models.BooleanField(_('is start part'), default=False)
     poll_end_date = models.DateTimeField(_('vote end date'), blank=True, null=True)
-    slug = models.SlugField(_('slug'), max_length=150, unique=True)
 
     def __unicode__(self):
         return u"%s" % self.name
@@ -43,6 +42,7 @@ class TaleLink(models.Model):
     destination = models.ForeignKey(TalePart, verbose_name=_('destination tale part'), blank=True, null=True,
                                     related_name='entrances')
     action = models.CharField(_('action'), max_length=200)
+    tale = models.ForeignKey(Tale, verbose_name=_('tale'))
 
     def __unicode__(self):
         return u"%s" % self.action

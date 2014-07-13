@@ -1,0 +1,37 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block title %}{% trans 'Add Tale Link' %}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Add Tale Link' %}</h2>
+            {{ tale_add_link_form.non_field_errors }}
+            <form action="{% url 'tale_add_link' tale.slug %}" role="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_action">{{ tale_add_link_form.action.label }}</label>
+                    {% render_field tale_add_link_form.action class="form-control" %}
+                    <span class="help-block">{{ tale_add_link_form.action.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_source">{{ tale_add_link_form.source.label }}</label>
+                    {% render_field tale_add_link_form.source class="form-control" %}
+                    <span class="help-block">{{ tale_add_link_form.source.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_destination">{{ tale_add_link_form.destination.label }}</label>
+                    {% render_field tale_add_link_form.destination class="form-control" %}
+                    <span class="help-block">{{ tale_add_link_form.destination.errors }}</span>
+                </div>
+                <button type="submit" class="btn btn-success">{% trans 'Create Tale Link' %}</button>
+            </form>
+            <h3>{% trans 'Tale Graph' %}</h3>
+
+            <div id="canvas"></div>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+    {% include "tale_tree.html" %}
+{% endblock %}

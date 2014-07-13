@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'south',
     'ckeditor',
     'widget_tweaks',
+    'bootstrap3_datetime',
     'Teller',
 )
 
@@ -105,10 +106,9 @@ TEMPLATE_DIRS = (
 )
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
 )
 
-STATIC_ROOT = os.path.join("/home/talehouse_static")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 

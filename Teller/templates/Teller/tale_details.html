@@ -11,13 +11,19 @@
                 <tr>
                     <th>{% trans 'Part Name' %}</th>
                     <th>{% trans 'Is Start?' %}</th>
+                    <th>{% trans 'Is Enabled?' %}</th>
                     <th>{% trans 'Edit' %}</th>
+                    <th>{% trans 'Delete' %}</th>
                 </tr>
                 {% for tale_part in tale_part_list %}
                     <tr>
                         <td>{{ tale_part.name }}</td>
                         <td>{{ tale_part.is_start }}</td>
-                        <td><a href="#">{% trans 'Edit' %}</a></td>
+                        <td>{{ tale_part.is_active }}</td>
+                        <td><a class="btn btn-warning btn-xs"
+                               href="{% url 'tale_edit_part' tale_part.id %}">{% trans 'Edit' %}</a></td>
+                        <td><a class="btn btn-danger btn-xs"
+                               href="{% url 'tale_delete_part' tale_part.id %}">{% trans 'Delete' %}</a></td>
                     </tr>
                 {% endfor %}
             </table>
@@ -27,23 +33,28 @@
             <h3>{% trans 'Tale Links' %}</h3>
             <table class="table table-striped">
                 <tr>
-                    <th>{% trans 'Link Name' %}</th>
+                    <th>{% trans 'Link Action' %}</th>
                     <th>{% trans 'Source' %}</th>
                     <th>{% trans 'Destination' %}</th>
                     <th>{% trans 'Edit' %}</th>
+                    <th>{% trans 'Delete' %}</th>
                 </tr>
                 {% for tale_link in tale_link_list %}
                     <tr>
                         <td>{{ tale_link.action }}</td>
                         <td>{{ tale_link.source.name }}</td>
                         <td>{{ tale_link.destination.name }}</td>
-                        <td><a href="#">{% trans 'Edit' %}</a></td>
+                        <td><a class="btn btn-warning btn-xs"
+                               href="{% url 'tale_edit_link' tale_link.id %}">{% trans 'Edit' %}</a></td>
+                        <td><a class="btn btn-danger btn-xs"
+                               href="{% url 'tale_delete_link' tale_link.id %}">{% trans 'Delete' %}</a></td>
                     </tr>
                 {% endfor %}
             </table>
-            <p><a href="#" class="btn btn-success">{% trans 'Add New Link' %}</a></p>
+            <p><a href="{% url 'tale_add_link' tale.slug %}"
+                  class="btn btn-success">{% trans 'Add New Link' %}</a></p>
 
-            <h3>{% trans 'Tale Diagram' %}</h3>
+            <h3>{% trans 'Tale Graph' %}</h3>
 
             <div id="canvas"></div>
         </div>

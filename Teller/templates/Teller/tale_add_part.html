@@ -39,6 +39,24 @@
                 </div>
                 <button type="submit" class="btn btn-success">{% trans 'Create Tale Part' %}</button>
             </form>
+            {% if tale_part_list %}
+                <h3>{% trans 'Tale Graph' %}</h3>
+                <div id="canvas"></div>
+            {% endif %}
         </div>
     </div>
+{% endblock %}
+{% block scriptblock %}
+    {% if tale_part_list %}
+        {% include "tale_tree.html" %}
+    {% endif %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(':disabled').each(
+                    function () {
+                        $(this).after('<input type="hidden" name="' + $(this).attr('name') + '" value="' + $(this).val() + '" />');
+                    }
+            );
+        });
+    </script>
 {% endblock %}

@@ -26,13 +26,10 @@ class TaleAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
-class TalePartAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
-
 admin.site.unregister(User)
 admin.site.register(User, UserProfileAdmin)
 admin.site.register(Tale, TaleAdmin)
-admin.site.register(TalePart, TalePartAdmin)
+admin.site.register(TalePart)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(TaleLink)
 admin.site.register(Language)

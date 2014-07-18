@@ -22,8 +22,13 @@
                         <td>{{ tale_part.is_active }}</td>
                         <td><a class="btn btn-warning btn-xs"
                                href="{% url 'tale_edit_part' tale_part.id %}">{% trans 'Edit' %}</a></td>
-                        <td><a class="btn btn-danger btn-xs"
-                               href="{% url 'tale_delete_part' tale_part.id %}">{% trans 'Delete' %}</a></td>
+                        <td>
+                            <a class=" btn btn-danger btn-xs
+                            {% if tale_part.is_start %}
+                            disabled
+                            {% endif %}
+                            " href="{% url 'tale_delete_part' tale_part.id %}">{% trans 'Delete' %}</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>

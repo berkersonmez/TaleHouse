@@ -71,7 +71,7 @@ class TalePartForm(forms.Form):
     def clean_poll_end_date(self):
         poll_end_date = self.cleaned_data.get("poll_end_date")
         tale = self.cleaned_data.get("tale")
-        if tale.is_poll_tale and not poll_end_date:
+        if tale and tale.is_poll_tale and not poll_end_date:
             raise forms.ValidationError("Poll tale parts should have poll end date values.")
         if poll_end_date and poll_end_date < timezone.now():
             raise forms.ValidationError("Poll end date should be a future date.")

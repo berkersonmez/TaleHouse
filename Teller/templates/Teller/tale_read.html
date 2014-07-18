@@ -1,6 +1,6 @@
 {% extends "base-navbar.html" %}
 {% load i18n %}
-{% block title %}{% trans 'An error occured' %}{% endblock %}
+{% block title %}{% trans 'Read' %} {{ tale.name }}{% endblock %}
 {% block body %}
     <div class="row">
         <div class="col-md-12">
@@ -91,10 +91,12 @@
             {% endif %}
             <div class="bs-component">
                 <ul class="pager">
+                    {% if result.page %}
                     <li class="previous"><a
                             href="{% url 'tale_read' tale.slug result.page|add:-1 %}">← {% trans 'Previous' %}</a></li>
                     <li class="next"><a href="{% url 'tale_read' tale.slug result.page|add:1 %}">{% trans 'Next' %}
                         →</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

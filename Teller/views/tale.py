@@ -1,6 +1,8 @@
 from django.utils.text import slugify
+import pprint
 from Teller.forms import TalePartForm, TaleAddForm, TaleLinkAddForm, TaleEditPartForm, TaleLinkEditForm
 from Teller.models import Tale, Profile, TalePart, TaleLink
+from Teller.shortcuts.tarjans_cycle_detection import TarjansCycleDetection
 from Teller.shortcuts.teller_shortcuts import render_with_defaults
 from django.shortcuts import redirect
 from django.db.models import Q, Count
@@ -164,6 +166,10 @@ def tale_add_link(request, tale_slug):
                                                 tale=tale)
             if tale_link is None:
                 return redirect('error_info', 'Tale link could not be created')
+            tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
+            if tarjans_cycle_detection.detect_cycles():
+                tale_link.delete()
+                return redirect('error_info', 'Links should not create cycles in the tale')
             return redirect('tale_details', tale.slug)
     else:
         form = TaleLinkAddForm(tale)
@@ -284,6 +290,8 @@ def tale_delete_part(request, tale_part_id):
         tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
     except TalePart.DoesNotExist:
         return redirect('error_info', 'Tale part not found')
+    if tale_part.is_start:
+        return redirect('error_info', 'Starting parts should not be deleted')
     if TaleLink.objects.filter(Q(source=tale_part) | Q(destination=tale_part)).count() > 0:
         return redirect('error_info', 'Links of the tale part should be deleted first')
     tale = tale_part.tale
@@ -338,6 +346,8 @@ def tale_details(request, tale_slug):
         tale = Tale.objects.get(user=profile, slug=tale_slug)
     except Tale.DoesNotExist:
         return redirect('error_info', 'Tale not found')
+    tarjan = TarjansCycleDetection(tale.id, tale)
+    tarjan.detect_cycles()
     context = {'tale': tale}
     context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_details.html', context)

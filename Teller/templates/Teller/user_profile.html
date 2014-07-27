@@ -1,0 +1,35 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block title %}{{ profile.user.username }}{% trans "'s Profile" %}{% endblock %}
+{% block body %}
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{{ profile_user.user.username }}{% trans "'s Profile" %}</h2>
+
+            <p>{{ profile_user.user.first_name }} {{ profile_user.user.last_name }}</p>
+
+            <h3>{{ profile_user.user.username }}{% trans "'s Published Tales" %}</h3>
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans 'Tale Name' %}</th>
+                    <th>{% trans 'Is Poll Tale?' %}</th>
+                    <th>{% trans 'Rating' %}</th>
+                    <th>{% trans 'Read' %}</th>
+                </tr>
+                {% for tale in profile_tales %}
+                    <tr>
+                        <td>{{ tale.name }}</td>
+                        <td>{{ tale.is_poll_tale }}</td>
+                        <td>3.8/5</td>
+                        <td><a class="btn btn-primary btn-xs"
+                               href="{% url 'tale_read_continue' tale.slug %}">{% trans 'Read' %}</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+{% endblock %}

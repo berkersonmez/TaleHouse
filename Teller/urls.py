@@ -28,4 +28,7 @@ urlpatterns = patterns('',
                            r'^tale/vote/(?P<tale_slug>[\w-]+)/(?P<tale_link_id>[\d-]+)/(?P<tale_part_id>[\d-]+)/(?P<page_no>[\d-]+)$',
                            views.tale_vote, name='tale_vote'),
                        url(r'^tale/reset/(?P<tale_slug>[\w-]+)$', views.tale_reset, name='tale_reset'),
+                       url(r'^tale/publish/(?P<tale_id>[\d-]+)$', views.tale_publish, name='tale_publish'),
+                       url(r'^user/list$', views.user_list, name='user_list'),
+                       url(r'^user/profile/(?P<user_username>[\w-]+)$', views.user_profile, name='user_profile'),
 )

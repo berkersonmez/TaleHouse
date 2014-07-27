@@ -97,6 +97,8 @@ def tale_read(request, tale_slug, page_no=-1):
         tale = Tale.objects.get(slug=tale_slug)
     except Tale.DoesNotExist:
         return redirect('error_info', 'Tale not found')
+    if tale.user != profile and not tale.is_published:
+        return redirect('error_info', 'Tale not found')
     if tale.is_poll_tale:
         result = get_last_part_poll(tale, profile, page_no)
     else:
@@ -360,3 +362,17 @@ def tale_list(request):
     list_of_tales = Tale.objects.filter(user=profile)
     context = {'tale_list': list_of_tales}
     return render_with_defaults(request, 'Teller/tale_list.html', context)
+
+
+def tale_publish(request, tale_id):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(user=profile, id=tale_id)
+    except Tale.DoesNotExist:
+        return redirect('error_info', 'Tale not found')
+    if not tale.is_published:
+        tale.is_published = True
+        tale.save()
+    return redirect('tale_list')

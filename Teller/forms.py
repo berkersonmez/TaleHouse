@@ -15,6 +15,10 @@ class UserLoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(), label=_('Password'))
 
 
+class UserSearchForm(forms.Form):
+    username = forms.CharField(label=_('Username'))
+
+
 class UserAddForm(forms.Form):
     username = forms.CharField(label=_('Username'),
                                validators=[

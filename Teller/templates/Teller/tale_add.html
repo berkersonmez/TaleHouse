@@ -12,18 +12,26 @@
             <form action="{% url 'tale_add' %}" role="form" method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="id_name">{{ tale_add_form.name.label }}</label>
+                    <label for="id_name">{{ tale_add_form.name.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_form.name.help_text }}"></span>
+                    </label>
                     {% render_field tale_add_form.name class="form-control" %}
                     <span class="help-block">{{ tale_add_form.name.errors }}</span>
                 </div>
                 <div class="form-group">
-                    <label for="id_language">{{ tale_add_form.language.label }}</label>
+                    <label for="id_language">{{ tale_add_form.language.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_form.language.help_text }}"></span>
+                    </label>
                     {% render_field tale_add_form.language class="form-control" %}
                     <span class="help-block">{{ tale_add_form.language.errors }}</span>
                 </div>
                 <div class="checkbox">
                     <label>
                         {% render_field tale_add_form.is_poll_tale %} {{ tale_add_form.is_poll_tale.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_form.is_poll_tale.help_text }}"></span>
                     </label>
                     <span class="help-block">{{ tale_add_form.is_poll_tale.errors }}</span>
                 </div>
@@ -31,4 +39,11 @@
             </form>
         </div>
     </div>
+{% endblock %}
+{% block scriptblock %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% include 'Teller/snippets/form_js.html' %}
+        });
+    </script>
 {% endblock %}

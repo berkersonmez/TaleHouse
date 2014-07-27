@@ -12,28 +12,42 @@
             <form action="{% url 'tale_add_part' %}" role="form" method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="id_name">{{ tale_add_part_form.tale.label }}</label>
+                    <label for="id_name">{{ tale_add_part_form.tale.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_part_form.tale.help_text }}"></span>
+                    </label>
                     {% render_field tale_add_part_form.tale class="form-control" %}
                     <span class="help-block">{{ tale_add_part_form.tale.errors }}</span>
                 </div>
                 <div class="form-group">
-                    <label for="id_name">{{ tale_add_part_form.name.label }}</label>
+                    <label for="id_name">{{ tale_add_part_form.name.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_part_form.name.help_text }}"></span>
+                    </label>
                     {% render_field tale_add_part_form.name class="form-control" %}
                     <span class="help-block">{{ tale_add_part_form.name.errors }}</span>
                 </div>
                 <div class="form-group">
-                    <label for="id_content">{{ tale_add_part_form.content.label }}</label>
+                    <label for="id_content">{{ tale_add_part_form.content.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_part_form.content.help_text }}"></span>
+                    </label>
                     {{ tale_add_part_form.content }}
                     <span class="help-block">{{ tale_add_part_form.content.errors }}</span>
                 </div>
                 <div class="form-group">
-                    <label for="id_content">{{ tale_add_part_form.poll_end_date.label }}</label>
+                    <label for="id_content">{{ tale_add_part_form.poll_end_date.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_part_form.poll_end_date.help_text }}"></span>
+                    </label>
                     {% render_field tale_add_part_form.poll_end_date class="form-control" %}
                     <span class="help-block">{{ tale_add_part_form.poll_end_date.errors }}</span>
                 </div>
                 <div class="checkbox">
                     <label>
                         {% render_field tale_add_part_form.is_active %} {{ tale_add_part_form.is_active.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_part_form.is_active.help_text }}"></span>
                     </label>
                     <span class="help-block">{{ tale_add_part_form.is_active.errors }}</span>
                 </div>
@@ -57,6 +71,7 @@
                         $(this).after('<input type="hidden" name="' + $(this).attr('name') + '" value="' + $(this).val() + '" />');
                     }
             );
+            {% include 'Teller/snippets/form_js.html' %}
         });
     </script>
 {% endblock %}

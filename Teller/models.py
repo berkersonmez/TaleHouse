@@ -18,6 +18,7 @@ class Tale(models.Model):
     created_at = models.DateTimeField(_('creation date'), auto_now_add=True)
     language = models.ForeignKey('Language', verbose_name=_('language'))
     is_poll_tale = models.BooleanField(_('is poll tale'), default=False)
+    is_published = models.BooleanField(_('is published'), default=False)
     slug = models.SlugField(_('slug'), max_length=150, unique=True)
 
     def __unicode__(self):

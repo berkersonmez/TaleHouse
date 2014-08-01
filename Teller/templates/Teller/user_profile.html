@@ -19,6 +19,7 @@
                 <tr>
                     <th>{% trans 'Tale Name' %}</th>
                     <th>{% trans 'Is Poll Tale?' %}</th>
+                    <th>{% trans 'Language' %}</th>
                     <th>{% trans 'Rating' %}</th>
                     <th>{% trans 'Read' %}</th>
                 </tr>
@@ -26,7 +27,8 @@
                     <tr>
                         <td>{{ tale.name }}</td>
                         <td>{{ tale.is_poll_tale }}</td>
-                        <td>3.8/5</td>
+                        <td>{{ tale.language.name }}</td>
+                        <td>{{ tale.overall_rating }}/5</td>
                         <td><a class="btn btn-primary btn-xs"
                                href="{% url 'tale_read_continue' tale.slug %}">{% trans 'Read' %}</a></td>
                     </tr>

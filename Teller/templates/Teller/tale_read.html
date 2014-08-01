@@ -1,5 +1,6 @@
 {% extends "base-navbar.html" %}
 {% load i18n %}
+{% load teller_tags %}
 {% block title %}{% trans 'Read' %} {{ tale.name }}{% endblock %}
 {% block body %}
     <div class="row">
@@ -98,6 +99,11 @@
                         →</a></li>
                     {% endif %}
                 </ul>
+            </div>
+            <div>
+                {% if result.status != status_enum.ERROR %}
+                    {{ profile|print_rate_buttons:tale|safe }}
+                {% endif %}
             </div>
         </div>
     </div>

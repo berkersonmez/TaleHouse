@@ -10,6 +10,8 @@
                 <tr>
                     <th>{% trans 'Name' %}</th>
                     <th>{% trans 'Is a Poll Tale?' %}</th>
+                    <th>{% trans 'Language' %}</th>
+                    <th>{% trans 'Rating' %}</th>
                     <th>{% trans 'Publish' %}</th>
                     <th>{% trans 'Read' %}</th>
                     <th>{% trans 'Details' %}</th>
@@ -19,6 +21,8 @@
                     <tr>
                         <td>{{ tale.name }}</td>
                         <td>{{ tale.is_poll_tale }}</td>
+                        <td>{{ tale.language.name }}</td>
+                        <td>{{ tale.overall_rating }}/5</td>
                         <td>
                             {% if not tale.is_published %}
                                 <a class="btn btn-success btn-xs"
@@ -37,6 +41,8 @@
                     </tr>
                 {% endfor %}
             </table>
+            <p><a href="{% url 'tale_add' %}"
+                  class="btn btn-success">{% trans 'Create New Tale' %}</a></p>
         </div>
     </div>
 {% endblock %}

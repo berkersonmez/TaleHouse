@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 from bootstrap3_datetime.widgets import DateTimePicker
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from ckeditor.widgets import CKEditorWidget
 from django.core import validators
 from django.utils import timezone
@@ -35,14 +36,39 @@ class UserAddForm(forms.Form):
     def clean_username(self):
         username = self.cleaned_data.get("username")
         if username and User.objects.filter(username=username).count() > 0:
-            raise forms.ValidationError("Username is already in use.")
+            raise forms.ValidationError(_("Username is already in use."))
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
         if email and User.objects.filter(email=email).count() > 0:
-            raise forms.ValidationError("E-mail is already in use.")
+            raise forms.ValidationError(_("E-mail is already in use."))
         return email
+
+
+class TaleSearchForm(forms.Form):
+    TYPE_CHOICES = (
+        ('all', _('Search all types')),
+        ('normal', _('Search normal tales')),
+        ('poll', _('Search poll tales'))
+    )
+    ORDER_BY_CHOICES = (
+        ('rating', _('Order by rating')),
+        ('name', _('Order by name')),
+        ('date', _('Order by date'))
+    )
+    LANGUAGE_CHOICES = (
+        ('all', _('Search all languages')),
+        ('enUS', _('English tales')),
+        ('tr', _('Turkish tales'))
+    )
+    tale_name = forms.CharField(label=_('Tale name'), required=False)
+    followed_user_tales = forms.BooleanField(label=_('Followed users only'), required=False)
+    type = forms.ChoiceField(label=_('Tale type'), choices=TYPE_CHOICES, initial=TYPE_CHOICES[0][0], required=True)
+    order_by = forms.ChoiceField(label=_('Order by'), choices=ORDER_BY_CHOICES, initial=ORDER_BY_CHOICES[0][0],
+                                 required=True)
+    language = forms.ChoiceField(label=_('Language'), choices=LANGUAGE_CHOICES, initial=LANGUAGE_CHOICES[0][0],
+                                 required=True)
 
 
 class TalePartForm(forms.Form):
@@ -69,16 +95,16 @@ class TalePartForm(forms.Form):
         name = self.cleaned_data.get("name")
         tale = self.cleaned_data.get("tale")
         if name and TalePart.objects.filter(name=name, tale=tale).count() > 0:
-            raise forms.ValidationError("There is another tale part with the same name.")
+            raise forms.ValidationError(_("There is another tale part with the same name."))
         return name
 
     def clean_poll_end_date(self):
         poll_end_date = self.cleaned_data.get("poll_end_date")
         tale = self.cleaned_data.get("tale")
         if tale and tale.is_poll_tale and not poll_end_date:
-            raise forms.ValidationError("Poll tale parts should have poll end date values.")
+            raise forms.ValidationError(_("Poll tale parts should have poll end date values."))
         if poll_end_date and poll_end_date < timezone.now():
-            raise forms.ValidationError("Poll end date should be a future date.")
+            raise forms.ValidationError(_("Poll end date should be a future date."))
         return poll_end_date
 
 
@@ -97,7 +123,7 @@ class TaleEditPartForm(TalePartForm):
         name = self.cleaned_data.get("name")
         tale = self.cleaned_data.get("tale")
         if name and name != self.tale_part_name and TalePart.objects.filter(name=name, tale=tale).count() > 0:
-            raise forms.ValidationError("There is another tale part with the same name.")
+            raise forms.ValidationError(_("There is another tale part with the same name."))
         return name
 
 
@@ -114,7 +140,7 @@ class TaleAddForm(forms.Form):
         name = self.cleaned_data.get("name")
         slug = slugify(name)
         if name and Tale.objects.filter(Q(name=name) | Q(slug=slug)).count() > 0:
-            raise forms.ValidationError("There is another tale with the same name.")
+            raise forms.ValidationError(_("There is another tale with the same name."))
         return name
 
 
@@ -137,14 +163,14 @@ class TaleLinkAddForm(forms.Form):
     def clean_action(self):
         action = self.cleaned_data.get("action")
         if action and TaleLink.objects.filter(action=action, tale=self.tale).count() > 0:
-            raise forms.ValidationError("There is another link with the same action text.")
+            raise forms.ValidationError(_("There is another link with the same action text."))
         return action
 
     def clean_destination(self):
         source = self.cleaned_data.get("source")
         destination = self.cleaned_data.get("destination")
         if source == destination:
-            raise forms.ValidationError("Destination cannot be the same as source.")
+            raise forms.ValidationError(_("Destination cannot be the same as source."))
         return destination
 
 
@@ -161,5 +187,5 @@ class TaleLinkEditForm(TaleLinkAddForm):
         action = self.cleaned_data.get("action")
         if action and action != self.tale_link_action and TaleLink.objects.filter(action=action,
                                                                                   tale=self.tale).count() > 0:
-            raise forms.ValidationError("There is another link with the same action text.")
+            raise forms.ValidationError(_("There is another link with the same action text."))
         return action

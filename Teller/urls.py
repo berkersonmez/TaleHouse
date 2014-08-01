@@ -32,4 +32,7 @@ urlpatterns = patterns('',
                        url(r'^user/list$', views.user_list, name='user_list'),
                        url(r'^user/profile/(?P<user_username>[\w-]+)$', views.user_profile, name='user_profile'),
                        url(r'^user/follow/(?P<target_username>[\w-]+)$', views.user_follow, name='user_follow'),
+                       url(r'^tale/search$', views.tale_search, name='tale_search'),
+                       url(r'^tale/rate/(?P<tale_id>[\d-]+)/(?P<rate_amount>[\d-]+)$', views.tale_rate,
+                           name='tale_rate'),
 )

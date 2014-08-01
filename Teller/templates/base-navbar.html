@@ -28,15 +28,31 @@
                         </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
+                                    class="glyphicon glyphicon-book"></span> <span
+                                    class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="{% url 'tale_search' %}">{% trans 'Search Tales' %}</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
                                     class="glyphicon glyphicon-user"></span> <span
                                     class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{% url 'user_list' %}">{% trans 'Search Users' %}</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                {{ profile.user.username }} <span
+                                    class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="{% url 'user_profile' profile.user.username %}">{% trans 'Profile' %}</a>
+                                </li>
                                 <li class="divider"></li>
                                 <li><a href="{% url 'user_logout' %}">{% trans 'Log out' %}</a></li>
                             </ul>
                         </li>
-                        <li><a href="{% url 'user_profile' profile.user.username %}">{{ profile.user.username }}</a>
                         </li>
                     </ul>
                 {% else %}

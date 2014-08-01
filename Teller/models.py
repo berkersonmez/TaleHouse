@@ -2,6 +2,7 @@ from django.db import models
 from ckeditor.fields import RichTextField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+from decimal import *
 
 
 class Profile(models.Model):
@@ -25,6 +26,7 @@ class Tale(models.Model):
     is_poll_tale = models.BooleanField(_('is poll tale'), default=False)
     is_published = models.BooleanField(_('is published'), default=False)
     slug = models.SlugField(_('slug'), max_length=150, unique=True)
+    overall_rating = models.DecimalField(_('rating'), max_digits=3, decimal_places=2, default=Decimal(0))
 
     def __unicode__(self):
         return u"%s" % self.name
@@ -60,3 +62,12 @@ class Language(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.name
+
+
+class Rating(models.Model):
+    user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='ratings')
+    tale = models.ForeignKey(Tale, verbose_name=_('tale'), related_name='ratings')
+    rating = models.DecimalField(_('rating'), decimal_places=1, max_digits=2, default=Decimal(0))
+
+    def __unicode__(self):
+        return u"%d" % self.rating

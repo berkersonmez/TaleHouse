@@ -1,0 +1,79 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block title %}{% trans 'Search Tale' %}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Search Tale' %}</h2>
+            {{ tale_search_form.non_field_errors }}
+            <form action="{% url 'tale_search' %}" role="form" method="get" class="form-inline">
+                <div class="form-group">
+                    {% render_field tale_search_form.tale_name class="form-control" placeholder=tale_search_form.tale_name.label %}
+                </div>
+                <div class="form-group">
+                    {% render_field tale_search_form.type class="form-control" placeholder=tale_search_form.type.label %}
+                </div>
+                <div class="form-group">
+                    {% render_field tale_search_form.order_by class="form-control" placeholder=tale_search_form.order_by.label %}
+                </div>
+                <div class="form-group">
+                    {% render_field tale_search_form.language class="form-control" placeholder=tale_search_form.language.label %}
+                </div>
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        {% render_field tale_search_form.followed_user_tales %} {{ tale_search_form.followed_user_tales.label }}
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-success">{% trans 'Search' %}</button>
+            </form>
+            <br/>
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans 'Tale Name' %}</th>
+                    <th>{% trans 'Writer' %}</th>
+                    <th>{% trans 'Is Poll Tale?' %}</th>
+                    <th>{% trans 'Language' %}</th>
+                    <th>{% trans 'Rating' %}</th>
+                    <th>{% trans 'Read' %}</th>
+                </tr>
+                {% for tale_row in tales_in_page %}
+                    <tr>
+                        <td>{{ tale_row.name }}</td>
+                        <td>{{ tale_row.user.user.username }}</td>
+                        <td>{{ tale_row.is_poll_tale }}</td>
+                        <td>{{ tale_row.language.name }}</td>
+                        <td>{{ tale_row.overall_rating }}/5</td>
+                        <td><a class="btn btn-primary btn-xs"
+                               href="{% url 'tale_read_continue' tale_row.slug %}">{% trans 'Read' %}</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <div class="bs-component">
+                <ul class="pager">
+                    {% if tales_in_page.has_previous %}
+                        <li class="previous">
+                            <a href="{% url 'tale_search' %}?tale_name={{ request.GET.tale_name }}&page={{ tales_in_page.previous_page_number }}&followed_user_tales={{ request.GET.followed_user_tales }}&type={{ request.GET.type }}&order_by={{ request.GET.order_by }}">
+                                ← {% trans 'Previous' %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if tales_in_page.has_next %}
+                        <li class="next">
+                            <a href="{% url 'tale_search' %}?tale_name={{ request.GET.tale_name }}&page={{ tales_in_page.next_page_number }}&followed_user_tales={{ request.GET.followed_user_tales }}&type={{ request.GET.type }}&order_by={{ request.GET.order_by }}">
+                                {% trans 'Next' %} →
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input:checked').parent().addClass('active');
+        });
+    </script>
+{% endblock %}

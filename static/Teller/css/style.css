@@ -1,0 +1,11 @@
+body {
+    padding-top: 54px;
+}
+
+#canvas {
+    background-color: #f9f9f9;
+}
+
+.tale-action-button {
+    height: 30px;
+}

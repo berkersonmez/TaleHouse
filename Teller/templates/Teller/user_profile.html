@@ -1,14 +1,18 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load teller_tags %}
 {% block title %}{{ profile.user.username }}{% trans "'s Profile" %}{% endblock %}
 {% block body %}
     <!-- Example row of columns -->
     <div class="row">
         <div class="col-md-12">
-            <h2>{{ profile_user.user.username }}{% trans "'s Profile" %}</h2>
+            <h2>
+                {{ profile_user.user.username }}{% trans "'s Profile" %} {{ profile|print_follow_button:profile_user|safe }}</h2>
 
-            <p>{{ profile_user.user.first_name }} {{ profile_user.user.last_name }}</p>
+            <p>
+                {{ profile_user.user.first_name }} {{ profile_user.user.last_name }}
+            </p>
 
             <h3>{{ profile_user.user.username }}{% trans "'s Published Tales" %}</h3>
             <table class="table table-striped">

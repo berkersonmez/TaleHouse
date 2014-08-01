@@ -7,9 +7,14 @@ from django.contrib.auth.models import User
 class Profile(models.Model):
     user = models.OneToOneField(User, verbose_name=_('user'))
     selected_links = models.ManyToManyField('TaleLink', verbose_name=_('selected links'), blank=True, null=True)
+    followed_users = models.ManyToManyField('self', verbose_name=_('followed users'), blank=True, null=True,
+                                            symmetrical=False)
 
     def __unicode__(self):
         return u"%s" % self.user.username
+
+    def is_following(self, target):
+        return target in self.followed_users.all()
 
 
 class Tale(models.Model):

@@ -31,4 +31,5 @@ urlpatterns = patterns('',
                        url(r'^tale/publish/(?P<tale_id>[\d-]+)$', views.tale_publish, name='tale_publish'),
                        url(r'^user/list$', views.user_list, name='user_list'),
                        url(r'^user/profile/(?P<user_username>[\w-]+)$', views.user_profile, name='user_profile'),
+                       url(r'^user/follow/(?P<target_username>[\w-]+)$', views.user_follow, name='user_follow'),
 )

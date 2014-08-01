@@ -1,6 +1,7 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load teller_tags %}
 {% block title %}{% trans 'Search User' %}{% endblock %}
 {% block body %}
     <div class="row">
@@ -23,8 +24,9 @@
                 {% for profile_row in users_in_page %}
                     <tr>
                         <td>{{ profile_row.user.username }}</td>
-                        <td><a class="btn btn-success btn-xs"
-                               href="#">{% trans 'Follow' %}</a></td>
+                        <td>
+                            {{ profile|print_follow_button:profile_row|safe }}
+                        </td>
                         <td><a class="btn btn-primary btn-xs"
                                href="{% url 'user_profile' profile_row.user.username %}">{% trans 'Profile' %}</a></td>
                     </tr>

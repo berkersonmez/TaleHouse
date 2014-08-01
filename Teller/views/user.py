@@ -99,3 +99,18 @@ def user_logout(request):
         return redirect('error_info', 'Not registered user')
     logout(request)
     return redirect('index')
+
+
+def user_follow(request, target_username):
+    if not request.user.is_authenticated():
+        return redirect('error_info', 'Not registered user')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        target = Profile.objects.get(user__username=target_username)
+    except Profile.DoesNotExist:
+        return redirect('error_info', 'User not found')
+    if profile.is_following(target):
+        profile.followed_users.remove(target)
+    else:
+        profile.followed_users.add(target)
+    return redirect('user_profile', target.user.username)

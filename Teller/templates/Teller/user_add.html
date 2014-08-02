@@ -6,7 +6,7 @@
     <!-- Example row of columns -->
     <div class="row">
         <div class="col-md-12">
-            <h2>Sign up</h2>
+            <h2>{% trans 'Sign up' %}</h2>
             {{ user_add_form.non_field_errors }}
             <form action="{% url 'user_add' %}" role="form" method="post">
                 {% csrf_token %}

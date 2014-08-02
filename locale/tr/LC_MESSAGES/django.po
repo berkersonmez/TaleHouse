@@ -1,0 +1,1001 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-02 20:36+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: TaleHouse/settings.py:101 Teller/templates/base-navbar.html:31
+#: Teller/templates/base-navbar.html:92
+msgid "Turkish"
+msgstr "Türkçe"
+
+#: TaleHouse/settings.py:102 Teller/templates/base-navbar.html:30
+#: Teller/templates/base-navbar.html:91
+msgid "English"
+msgstr "İngilizce"
+
+#: Teller/forms.py:16 Teller/forms.py:21 Teller/forms.py:25
+#: Teller/templates/Teller/user_list.html:20
+msgid "Username"
+msgstr "Kullanıcı adı"
+
+#: Teller/forms.py:17 Teller/forms.py:31
+msgid "Password"
+msgstr "Şifre"
+
+#: Teller/forms.py:35
+msgid "E-mail"
+msgstr "E-mail"
+
+#: Teller/forms.py:40
+msgid "Username is already in use."
+msgstr "Kullanıcı adı zaten kullanımda."
+
+#: Teller/forms.py:46
+msgid "E-mail is already in use."
+msgstr "E-mail adresi zaten kullanımda."
+
+#: Teller/forms.py:52
+msgid "Search all types"
+msgstr "Tüm tipleri ara"
+
+#: Teller/forms.py:53
+msgid "Search normal tales"
+msgstr "Normal masalları ara"
+
+#: Teller/forms.py:54
+msgid "Search poll tales"
+msgstr "Oylamalı masalları ara"
+
+#: Teller/forms.py:57
+msgid "Order by rating"
+msgstr "Puana göre sırala"
+
+#: Teller/forms.py:58
+msgid "Order by name"
+msgstr "İsme göre sırala"
+
+#: Teller/forms.py:59
+msgid "Order by date"
+msgstr "Tarihe göre sırala"
+
+#: Teller/forms.py:62
+msgid "Search all languages"
+msgstr "Tüm dilleri ara"
+
+#: Teller/forms.py:63
+msgid "English tales"
+msgstr "İngilizce masalları ara"
+
+#: Teller/forms.py:64
+msgid "Turkish tales"
+msgstr "Türkçe masalları ara"
+
+#: Teller/forms.py:66
+msgid "Tale name"
+msgstr "Masal adı"
+
+#: Teller/forms.py:67
+msgid "Followed users only"
+msgstr "Sadece takip edilen kullanıcılar"
+
+#: Teller/forms.py:68
+msgid "Tale type"
+msgstr "Masal tipi"
+
+#: Teller/forms.py:69
+msgid "Order by"
+msgstr "Sıralama tipi"
+
+#: Teller/forms.py:71 Teller/forms.py:149
+#: Teller/templates/Teller/tale_list.html:13
+#: Teller/templates/Teller/tale_search.html:36
+#: Teller/templates/Teller/user_profile.html:22
+msgid "Language"
+msgstr "Dil"
+
+#: Teller/forms.py:77
+msgid "Tales consist of tale parts. Select a tale to add this tale part to."
+msgstr ""
+"Masallar, masal bölümlerinden oluşur. Bu bölümün ekleneceği masalı seç."
+
+#: Teller/forms.py:78 Teller/templates/Teller/tale_list.html:11
+msgid "Name"
+msgstr "Masal adı"
+
+#: Teller/forms.py:79
+msgid ""
+"Give a name to the tale part to recognize it easily. It will not be shown to "
+"the readers automatically."
+msgstr ""
+"Masal bölümüne kolay tanınabilecek bir isim ver. Bu okuyucuya otomatik "
+"olarakgösterilmeyecektir."
+
+#: Teller/forms.py:81
+msgid "Content"
+msgstr "İçerik"
+
+#: Teller/forms.py:82
+msgid ""
+"Write the content of the tale part. Advance the story and prepare for the "
+"events that will lead to the next parts."
+msgstr ""
+"Masal bölümünün içeriğini yaz. Hikayeyi ilerlet ve gelecek bölümlerdeki "
+"olaylara doğru gelişme sağla."
+
+#: Teller/forms.py:84
+msgid "Is active?"
+msgstr "Aktif mi?"
+
+#: Teller/forms.py:85
+msgid ""
+"If a tale part is not active, the story will not progress at that part. Use "
+"this to complete unfinished parts while not blocking the whole story."
+msgstr ""
+"Eğer bir masal bölümü aktif değilse, hikaye bu bölümde duraklayacaktır. "
+"Yani, okurlar bu noktadan ileri gidemeyecekler. Bunu tüm hikayeyi "
+"engellemeden eksik kısımları tamamlamak için kullanabilirsin."
+
+#: Teller/forms.py:89
+msgid "Poll end date"
+msgstr "Oylama bitiş tarihi"
+
+#: Teller/forms.py:94
+msgid ""
+"Only applicible to poll tales. Poll tale parts stay open for community votes "
+"until poll end date. After that time, the story will advance according to "
+"the mostly voted part."
+msgstr ""
+"Sadece oylama masallarına uygulanabilir. Oylama masallarının bölümleri bu "
+"tarihekadar halk oylamasına açık kalır. Bu zaman sonrasında hikaye seçilen "
+"aksiyona göre ilerleyecektir."
+
+#: Teller/forms.py:110 Teller/forms.py:138
+msgid "There is another tale part with the same name."
+msgstr "Aynı isimde başka bir masal bölümü var."
+
+#: Teller/forms.py:117
+msgid "Poll tale parts should have poll end date values."
+msgstr "Oylama masal bölümleri oylama sonu tarihi değerine sahip olmalıdır."
+
+#: Teller/forms.py:119
+msgid "Poll end date should be a future date."
+msgstr "Oylama sonu tarihi gelecek bir tarih olmalıdır."
+
+#: Teller/forms.py:143 Teller/templates/Teller/tale_search.html:33
+#: Teller/templates/Teller/user_profile.html:20
+msgid "Tale Name"
+msgstr "Masal adı"
+
+#: Teller/forms.py:148
+msgid "Give a unique name to your tale. For example: Little Red Riding Hood."
+msgstr "Masalına özgün bir isim ver. Mesela: Kırmızı Başlıklı Kız"
+
+#: Teller/forms.py:150
+msgid "Select the language of the tale for categorization purposes."
+msgstr "Masalı yazacağın dili seç. Bu dile göre masal filtrelemeyi sağlar."
+
+#: Teller/forms.py:151
+msgid "Is poll tale?"
+msgstr "Oylama masalı mı?"
+
+#: Teller/forms.py:152
+msgid ""
+"Poll tales advance at designated times according to community votes.Non-poll "
+"tales are individual and unique for every reader."
+msgstr ""
+"Oylama masalları belli tarihlerde halk oylamasına göre ilerler. Normal "
+"masallar ise kullanıcıya özgüdür ve tekil olarak ilerler."
+
+#: Teller/forms.py:159
+msgid "There is another tale with the same name."
+msgstr "Aynı isimde bir masal zaten var."
+
+#: Teller/forms.py:164
+msgid "Action Name"
+msgstr "Aksiyon"
+
+#: Teller/forms.py:169
+msgid ""
+"Action name will be shown to the user to let them select as their choice."
+"According to selected actions, story will advance"
+msgstr ""
+"Aksiyon kullanıcıya gösterilecek ve seçmesi istenilecek seçenekleri "
+"oluşturur.Masal seçilen aksiyonlara göre ilerler."
+
+#: Teller/forms.py:171 Teller/templates/Teller/tale_details.html:45
+msgid "Source"
+msgstr "Kaynak"
+
+#: Teller/forms.py:172
+msgid ""
+"When this action is selected, the story will depart from the source part."
+msgstr "Bu aksiyon seçildiğinde, okur kaynak bölümünden ayrılacaktır."
+
+#: Teller/forms.py:174 Teller/templates/Teller/tale_details.html:46
+msgid "Destination"
+msgstr "Hedef"
+
+#: Teller/forms.py:175
+msgid ""
+"When this action is selected, the story will arrive to the destination part."
+msgstr "Bu aksiyon seçildiğinde, okur hedef bölümüne ulaşacaktır."
+
+#: Teller/forms.py:188 Teller/forms.py:212
+msgid "There is another link with the same action text."
+msgstr "Aynı aksiyon yazısıyla bir aksiyon linki zaten var."
+
+#: Teller/forms.py:195
+msgid "Destination cannot be the same as source."
+msgstr "Hedef kaynak ile aynı olamaz."
+
+#: Teller/models.py:10 Teller/models.py:23 Teller/models.py:69
+msgid "user"
+msgstr "kullanıcı"
+
+#: Teller/models.py:11
+msgid "selected links"
+msgstr "seçilen linkler"
+
+#: Teller/models.py:12
+msgid "followed users"
+msgstr "takip edilen kullanıcılar"
+
+#: Teller/models.py:24 Teller/models.py:38
+msgid "name"
+msgstr "isim"
+
+#: Teller/models.py:25 Teller/models.py:40 Teller/models.py:72
+msgid "creation date"
+msgstr "oluşturulma tarihi"
+
+#: Teller/models.py:26
+msgid "language"
+msgstr "dil"
+
+#: Teller/models.py:27
+msgid "is poll tale"
+msgstr "oylama masalı mı"
+
+#: Teller/models.py:28
+msgid "is published"
+msgstr "yayınlandı mı"
+
+#: Teller/models.py:29
+msgid "slug"
+msgstr "slug"
+
+#: Teller/models.py:30 Teller/models.py:71
+msgid "rating"
+msgstr "puan"
+
+#: Teller/models.py:37 Teller/models.py:54 Teller/models.py:70
+msgid "tale"
+msgstr "masal"
+
+#: Teller/models.py:39
+msgid "content"
+msgstr "içerik"
+
+#: Teller/models.py:41
+msgid "is active"
+msgstr "aktif mi"
+
+#: Teller/models.py:42
+msgid "is start part"
+msgstr "başlangıç bölümü mü"
+
+#: Teller/models.py:43
+msgid "vote end date"
+msgstr "oylama bitiş tarihi"
+
+#: Teller/models.py:50
+msgid "source tale part"
+msgstr "kaynak bölümü"
+
+#: Teller/models.py:51
+msgid "destination tale part"
+msgstr "hedef bölümü"
+
+#: Teller/models.py:53
+msgid "action"
+msgstr "aksiyon"
+
+#: Teller/models.py:61
+msgid "language name"
+msgstr "dil adı"
+
+#: Teller/models.py:62
+msgid "code"
+msgstr "dil kodu"
+
+#: Teller/templates/base-navbar.html:39
+#: Teller/templates/Teller/tale_add.html:4
+#: Teller/templates/Teller/tale_add.html:10
+#: Teller/templates/Teller/tale_add.html:38
+msgid "Create Tale"
+msgstr "Masal Yarat"
+
+#: Teller/templates/base-navbar.html:40
+#: Teller/templates/Teller/tale_add_part.html:10
+#: Teller/templates/Teller/tale_add_part.html:54
+msgid "Create Tale Part"
+msgstr "Masal Bölümü Yarat"
+
+#: Teller/templates/base-navbar.html:41
+#: Teller/templates/Teller/tale_list.html:7
+msgid "Your Tales"
+msgstr "Senin Masalların"
+
+#: Teller/templates/base-navbar.html:49
+msgid "Search Tales"
+msgstr "Masal Ara"
+
+#: Teller/templates/base-navbar.html:57
+msgid "Search Users"
+msgstr "Kullanıcı Ara"
+
+#: Teller/templates/base-navbar.html:65
+#: Teller/templates/Teller/user_list.html:22
+#: Teller/templates/Teller/user_list.html:31
+msgid "Profile"
+msgstr "Profil"
+
+#: Teller/templates/base-navbar.html:68
+msgid "Log out"
+msgstr "Çıkış yap"
+
+#: Teller/templates/base-navbar.html:81
+msgid "Sign in"
+msgstr "Giriş yap"
+
+#: Teller/templates/base-navbar.html:82
+#: Teller/templates/Teller/user_add.html:4
+#: Teller/templates/Teller/user_add.html:9
+#: Teller/templates/Teller/user_add.html:28
+msgid "Sign up"
+msgstr "Üye ol"
+
+#: Teller/templates/Teller/about.html:4
+msgid "About Tale House"
+msgstr "Tale House Hakkında"
+
+#: Teller/templates/Teller/about.html:8
+msgid "What is Tale House?"
+msgstr "Tale House Nedir?"
+
+#: Teller/templates/Teller/about.html:10
+msgid "Read interactive stories or write your own"
+msgstr "İnteraktif hikayeler oku veya kendi interaktif hikayeni yarat"
+
+#: Teller/templates/Teller/about.html:13
+msgid ""
+"\n"
+"                    Tale House is an online tool that lets you read fun "
+"interactive tales and stories.\n"
+"                    Everything in Tale House is about having fun with make-"
+"your-own stories. Select your path throughout\n"
+"                    the fables to have your unique experience. Better yet, "
+"you can make your dreams come true\n"
+"                    and write your own interactive stories with Tale House's "
+"easy-to-use interface.\n"
+"                "
+msgstr ""
+"\n"
+"Tale House eğlenceli interaktif masallar ve hikayeler okumanı sağlayan bir "
+"araçtır.Tale House'un tüm olayı 'kendi hikayeni yarat' konsepti altında "
+"yazılmış hikayelerin tadını çıkarmaktır. Masallar içinde kendi seçimlerini "
+"yap ve kişisel bir deneyim oluştur. Daha da güzeli, rüyalarındaki interaktif "
+"hikayeyi de Tale House'un kolay kullanımlı arayüzüyle yazabilirsin."
+
+#: Teller/templates/Teller/about.html:24
+msgid "Clean reading interface"
+msgstr "Temiz okuma arayüzü"
+
+#: Teller/templates/Teller/about.html:31
+msgid ""
+"\n"
+"                    Tale House presents stories in a clean and tidy way. "
+"Reading does not hurt your eyes.\n"
+"                    Compliance of background and foreground is designated "
+"according to provide the best\n"
+"                    experience to the readers. Reading in Tale House is just "
+"comfortable as reading a book from its\n"
+"                    paper print. Basic interface does not go in your way or "
+"interrupt your attention.\n"
+"                "
+msgstr ""
+"\n"
+"Tale House, masalları temiz ve düzenli bir biçimde sunar. Arkaplan ve yazı "
+"uyumu okuyucular için en iyi deneyimi sunacak biçimde ayarlanmıştır. Tale "
+"House'ta hikaye okumak, bir kitabın sayfalarındaki yazıyı okumak kadar "
+"komforludur. Basit arayüz okuyucunun dikkatini dağıtmaz."
+
+#: Teller/templates/Teller/about.html:40
+msgid "Visual Tale Representation"
+msgstr "Görsel Masal Temsili"
+
+#: Teller/templates/Teller/about.html:47
+msgid ""
+"\n"
+"                    You can write your dream tale with the easy and "
+"innovative interface. Tale House aims to\n"
+"                    give a good representation of the tale links and paths. "
+"This makes it possible to design\n"
+"                    the tale on the go and come up with new ideas. The "
+"interface is designed to be light as well\n"
+"                    as comprehensive. With the aim of offering both "
+"simplicity and good usability,\n"
+"                    Tale House provides you with a great interactive story "
+"making tool.\n"
+"                "
+msgstr ""
+"\n"
+"Rüyalarındaki masalı özgün ve yenilikçi arayüz sayesinde kolayca "
+"kullanıcılarla buluşturabilirsin. Tale House, masal bağlarının ve "
+"bölümlerinin anlaşılabilir bir görsel temsilini oluşturabilmeyi hedefler. Bu "
+"sayede, hikayeni gittikçe geliştirebilir, yeni fikirler keşfedebilirsin. "
+"Arayüz, hafif ve bir o kadar da kapsamlı tasarlanmıştır. Basitlik ve "
+"kullanılabilirliği bir arada sağlamayı amaçlayan Tale House, gelişmiş bir "
+"interaktif hikaye yaratma aracı sunar."
+
+#: Teller/templates/Teller/about.html:57
+msgid "Mobile Ready"
+msgstr "Mobile Hazır"
+
+#: Teller/templates/Teller/about.html:64
+msgid ""
+"\n"
+"                    Tale House is ready for mobile use, thanks to its "
+"responsive design. You can read stories\n"
+"                    on the go using your smart phone or tablet. All "
+"functionality of the tool is open to access\n"
+"                    with mobile devices. iOS, Android, Windows Phone and "
+"Blackberry are all supported.\n"
+"                "
+msgstr ""
+"\n"
+"Tale House, responsive tasarımı sayesinde mobil kullanıma hazırdır. "
+"Hikayeleri hareket halinde akıllı telefonun veya tabletinden okuyabilirsin. "
+"Tüm işlevsellik mobil cihazlara açıktır. iOS, Android, Windows Phone ve "
+"Blackberry modelleri desteklenmektedir."
+
+#: Teller/templates/Teller/about.html:74
+msgid "Tale House is open source"
+msgstr "Tale House açık kaynak kodludur"
+
+#: Teller/templates/Teller/about.html:77
+#, python-format
+msgid ""
+"\n"
+"                    Tale House is open source, which means you can see its "
+"codes and also contribute to it!\n"
+"                    It is dedicated to the community, thus, is completely "
+"free. It is created using the great\n"
+"                    Django framework. You can see the repository at %(link)s "
+"and make contributions to carry it\n"
+"                    forward to be a perfect tool.\n"
+"                "
+msgstr ""
+"\n"
+"Tale House açık kaynak kodludur, yani kodlarını görebilir ve bunlara katkıda "
+"bulunabilirsin! Tüm internet alemine atanmış bir araç olan Tale House, "
+"tamamen ücretsizdir.Django framework'ü kullanılarak hazırlanan Tale House'un "
+"kaynak kodlarına %(link)s aracılığıyla ulaşabilirsin. Haydi sen de bu özgün "
+"ve mükemmel aracı oluşturmamıza yardımcı ol!"
+
+#: Teller/templates/Teller/about.html:86
+msgid "How to use Tale House"
+msgstr "Tale House nasıl kullanılır"
+
+#: Teller/templates/Teller/about.html:89
+msgid "Create a tale"
+msgstr "Masal yarat"
+
+#: Teller/templates/Teller/about.html:96
+msgid ""
+"\n"
+"                    Creating a tale is as easy as giving it a name. You can "
+"also designate a language in which\n"
+"                    you will write the tale. Readers will be able to filter "
+"the tales that are in their languages\n"
+"                    to select and read them. Also, tales can be designated "
+"as 'poll' tales; which means the tale\n"
+"                    is not designated by individual readers uniquely, but it "
+"is developed by community votes.\n"
+"                "
+msgstr ""
+"\n"
+"Masal yaratmak ona bir isim vermek kadar kolaydır. Ek olarak, masalı "
+"yazacağın dili de belirtmelisin. Bu kullanıcıların istedikleri dildeki "
+"hikayeleri bulmalarına yardımcı olacaktır. Ayrıca, masallar 'oylama' "
+"masalları olarak belirlenebilir. Oylama masallrı her okura özel değildir, "
+"aksine, halk oylamasıyla seçilen aksiyonlar alınarak hikayenin ilerlemesi "
+"sağlanır."
+
+#: Teller/templates/Teller/about.html:105
+msgid "Many a little makes a mickle"
+msgstr "Damlaya damlaya göl olur"
+
+#: Teller/templates/Teller/about.html:112
+msgid ""
+"\n"
+"                    Tales consist of tale parts. Think of them as book "
+"chapters, or maybe something smaller.\n"
+"                    Develop the story in the tale parts to carry the readers "
+"to another choice that they will make.\n"
+"                    Punish bad choices, or create plot twists and "
+"cliffhangers; it is all up to your imagination!\n"
+"                    If you are creating a poll tale, don't forget to give "
+"the part a 'poll end date' which will\n"
+"                    show the time the poll is going to end and the story is "
+"going to progress.\n"
+"                "
+msgstr ""
+"\n"
+"Masallar masal bölümlerinden oluşur. Bunları kitap bölümleri olarak "
+"düşünebilirsin, ne kadar uzun olacakları sana kalmış. Hikayeyi seçimlerine "
+"göre gelecek yol ayrımına ilerleten olaylarla yoğurarak ilerlet. Kötü "
+"seçimleri cezalandır, şaşırtıcı ve meraklandırıcı olaylar kur; orası senin "
+"hayal gücüne kalmış! Eğer oylama masalı oluşturuyorsan, bölüm için 'oylama "
+"bitiş tarihi' belirlemeyi unutma. Bu oylamanın bitip hikayenin ilerleyeceği "
+"tarihi gösterir."
+
+#: Teller/templates/Teller/about.html:122
+msgid "Let users make choices"
+msgstr "Okurlar seçim yapsın"
+
+#: Teller/templates/Teller/about.html:129
+msgid ""
+"\n"
+"                    Tale links bind parts together. They are the choices "
+"that readers will make. Let them\n"
+"                    choose between giving money away vs. saving it; going "
+"through dark corridors vs. facing the\n"
+"                    known enemy; sacrificing wealth vs. health; sparing a "
+"life vs. killing a bug... Divaricate\n"
+"                    the story as much as you want and give the readers a "
+"thrilling experience.\n"
+"                "
+msgstr ""
+"\n"
+"Masal bağları bölümleri birleştirir. Bunlar, okurların yapacağı seçimlerdir. "
+"'Parayı çarçur mu etmeliyim, yoksa yatırım mı yapmalıyım? Karanlık "
+"koridorlardan mı geçmeliyim, yoksa bilindik düşmanlarla mı karşılaşmalıyım? "
+"Sağlığı mı yoksa zenginliği mi feda etmeliyim? Hayat mı kurtarmalıyım, yoksa "
+"bir böceği öldürmeli miyim?' Bırak okur seçimlerine katlansın. Sen hikayeyi "
+"istediğin gibi dallandır ve heyecanlı bir deneyim oluştur."
+
+#: Teller/templates/Teller/about.html:140
+msgid "Explore"
+msgstr "Keşfet"
+
+#: Teller/templates/Teller/about.html:143
+msgid ""
+"\n"
+"                    You can also read others' stories, follow users and see "
+"their tales, search the tale for your\n"
+"                    liking, give rating to the tales you read to guide other "
+"users. Just choose your path to\n"
+"                    start your brave adventure!\n"
+"                "
+msgstr ""
+"\n"
+"Tüm bunların yanında, diğer kullanıcıların masallarını okuyabilir, "
+"kullanıcıları takip edip yazdıklarına göz atabilir, beğenine uygun masalı "
+"arayabilir, masalları oylayıp diğer kullanıcılara yol gösterebilirsin. "
+"Sadece bu cesur maceradaki ilk adımını seçmen yeterli!"
+
+#: Teller/templates/Teller/about.html:153
+msgid "Write a Tale"
+msgstr "Bir masal yaz"
+
+#: Teller/templates/Teller/about.html:154
+msgid "Read a Tale"
+msgstr "Bir masal oku"
+
+#: Teller/templates/Teller/error.html:3 Teller/templates/Teller/test.html:4
+#: Teller/views/user.py:46 Teller/views/user.py:68
+msgid "An error occured"
+msgstr "Bir hata oluştu"
+
+#: Teller/templates/Teller/error.html:7
+msgid "Error"
+msgstr "Hata"
+
+#: Teller/templates/Teller/error.html:9
+msgid "Go back"
+msgstr "Geri git"
+
+#: Teller/templates/Teller/index.html:3
+msgid "Index"
+msgstr "Anasayfa"
+
+#: Teller/templates/Teller/index.html:8
+msgid "Welcome to the Tale House!"
+msgstr "Tale House'a hoşgeldin!"
+
+#: Teller/templates/Teller/index.html:10
+msgid ""
+"Write your interactive stories. Create your world and let people experience "
+"it."
+msgstr ""
+"İnteraktif hikayeler yaz. Kendi dünyanı yarat ve diğer insanlarla buluştur."
+
+#: Teller/templates/Teller/index.html:13
+msgid "Learn more"
+msgstr "Daha fazlasını öğren"
+
+#: Teller/templates/Teller/index.html:21
+msgid "Recent Best Rated"
+msgstr "Yeni En İyi Puan"
+
+#: Teller/templates/Teller/index.html:29 Teller/templates/Teller/index.html:40
+#: Teller/templates/Teller/index.html:54
+msgid "Read Now"
+msgstr "Şimdi Oku"
+
+#: Teller/templates/Teller/index.html:32
+msgid "Freshly Written"
+msgstr "Taze Yazılmış"
+
+#: Teller/templates/Teller/index.html:43
+msgid "Nearest Poll Time"
+msgstr "En Yakın Oy Bitimi"
+
+#: Teller/templates/Teller/index.html:45
+msgid "No polls to resolve in future"
+msgstr "Gelecekte oy bitimi görünmüyor"
+
+#: Teller/templates/Teller/index.html:47
+msgid "Write Your Own"
+msgstr "Kendin Yaz"
+
+#: Teller/templates/Teller/tale_add_link.html:4
+#: Teller/templates/Teller/tale_add_link.html:8
+msgid "Add Tale Link"
+msgstr "Masal Bağı Ekle"
+
+#: Teller/templates/Teller/tale_add_link.html:36
+msgid "Create Tale Link"
+msgstr "Masal Bağı Yarat"
+
+#: Teller/templates/Teller/tale_add_link.html:38
+#: Teller/templates/Teller/tale_add_part.html:57
+#: Teller/templates/Teller/tale_details.html:65
+#: Teller/templates/Teller/tale_edit_link.html:38
+#: Teller/templates/Teller/tale_edit_part.html:57
+msgid "Tale Graph"
+msgstr "Masal Diyagramı"
+
+#: Teller/templates/Teller/tale_add_part.html:4
+msgid "Write Tale Part"
+msgstr "Masal Bölümü Yaz"
+
+#: Teller/templates/Teller/tale_details.html:8
+#: Teller/templates/Teller/tale_list.html:16
+#: Teller/templates/Teller/tale_list.html:36
+#: Teller/templates/Teller/tale_read.html:4
+#: Teller/templates/Teller/tale_search.html:38
+#: Teller/templates/Teller/tale_search.html:48
+#: Teller/templates/Teller/user_profile.html:24
+#: Teller/templates/Teller/user_profile.html:33
+msgid "Read"
+msgstr "Oku"
+
+#: Teller/templates/Teller/tale_details.html:12
+msgid "Tale Parts"
+msgstr "Masal Bölümleri"
+
+#: Teller/templates/Teller/tale_details.html:15
+msgid "Part Name"
+msgstr "Bölüm Adı"
+
+#: Teller/templates/Teller/tale_details.html:16
+msgid "Is Start?"
+msgstr "Başlangıç mı?"
+
+#: Teller/templates/Teller/tale_details.html:17
+msgid "Is Enabled?"
+msgstr "Aktif mi?"
+
+#: Teller/templates/Teller/tale_details.html:18
+#: Teller/templates/Teller/tale_details.html:27
+#: Teller/templates/Teller/tale_details.html:47
+#: Teller/templates/Teller/tale_details.html:56
+msgid "Edit"
+msgstr "Düzenle"
+
+#: Teller/templates/Teller/tale_details.html:19
+#: Teller/templates/Teller/tale_details.html:33
+#: Teller/templates/Teller/tale_details.html:48
+#: Teller/templates/Teller/tale_details.html:58
+#: Teller/templates/Teller/tale_list.html:18
+#: Teller/templates/Teller/tale_list.html:40
+msgid "Delete"
+msgstr "Sil"
+
+#: Teller/templates/Teller/tale_details.html:39
+msgid "Add New Part"
+msgstr "Yeni Bölüm Ekle"
+
+#: Teller/templates/Teller/tale_details.html:41
+msgid "Tale Links"
+msgstr "Masal Bağları"
+
+#: Teller/templates/Teller/tale_details.html:44
+msgid "Link Action"
+msgstr "Bağ Aksiyonu"
+
+#: Teller/templates/Teller/tale_details.html:63
+msgid "Add New Link"
+msgstr "Yeni Bağ Ekle"
+
+#: Teller/templates/Teller/tale_edit_link.html:4
+#: Teller/templates/Teller/tale_edit_link.html:8
+#: Teller/templates/Teller/tale_edit_link.html:36
+msgid "Edit Tale Link"
+msgstr "Masal Bağını Düzenle"
+
+#: Teller/templates/Teller/tale_edit_part.html:4
+#: Teller/templates/Teller/tale_edit_part.html:10
+#: Teller/templates/Teller/tale_edit_part.html:54
+msgid "Edit Tale Part"
+msgstr "Masal Bölümünü Düzenle"
+
+#: Teller/templates/Teller/tale_list.html:3
+msgid "Tale List"
+msgstr "Masal Listesi"
+
+#: Teller/templates/Teller/tale_list.html:12
+msgid "Is a Poll Tale?"
+msgstr "Oylama Masalı mı?"
+
+#: Teller/templates/Teller/tale_list.html:14
+#: Teller/templates/Teller/tale_search.html:37
+#: Teller/templates/Teller/user_profile.html:23
+msgid "Rating"
+msgstr "Puan"
+
+#: Teller/templates/Teller/tale_list.html:15
+#: Teller/templates/Teller/tale_list.html:29
+msgid "Publish"
+msgstr "Yayınla"
+
+#: Teller/templates/Teller/tale_list.html:17
+#: Teller/templates/Teller/tale_list.html:38
+msgid "Details"
+msgstr "Detaylar"
+
+#: Teller/templates/Teller/tale_list.html:32
+msgid "Published"
+msgstr "Yayınlandı"
+
+#: Teller/templates/Teller/tale_list.html:45
+msgid "Create New Tale"
+msgstr "Yeni Masal Yarat"
+
+#: Teller/templates/Teller/tale_read.html:10
+msgid "Reset Progress"
+msgstr "Başa Sar"
+
+#: Teller/templates/Teller/tale_read.html:15
+msgid "Page"
+msgstr "Sayfa"
+
+#: Teller/templates/Teller/tale_read.html:15
+msgid "Go to last page"
+msgstr "Son sayfaya git"
+
+#: Teller/templates/Teller/tale_read.html:22
+msgid "Tale cannot progress"
+msgstr "Masal ilerleyemiyor"
+
+#: Teller/templates/Teller/tale_read.html:85
+#, python-format
+msgid ""
+"\n"
+"                            The tale will progress when the poll ends at "
+"%(date)s\n"
+"                        "
+msgstr ""
+"\n"
+"Masal %(date)s tarihinde oy bittiğinde ilerleyecek"
+
+#: Teller/templates/Teller/tale_read.html:90
+msgid "The End."
+msgstr "Son."
+
+#: Teller/templates/Teller/tale_read.html:97
+#: Teller/templates/Teller/tale_search.html:57
+#: Teller/templates/Teller/user_list.html:39
+msgid "Previous"
+msgstr "Önceki"
+
+#: Teller/templates/Teller/tale_read.html:98
+#: Teller/templates/Teller/tale_search.html:64
+#: Teller/templates/Teller/user_list.html:44
+msgid "Next"
+msgstr "Sonraki"
+
+#: Teller/templates/Teller/tale_search.html:4
+#: Teller/templates/Teller/tale_search.html:8
+msgid "Search Tale"
+msgstr "Masal Ara"
+
+#: Teller/templates/Teller/tale_search.html:28
+#: Teller/templates/Teller/user_list.html:15
+msgid "Search"
+msgstr "Ara"
+
+#: Teller/templates/Teller/tale_search.html:34
+msgid "Writer"
+msgstr "Yazar"
+
+#: Teller/templates/Teller/tale_search.html:35
+#: Teller/templates/Teller/user_profile.html:21
+msgid "Is Poll Tale?"
+msgstr "Oylama Masalı Mı?"
+
+#: Teller/templates/Teller/test.html:8
+msgid "Test"
+msgstr "Test"
+
+#: Teller/templates/Teller/user_list.html:5
+#: Teller/templates/Teller/user_list.html:9
+msgid "Search User"
+msgstr "Kullanıcı Ara"
+
+#: Teller/templates/Teller/user_list.html:21
+#: Teller/templatetags/teller_tags.py:29
+msgid "Follow"
+msgstr "Takip et"
+
+#: Teller/templates/Teller/user_profile.html:5
+#: Teller/templates/Teller/user_profile.html:11
+msgid "'s Profile"
+msgstr "'in Profili"
+
+#: Teller/templates/Teller/user_profile.html:17
+msgid "'s Published Tales"
+msgstr "'in Yayınlanmış Masalları"
+
+#: Teller/templatetags/teller_tags.py:24
+msgid "Unfollow"
+msgstr "Takibi bırak"
+
+#: Teller/views/index.py:27 Teller/views/index.py:34
+msgid "No content yet..."
+msgstr "Daha içerik yok..."
+
+#: Teller/views/tale.py:42 Teller/views/tale.py:69
+msgid "Tale does not have a starting part"
+msgstr "Masalın başlangıç bölümü yok"
+
+#: Teller/views/tale.py:46 Teller/views/tale.py:73
+msgid "This tale part is not activated yet"
+msgstr "Bu masal bölümü daha aktifleştirilmemiş"
+
+#: Teller/views/tale.py:49 Teller/views/tale.py:76
+msgid "Tale part does not have any links"
+msgstr "Masal bölümünün hiç bağı yok"
+
+#: Teller/views/tale.py:58 Teller/views/tale.py:91
+msgid "Unknown error"
+msgstr "Bilinmeyen hata"
+
+#: Teller/views/tale.py:103 Teller/views/tale.py:119 Teller/views/tale.py:144
+#: Teller/views/tale.py:160 Teller/views/tale.py:235 Teller/views/tale.py:247
+#: Teller/views/tale.py:338 Teller/views/tale.py:352 Teller/views/tale.py:376
+#: Teller/views/tale.py:390
+msgid "Tale not found"
+msgstr "Masal bulunamadı"
+
+#: Teller/views/tale.py:123 Teller/views/tale.py:193 Teller/views/tale.py:217
+msgid "Tale link not found"
+msgstr "Masal bağı bulunamadı"
+
+#: Teller/views/tale.py:127 Teller/views/tale.py:271 Teller/views/tale.py:296
+msgid "Tale part not found"
+msgstr "Masal bölümü bulunamadı"
+
+#: Teller/views/tale.py:129
+msgid "You have already selected a link for this part"
+msgstr "Bu bölüm için zaten bir aksiyon seçtiniz"
+
+#: Teller/views/tale.py:131
+msgid "You cannot vote for this link at this time"
+msgstr "Bu link için oy veremezsin"
+
+#: Teller/views/tale.py:147
+msgid "Poll tale votes cannot be revoked"
+msgstr "Oylama masalı oyları geri alınamaz"
+
+#: Teller/views/tale.py:172
+msgid "Tale link could not be created"
+msgstr "Masal bağı oluşturulamadı"
+
+#: Teller/views/tale.py:176
+msgid "Links should not create cycles in the tale"
+msgstr "Bağlar masalda döngü oluşturmamalıdır"
+
+#: Teller/views/tale.py:219
+msgid "Poll tale link is voted and cannot be deleted"
+msgstr "Masal linkine oy verilmiş, bu yüzden silinemez"
+
+#: Teller/views/tale.py:255
+msgid "Tale part could not be created"
+msgstr "Masal bölümü yaratılamadı"
+
+#: Teller/views/tale.py:298
+msgid "Starting parts should not be deleted"
+msgstr "Başlangıç bölümleri silinmemelidir"
+
+#: Teller/views/tale.py:300
+msgid "Links of the tale part should be deleted first"
+msgstr "Önce bölümün bağları silinmelidir"
+
+#: Teller/views/tale.py:323
+msgid "Tale could not be created"
+msgstr "Masal oluşturulamadı"
+
+#: Teller/views/tale.py:392
+msgid "You cannot rate your own tale"
+msgstr "Kendi masalına puan veremezsin"
+
+#: Teller/views/tale.py:394
+msgid "You have already rated this tale"
+msgstr "Bu masala zaten puan verdin"
+
+#: Teller/views/tale.py:396
+msgid "Invalid rate amount"
+msgstr "Geçersiz puan miktarı"
+
+#: Teller/views/tale.py:399
+msgid "Rating could not be created"
+msgstr "Puan verilemedi"
+
+#: Teller/views/tale.py:432
+msgid "You do not follow any users"
+msgstr "Takip ettiğin kullanıcı yok"
+
+#: Teller/views/user.py:50 Teller/views/user.py:113
+msgid "User not found"
+msgstr "Kullanıcı bulunamadı"
+
+#: Teller/views/user.py:57 Teller/views/user.py:79
+msgid "Already registered user"
+msgstr "Kullanıcı zaten kayıt olmuş"
+
+#: Teller/views/user.py:91
+msgid "User is disabled"
+msgstr "Kullanıcı aktif değil"
+
+#: Teller/views/user.py:93
+msgid "Username or password is wrong"
+msgstr "Kullanıcı adı veya şifre yanlış"
+
+#: Teller/views/user.py:94
+msgid "Invalid request"
+msgstr "Geçersiz istek"
+
+#: Teller/views/user.py:109
+msgid "That makes no sense"
+msgstr "Bu mantıksız bir işlem"
+
+#~ msgid "Not registered user"
+#~ msgstr "Üyelik gerekmektedir"

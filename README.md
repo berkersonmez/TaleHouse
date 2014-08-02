@@ -6,6 +6,10 @@ A django website with interactive stories.
 Todo
 ----
 * Share tale (on Facebook etc.)
+* Number of users who selected a link in tale details
+
+Done
+----
 * Localization (Turkish)
 * Main page
     * Our picks
@@ -13,9 +17,6 @@ Todo
     * Most read
     * Site explanation
 * About page
-
-Done
-----
 * User profile page (basic)
     * User's tales
 * Following users (simplex)

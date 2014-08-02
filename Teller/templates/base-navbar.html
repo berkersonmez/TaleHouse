@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 {% load widget_tweaks %}
 {% block navbar %}
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -14,10 +15,24 @@
                 <a class="navbar-brand" href="{% url 'index' %}">Tale House</a>
             </div>
             <div class="navbar-collapse collapse">
+                <form name="set-language" action="{% url 'set_language' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="language" value="en"/>
+                </form>
                 {% if profile %}
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                {{ LANGUAGE_CODE }}
+                                <span
+                                        class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" id="lang-en">{% trans 'English' %} (en)</a></li>
+                                <li><a href="#" id="lang-tr">{% trans 'Turkish' %} (tr)</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
                                     class="glyphicon glyphicon-pencil"></span> <span
                                     class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
@@ -53,7 +68,6 @@
                                 <li><a href="{% url 'user_logout' %}">{% trans 'Log out' %}</a></li>
                             </ul>
                         </li>
-                        </li>
                     </ul>
                 {% else %}
                     <form class="navbar-form navbar-right" action="{% url 'user_login' %}" role="form" method="post">
@@ -64,11 +78,39 @@
                         <div class="form-group">
                             {% render_field user_login_form.password class="form-control" placeholder=user_login_form.password.label %}
                         </div>
-                        <button type="submit" class="btn btn-success">Sign in</button>
+                        <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
+                        <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
                     </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                {{ LANGUAGE_CODE }}
+                                <span
+                                        class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#" id="lang-en">{% trans 'English' %} (en)</a></li>
+                                <li><a href="#" id="lang-tr">{% trans 'Turkish' %} (tr)</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 {% endif %}
             </div>
             <!--/.navbar-collapse -->
         </div>
     </div>
+{% endblock %}
+
+{% block navbarscript %}
+    <script language="javascript">
+        $(document).ready(function () {
+            $('#lang-en').click(function () {
+                $("form[name='set-language'] > input[name='language']").val("en");
+                $("form[name='set-language']").submit();
+            });
+            $('#lang-tr').click(function () {
+                $("form[name='set-language'] > input[name='language']").val("tr");
+                $("form[name='set-language']").submit();
+            });
+        });
+    </script>
 {% endblock %}

@@ -93,12 +93,12 @@ def get_last_part_poll(tale, user, page_no):
 
 def tale_read(request, tale_slug, page_no=-1):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(slug=tale_slug)
     except Tale.DoesNotExist:
-        return redirect('error_info', _('Tale not found'))
+        return redirect('user_add')
     if tale.user != profile and not tale.is_published:
         return redirect('error_info', _('Tale not found'))
     if tale.is_poll_tale:
@@ -111,7 +111,7 @@ def tale_read(request, tale_slug, page_no=-1):
 
 def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(slug=tale_slug)
@@ -136,7 +136,7 @@ def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
 
 def tale_reset(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(slug=tale_slug)
@@ -152,7 +152,7 @@ def tale_reset(request, tale_slug):
 
 def tale_add_link(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, slug=tale_slug)
@@ -185,7 +185,7 @@ def tale_add_link(request, tale_slug):
 
 def tale_edit_link(request, tale_link_id):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
@@ -209,7 +209,7 @@ def tale_edit_link(request, tale_link_id):
 
 def tale_delete_link(request, tale_link_id):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
@@ -224,7 +224,7 @@ def tale_delete_link(request, tale_link_id):
 
 def tale_add_part(request, tale_slug=0):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
 
     tale = None
@@ -263,7 +263,7 @@ def tale_add_part(request, tale_slug=0):
 
 def tale_edit_part(request, tale_part_id):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
@@ -288,7 +288,7 @@ def tale_edit_part(request, tale_part_id):
 
 def tale_delete_part(request, tale_part_id):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
@@ -305,7 +305,7 @@ def tale_delete_part(request, tale_part_id):
 
 def tale_add(request):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     if request.method == 'POST':
         form = TaleAddForm(request.POST)
@@ -330,7 +330,7 @@ def tale_add(request):
 
 def tale_delete(request, tale_id):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(id=tale_id, user=profile)
@@ -344,7 +344,7 @@ def tale_delete(request, tale_id):
 
 def tale_details(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, slug=tale_slug)
@@ -359,7 +359,7 @@ def tale_details(request, tale_slug):
 
 def tale_list(request):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     list_of_tales = Tale.objects.filter(user=profile)
     context = {'tale_list': list_of_tales}
@@ -368,7 +368,7 @@ def tale_list(request):
 
 def tale_publish(request, tale_id):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, id=tale_id)
@@ -382,7 +382,7 @@ def tale_publish(request, tale_id):
 
 def tale_rate(request, tale_id, rate_amount):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(id=tale_id, is_published=True)
@@ -406,7 +406,7 @@ def tale_rate(request, tale_id, rate_amount):
 
 def tale_search(request):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     page_no = 1
     tale_name = ''

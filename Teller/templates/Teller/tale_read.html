@@ -12,8 +12,9 @@
             </h2>
             <p>
                 <small>
-                    {% trans 'Page' %}: {{ result.page }} - <a href="{% url 'tale_read' tale.slug -1 %}">Go to last
-                    page</a>
+                    {% trans 'Page' %}: {{ result.page }} - <a
+                        href="{% url 'tale_read' tale.slug -1 %}">{% trans 'Go to last page' %}
+                </a>
                 </small>
             </p>
             {% if result.status == status_enum.ERROR %}

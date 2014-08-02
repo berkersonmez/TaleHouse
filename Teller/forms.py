@@ -3,6 +3,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.utils.translation import ugettext_lazy
 from django.utils.translation import ugettext as _
 from ckeditor.widgets import CKEditorWidget
 from django.core import validators
@@ -12,26 +13,26 @@ from django.db.models import Q
 
 
 class UserLoginForm(forms.Form):
-    username = forms.CharField(label=_('Username'))
-    password = forms.CharField(widget=forms.PasswordInput(), label=_('Password'))
+    username = forms.CharField(label=ugettext_lazy('Username'))
+    password = forms.CharField(widget=forms.PasswordInput(), label=ugettext_lazy('Password'))
 
 
 class UserSearchForm(forms.Form):
-    username = forms.CharField(label=_('Username'))
+    username = forms.CharField(label=ugettext_lazy('Username'))
 
 
 class UserAddForm(forms.Form):
-    username = forms.CharField(label=_('Username'),
+    username = forms.CharField(label=ugettext_lazy('Username'),
                                validators=[
                                    validators.MinLengthValidator(3),
                                    validators.MaxLengthValidator(20)
                                ])
     password = forms.CharField(widget=forms.PasswordInput(),
-                               label=_('Password'),
+                               label=ugettext_lazy('Password'),
                                validators=[
                                    validators.MinLengthValidator(6)
                                ])
-    email = forms.EmailField(label=_('E-mail'))
+    email = forms.EmailField(label=ugettext_lazy('E-mail'))
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
@@ -48,48 +49,57 @@ class UserAddForm(forms.Form):
 
 class TaleSearchForm(forms.Form):
     TYPE_CHOICES = (
-        ('all', _('Search all types')),
-        ('normal', _('Search normal tales')),
-        ('poll', _('Search poll tales'))
+        ('all', ugettext_lazy('Search all types')),
+        ('normal', ugettext_lazy('Search normal tales')),
+        ('poll', ugettext_lazy('Search poll tales'))
     )
     ORDER_BY_CHOICES = (
-        ('rating', _('Order by rating')),
-        ('name', _('Order by name')),
-        ('date', _('Order by date'))
+        ('rating', ugettext_lazy('Order by rating')),
+        ('name', ugettext_lazy('Order by name')),
+        ('date', ugettext_lazy('Order by date'))
     )
     LANGUAGE_CHOICES = (
-        ('all', _('Search all languages')),
-        ('enUS', _('English tales')),
-        ('tr', _('Turkish tales'))
+        ('all', ugettext_lazy('Search all languages')),
+        ('enUS', ugettext_lazy('English tales')),
+        ('tr', ugettext_lazy('Turkish tales'))
     )
-    tale_name = forms.CharField(label=_('Tale name'), required=False)
-    followed_user_tales = forms.BooleanField(label=_('Followed users only'), required=False)
-    type = forms.ChoiceField(label=_('Tale type'), choices=TYPE_CHOICES, initial=TYPE_CHOICES[0][0], required=True)
-    order_by = forms.ChoiceField(label=_('Order by'), choices=ORDER_BY_CHOICES, initial=ORDER_BY_CHOICES[0][0],
+    tale_name = forms.CharField(label=ugettext_lazy('Tale name'), required=False)
+    followed_user_tales = forms.BooleanField(label=ugettext_lazy('Followed users only'), required=False)
+    type = forms.ChoiceField(label=ugettext_lazy('Tale type'), choices=TYPE_CHOICES, initial=TYPE_CHOICES[0][0],
+                             required=True)
+    order_by = forms.ChoiceField(label=ugettext_lazy('Order by'), choices=ORDER_BY_CHOICES,
+                                 initial=ORDER_BY_CHOICES[0][0],
                                  required=True)
-    language = forms.ChoiceField(label=_('Language'), choices=LANGUAGE_CHOICES, initial=LANGUAGE_CHOICES[0][0],
+    language = forms.ChoiceField(label=ugettext_lazy('Language'), choices=LANGUAGE_CHOICES,
+                                 initial=LANGUAGE_CHOICES[0][0],
                                  required=True)
 
 
 class TalePartForm(forms.Form):
     tale = forms.ModelChoiceField(queryset=Tale.objects.all(), required=True, to_field_name='slug',
-                                  help_text=_('Tales consist of tale parts. Select a tale to add this tale part to.'))
-    name = forms.CharField(label=_('Name'),
-                           help_text=_('Give a name to the tale part to recognize it easily. It will not be shown to '
+                                  help_text=ugettext_lazy(
+                                      'Tales consist of tale parts. Select a tale to add this tale part to.'))
+    name = forms.CharField(label=ugettext_lazy('Name'),
+                           help_text=ugettext_lazy(
+                               'Give a name to the tale part to recognize it easily. It will not be shown to '
                                        'the readers automatically.'))
-    content = forms.CharField(widget=CKEditorWidget(), label=_('Content'),
-                              help_text=_('Write the content of the tale part. Advance the story and prepare for the '
+    content = forms.CharField(widget=CKEditorWidget(), label=ugettext_lazy('Content'),
+                              help_text=ugettext_lazy(
+                                  'Write the content of the tale part. Advance the story and prepare for the '
                                           'events that will lead to the next parts.'))
-    is_active = forms.BooleanField(label=_('Is active?'), required=False, initial=True,
-                                   help_text=_('If a tale part is not active, the story will not progress at'
+    is_active = forms.BooleanField(label=ugettext_lazy('Is active?'), required=False, initial=True,
+                                   help_text=ugettext_lazy(
+                                       'If a tale part is not active, the story will not progress at'
                                                ' that part. Use this to complete unfinished parts while not blocking'
                                                ' the whole story.'))
     poll_end_date = forms.DateTimeField(
+        label=ugettext_lazy('Poll end date'),
         required=False,
         widget=DateTimePicker(
             options={"format": "YYYY-MM-DD HH:mm", "pickSeconds": False}
         ),
-        help_text=_('Only applicible to poll tales. Poll tale parts stay open for community votes until poll end date. '
+        help_text=ugettext_lazy(
+            'Only applicible to poll tales. Poll tale parts stay open for community votes until poll end date. '
                     'After that time, the story will advance according to the mostly voted part.')
     )
 
@@ -138,16 +148,19 @@ class TaleEditPartForm(TalePartForm):
 
 
 class TaleAddForm(forms.Form):
-    name = forms.CharField(label=_('Tale Name'),
+    name = forms.CharField(label=ugettext_lazy('Tale Name'),
                            validators=[
                                validators.MinLengthValidator(3),
                                validators.MaxLengthValidator(200)
                            ],
-                           help_text=_('Give a unique name to your tale. For example: Little Red Riding Hood.'))
-    language = forms.ModelChoiceField(queryset=Language.objects.all(), required=True,
-                                      help_text=_('Select the language of the tale for categorization purposes.'))
-    is_poll_tale = forms.BooleanField(initial=False, required=False,
-                                      help_text=_('Poll tales advance at designated times according to community votes.'
+                           help_text=ugettext_lazy(
+                               'Give a unique name to your tale. For example: Little Red Riding Hood.'))
+    language = forms.ModelChoiceField(label=ugettext_lazy('Language'), queryset=Language.objects.all(), required=True,
+                                      help_text=ugettext_lazy(
+                                          'Select the language of the tale for categorization purposes.'))
+    is_poll_tale = forms.BooleanField(label=ugettext_lazy('Is poll tale?'), initial=False, required=False,
+                                      help_text=ugettext_lazy(
+                                          'Poll tales advance at designated times according to community votes.'
                                                   'Non-poll tales are individual and unique for every reader.'))
 
     def clean_name(self):
@@ -159,18 +172,20 @@ class TaleAddForm(forms.Form):
 
 
 class TaleLinkAddForm(forms.Form):
-    action = forms.CharField(label=_('Action Name'),
+    action = forms.CharField(label=ugettext_lazy('Action Name'),
                              validators=[
                                  validators.MinLengthValidator(3),
                                  validators.MaxLengthValidator(200)
                              ],
-                             help_text=_('Action name will be shown to the user to let them select as their choice.'
+                             help_text=ugettext_lazy(
+                                 'Action name will be shown to the user to let them select as their choice.'
                                          'According to selected actions, story will advance'))
-    source = forms.ModelChoiceField(queryset=TalePart.objects.all(), required=True,
-                                    help_text=_('When this action is selected, the story will depart '
+    source = forms.ModelChoiceField(label=ugettext_lazy('Source'), queryset=TalePart.objects.all(), required=True,
+                                    help_text=ugettext_lazy('When this action is selected, the story will depart '
                                                 'from the source part.'))
-    destination = forms.ModelChoiceField(queryset=TalePart.objects.all(), required=True,
-                                         help_text=_('When this action is selected, the story will arrive '
+    destination = forms.ModelChoiceField(label=ugettext_lazy('Destination'), queryset=TalePart.objects.all(),
+                                         required=True,
+                                         help_text=ugettext_lazy('When this action is selected, the story will arrive '
                                                      'to the destination part.'))
 
     def __init__(self, tale=None, *args, **kwargs):

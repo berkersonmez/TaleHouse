@@ -1,10 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 
 from Teller import views
 
 urlpatterns = patterns('',
                        url(r'^$', views.index, name='index'),
                        url(r'^about$', views.index_about, name='about'),
+                       url(r'^i18n/', include('django.conf.urls.i18n'), name='i18n'),
+                       url(r'^lang/(?P<lang_name>[\w-]+)$', views.tale_reset, name='tale_reset'),
                        url(r'^user/add/$', views.user_add, name='user_add'),
                        url(r'^user/login/$', views.user_login, name='user_login'),
                        url(r'^user/logout/$', views.user_logout, name='user_logout'),

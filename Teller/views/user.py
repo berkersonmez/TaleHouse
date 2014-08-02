@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 
 def user_list(request):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     page_no = 1
     username = ''
     if request.method == 'GET':
@@ -41,7 +41,7 @@ def user_list(request):
 
 def user_profile(request, user_username):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     if user_username is None:
         return redirect('error_info', _('An error occured'))
     try:
@@ -96,14 +96,14 @@ def user_login(request):
 
 def user_logout(request):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     logout(request)
     return redirect('index')
 
 
 def user_follow(request, target_username):
     if not request.user.is_authenticated():
-        return redirect('error_info', _('Not registered user'))
+        return redirect('user_add')
     profile = Profile.objects.get(user__id=request.user.id)
     if profile.user.username == target_username:
         return redirect('error_info', _('That makes no sense'))

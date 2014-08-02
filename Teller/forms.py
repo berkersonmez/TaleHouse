@@ -72,15 +72,25 @@ class TaleSearchForm(forms.Form):
 
 
 class TalePartForm(forms.Form):
-    tale = forms.ModelChoiceField(queryset=Tale.objects.all(), required=True, to_field_name='slug')
-    name = forms.CharField(label=_('Name'))
-    content = forms.CharField(widget=CKEditorWidget(), label=_('Content'))
-    is_active = forms.BooleanField(label=_('Is active?'), required=False, initial=True)
+    tale = forms.ModelChoiceField(queryset=Tale.objects.all(), required=True, to_field_name='slug',
+                                  help_text=_('Tales consist of tale parts. Select a tale to add this tale part to.'))
+    name = forms.CharField(label=_('Name'),
+                           help_text=_('Give a name to the tale part to recognize it easily. It will not be shown to '
+                                       'the readers automatically.'))
+    content = forms.CharField(widget=CKEditorWidget(), label=_('Content'),
+                              help_text=_('Write the content of the tale part. Advance the story and prepare for the '
+                                          'events that will lead to the next parts.'))
+    is_active = forms.BooleanField(label=_('Is active?'), required=False, initial=True,
+                                   help_text=_('If a tale part is not active, the story will not progress at'
+                                               ' that part. Use this to complete unfinished parts while not blocking'
+                                               ' the whole story.'))
     poll_end_date = forms.DateTimeField(
         required=False,
         widget=DateTimePicker(
             options={"format": "YYYY-MM-DD HH:mm", "pickSeconds": False}
-        )
+        ),
+        help_text=_('Only applicible to poll tales. Poll tale parts stay open for community votes until poll end date. '
+                    'After that time, the story will advance according to the mostly voted part.')
     )
 
     def __init__(self, user=None, tale=None, *args, **kwargs):
@@ -132,9 +142,13 @@ class TaleAddForm(forms.Form):
                            validators=[
                                validators.MinLengthValidator(3),
                                validators.MaxLengthValidator(200)
-                           ])
-    language = forms.ModelChoiceField(queryset=Language.objects.all(), required=True)
-    is_poll_tale = forms.BooleanField(initial=False, required=False)
+                           ],
+                           help_text=_('Give a unique name to your tale. For example: Little Red Riding Hood.'))
+    language = forms.ModelChoiceField(queryset=Language.objects.all(), required=True,
+                                      help_text=_('Select the language of the tale for categorization purposes.'))
+    is_poll_tale = forms.BooleanField(initial=False, required=False,
+                                      help_text=_('Poll tales advance at designated times according to community votes.'
+                                                  'Non-poll tales are individual and unique for every reader.'))
 
     def clean_name(self):
         name = self.cleaned_data.get("name")
@@ -149,9 +163,15 @@ class TaleLinkAddForm(forms.Form):
                              validators=[
                                  validators.MinLengthValidator(3),
                                  validators.MaxLengthValidator(200)
-                             ])
-    source = forms.ModelChoiceField(queryset=TalePart.objects.all(), required=True)
-    destination = forms.ModelChoiceField(queryset=TalePart.objects.all(), required=True)
+                             ],
+                             help_text=_('Action name will be shown to the user to let them select as their choice.'
+                                         'According to selected actions, story will advance'))
+    source = forms.ModelChoiceField(queryset=TalePart.objects.all(), required=True,
+                                    help_text=_('When this action is selected, the story will depart '
+                                                'from the source part.'))
+    destination = forms.ModelChoiceField(queryset=TalePart.objects.all(), required=True,
+                                         help_text=_('When this action is selected, the story will arrive '
+                                                     'to the destination part.'))
 
     def __init__(self, tale=None, *args, **kwargs):
         super(TaleLinkAddForm, self).__init__(*args, **kwargs)

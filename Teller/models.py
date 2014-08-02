@@ -3,6 +3,7 @@ from ckeditor.fields import RichTextField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from decimal import *
+import datetime
 
 
 class Profile(models.Model):
@@ -68,6 +69,7 @@ class Rating(models.Model):
     user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='ratings')
     tale = models.ForeignKey(Tale, verbose_name=_('tale'), related_name='ratings')
     rating = models.DecimalField(_('rating'), decimal_places=1, max_digits=2, default=Decimal(0))
+    created_at = models.DateTimeField(_('creation date'), auto_now_add=True, default=datetime.datetime.now())
 
     def __unicode__(self):
         return u"%d" % self.rating

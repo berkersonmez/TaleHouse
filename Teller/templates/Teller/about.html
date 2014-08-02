@@ -1,0 +1,157 @@
+{% extends "base-navbar.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block title %}{% trans 'About Tale House' %}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans 'What is Tale House?' %}</h1>
+
+            <h2>{% trans 'Read interactive stories or write your own' %}</h2>
+
+            <p>
+                {% blocktrans %}
+                    Tale House is an online tool that lets you read fun interactive tales and stories.
+                    Everything in Tale House is about having fun with make-your-own stories. Select your path throughout
+                    the fables to have your unique experience. Better yet, you can make your dreams come true
+                    and write your own interactive stories with Tale House's easy-to-use interface.
+                {% endblocktrans %}
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h2>{% trans 'Clean reading interface' %}</h2>
+
+            <p>
+                <img class="img-responsive slight-border" src="{% static "Teller/img/t1.png" %}"/>
+            </p>
+
+            <p>
+                {% blocktrans %}
+                    Tale House presents stories in a clean and tidy way. Reading does not hurt your eyes.
+                    Compliance of background and foreground is designated according to provide the best
+                    experience to the readers. Reading in Tale House is just comfortable as reading a book from its
+                    paper print. Basic interface does not go in your way or interrupt your attention.
+                {% endblocktrans %}
+            </p>
+        </div>
+        <div class="col-md-4">
+            <h2>{% trans 'Visual Tale Representation' %}</h2>
+
+            <p>
+                <img class="img-responsive slight-border" src="{% static "Teller/img/t2.png" %}"/>
+            </p>
+
+            <p>
+                {% blocktrans %}
+                    You can write your dream tale with the easy and innovative interface. Tale House aims to
+                    give a good representation of the tale links and paths. This makes it possible to design
+                    the tale on the go and come up with new ideas. The interface is designed to be light as well
+                    as comprehensive. With the aim of offering both simplicity and good usability,
+                    Tale House provides you with a great interactive story making tool.
+                {% endblocktrans %}
+            </p>
+        </div>
+        <div class="col-md-4">
+            <h2>{% trans 'Mobile Ready' %}</h2>
+
+            <p>
+                <img class="img-responsive slight-border" src="{% static "Teller/img/t3.png" %}"/>
+            </p>
+
+            <p>
+                {% blocktrans %}
+                    Tale House is ready for mobile use, thanks to its responsive design. You can read stories
+                    on the go using your smart phone or tablet. All functionality of the tool is open to access
+                    with mobile devices. iOS, Android, Windows Phone and Blackberry are all supported.
+                {% endblocktrans %}
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Tale House is open source' %}</h2>
+
+            <p>
+                {% blocktrans with link='<a href="https://github.com/berkersonmez/TaleHouse" target="_blank">Github</a>' %}
+                    Tale House is open source, which means you can see its codes and also contribute to it!
+                    It is dedicated to the community, thus, is completely free. It is created using the great
+                    Django framework. You can see the repository at {{ link }} and make contributions to carry it
+                    forward to be a perfect tool.
+                {% endblocktrans %}
+            </p>
+        </div>
+    </div>
+    <h1>How to use Tale House</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <h2>{% trans 'Create a tale' %}</h2>
+
+            <p>
+                <img class="img-responsive slight-border" src="{% static "Teller/img/t4.png" %}"/>
+            </p>
+
+            <p>
+                {% blocktrans %}
+                    Creating a tale is as easy as giving it a name. You can also designate a language in which
+                    you will write the tale. Readers will be able to filter the tales that are in their languages
+                    to select and read them. Also, tales can be designated as 'poll' tales; which means the tale
+                    is not designated by individual readers uniquely, but it is developed by community votes.
+                {% endblocktrans %}
+            </p>
+        </div>
+        <div class="col-md-4">
+            <h2>{% trans 'Many a little makes a mickle' %}</h2>
+
+            <p>
+                <img class="img-responsive slight-border" src="{% static "Teller/img/t5.png" %}"/>
+            </p>
+
+            <p>
+                {% blocktrans %}
+                    Tales consist of tale parts. Think of them as book chapters, or maybe something smaller.
+                    Develop the story in the tale parts to carry the readers to another choice that they will make.
+                    Punish bad choices, or create plot twists and cliffhangers; it is all up to your imagination!
+                    If you are creating a poll tale, don't forget to give the part a 'poll end date' which will
+                    show the time the poll is going to end and the story is going to progress.
+                {% endblocktrans %}
+            </p>
+        </div>
+        <div class="col-md-4">
+            <h2>{% trans 'Let users make choices' %}</h2>
+
+            <p>
+                <img class="img-responsive slight-border" src="{% static "Teller/img/t6.png" %}"/>
+            </p>
+
+            <p>
+                {% blocktrans %}
+                    Tale links bind parts together. They are the choices that readers will make. Let them
+                    choose between giving money away vs. saving it; going through dark corridors vs. facing the
+                    known enemy; sacrificing wealth vs. health; sparing a life vs. killing a bug... Divaricate
+                    the story as much as you want and give the readers a thrilling experience.
+                {% endblocktrans %}
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Explore' %}</h2>
+
+            <p>
+                {% blocktrans %}
+                    You can also read others' stories, follow users and see their tales, search the tale for your
+                    liking, give rating to the polls you read to guide other users. Just choose your path to
+                    start your brave adventure!
+                {% endblocktrans %}
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'tale_add' %}" class="btn btn-success btn-lg btn-block">{% trans 'Write a Tale' %}</a>
+            <a href="{% url 'tale_search' %}" class="btn btn-primary btn-lg btn-block">{% trans 'Read a Tale' %}</a>
+        </div>
+    </div>
+{% endblock %}

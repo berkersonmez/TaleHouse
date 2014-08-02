@@ -4,6 +4,7 @@ from Teller import views
 
 urlpatterns = patterns('',
                        url(r'^$', views.index, name='index'),
+                       url(r'^about$', views.index_about, name='about'),
                        url(r'^user/add/$', views.user_add, name='user_add'),
                        url(r'^user/login/$', views.user_login, name='user_login'),
                        url(r'^user/logout/$', views.user_logout, name='user_logout'),

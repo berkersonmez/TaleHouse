@@ -4,7 +4,10 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h2>{{ tale.name }}</h2>
+            <h2>{{ tale.name }} <a href="{% url 'tale_read_continue' tale.slug %}"
+                                   class="btn btn-primary btn-xs">{% trans 'Read' %}</a></h2>
+
+            <p></p>
 
             <h3>{% trans 'Tale Parts' %}</h3>
             <table class="table table-striped">

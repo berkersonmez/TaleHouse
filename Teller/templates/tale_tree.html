@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% comment %}
 <script src="{% static 'dracula-graph/js/raphael-min.js' %}"></script>
 <script src="{% static 'dracula-graph/js/dracula_graffle.js' %}"></script>
 <script src="{% static 'dracula-graph/js/dracula_graph.js' %}"></script>
@@ -42,4 +43,183 @@
             }, 300);
         });
     });
+</script>
+{% endcomment %}
+
+<script src="{% static 'Teller/js/joint.nojquery.min.js' %}"></script>
+<script src="{% static 'Teller/js/joint.layout.DirectedGraph.min.js' %}"></script>
+<script type="text/javascript">
+    function s_decode(str) {
+        var div = document.createElement('div');
+        div.innerHTML = str;
+        return div.firstChild.nodeValue;
+    }
+    function adjustVertices(graph, cell) {
+        // If the cell is a view, find its model.
+        cell = cell.model || cell;
+
+        if (cell instanceof joint.dia.Element) {
+
+            _.chain(graph.getConnectedLinks(cell)).groupBy(function (link) {
+                // the key of the group is the model id of the link's source or target, but not our cell id.
+                return _.omit([link.get('source').id, link.get('target').id], cell.id)[0];
+            }).each(function (group, key) {
+                // If the member of the group has both source and target model adjust vertices.
+                if (key !== 'undefined') adjustVertices(graph, _.first(group));
+            });
+
+            return;
+        }
+
+        // The cell is a link. Let's find its source and target models.
+        var srcId = cell.get('source').id || cell.previous('source').id;
+        var trgId = cell.get('target').id || cell.previous('target').id;
+
+        // If one of the ends is not a model, the link has no siblings.
+        if (!srcId || !trgId) return;
+
+        var siblings = _.filter(graph.getLinks(), function (sibling) {
+
+            var _srcId = sibling.get('source').id;
+            var _trgId = sibling.get('target').id;
+
+            return (_srcId === srcId && _trgId === trgId) || (_srcId === trgId && _trgId === srcId);
+        });
+
+        switch (siblings.length) {
+
+            case 0:
+                // The link was removed and had no siblings.
+                break;
+
+            case 1:
+                // There is only one link between the source and target. No vertices needed.
+                cell.unset('vertices');
+                break;
+
+            default:
+
+                // There is more than one siblings. We need to create vertices.
+
+                // First of all we'll find the middle point of the link.
+                var srcCenter = graph.getCell(srcId).getBBox().center();
+                var trgCenter = graph.getCell(trgId).getBBox().center();
+                var midPoint = g.line(srcCenter, trgCenter).midpoint();
+
+                // Then find the angle it forms.
+                var theta = srcCenter.theta(trgCenter);
+
+                // This is the maximum distance between links
+                var gap = 20;
+
+                _.each(siblings, function (sibling, index) {
+
+                    // We want the offset values to be calculated as follows 0, 20, 20, 40, 40, 60, 60 ..
+                    var offset = gap * Math.ceil(index / 2);
+
+                    // Now we need the vertices to be placed at points which are 'offset' pixels distant
+                    // from the first link and forms a perpendicular angle to it. And as index goes up
+                    // alternate left and right.
+                    //
+                    //  ^  odd indexes
+                    //  |
+                    //  |---->  index 0 line (straight line between a source center and a target center.
+                    //  |
+                    //  v  even indexes
+                    var sign = index % 2 ? 1 : -1;
+                    var angle = g.toRad(theta + sign * 90);
+
+                    // We found the vertex.
+                    var vertex = g.point.fromPolar(offset, angle, midPoint);
+
+                    sibling.set('vertices', [
+                        { x: vertex.x, y: vertex.y }
+                    ]);
+                });
+        }
+    }
+
+    var graph = new joint.dia.Graph;
+    var canvas = $('#canvas');
+
+    var paper = new joint.dia.Paper({
+        el: canvas,
+        width: canvas.width(),
+        height: 5000,
+        model: graph,
+        gridSize: 1
+    });
+
+    var myAdjustVertices = _.partial(adjustVertices, graph);
+    // adjust vertices when a cell is removed or its source/target was changed
+    graph.on('add remove change:source change:target', myAdjustVertices);
+    // also when an user stops interacting with an element.
+    paper.on('cell:pointerup cell:pointermove', myAdjustVertices);
+
+    function part(label) {
+        var rect = new joint.shapes.basic.Rect({
+            size: { width: 100, height: 30 },
+            attrs: { rect: { fill: 'blue' }, text: { text: label, fill: 'white' } }
+        });
+        graph.addCell(rect);
+        return rect;
+    }
+
+    function link(source, target, label) {
+        var link = new joint.dia.Link({
+            source: { id: source },
+            target: { id: target },
+            labels: [
+                { position: .5, attrs: { text: { text: label || '', 'font-weight': 'bold' } } }
+            ],
+            smooth: true,
+            attrs: {
+                '.marker-target': { fill: 'black', d: 'M 10 0 L 0 5 L 10 10 z' },
+                '.marker-vertices': { display: 'none' }
+            }
+        });
+        graph.addCell(link);
+        return link;
+    }
+
+    var parts = {};
+    var links = {};
+
+    {% for tale_part in tale_part_list %}
+        parts[s_decode("{{ tale_part.name }}")] = part(s_decode("{{ tale_part.name }}"));
+    {% endfor %}
+
+    {% for tale_link in tale_link_list %}
+        links[s_decode("{{ tale_link.action }}")] = link(
+                parts[s_decode("{{ tale_link.source.name }}")].id,
+                parts[s_decode("{{ tale_link.destination.name }}")].id,
+                s_decode("{{ tale_link.action }}"));
+    {% endfor %}
+
+    joint.layout.DirectedGraph.layout(graph, {
+        rankDir: "TB",
+        nodeSep: 100,
+        edgeSep: 100,
+        rankSep: 100
+    });
+
+    $.each(links, function (key, value) {
+        adjustVertices(graph, value);
+    });
+
+    {% comment %}
+    var rect = new joint.shapes.basic.Rect({
+        position: { x: 100, y: 30 },
+        size: { width: 100, height: 30 },
+        attrs: { rect: { fill: 'blue' }, text: { text: 'my box', fill: 'white' } }
+    });
+
+    var rect2 = rect.clone();
+    rect2.translate(300);
+
+    var link = new joint.dia.Link({
+        source: { id: rect.id },
+        target: { id: rect2.id }
+    });
+    {% endcomment %}
 </script>

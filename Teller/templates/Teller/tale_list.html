@@ -36,7 +36,7 @@
                                href="{% url 'tale_read_continue' tale.slug %}">{% trans 'Read' %}</a></td>
                         <td><a class="btn btn-warning btn-xs"
                                href="{% url 'tale_details' tale.slug %}">{% trans 'Details' %}</a></td>
-                        <td><a class="btn btn-danger btn-xs"
+                        <td><a class="btn btn-danger btn-xs confirm"
                                href="{% url 'tale_delete' tale.id %}">{% trans 'Delete' %}</a></td>
                     </tr>
                 {% endfor %}

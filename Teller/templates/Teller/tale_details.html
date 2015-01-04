@@ -26,7 +26,7 @@
                         <td><a class="btn btn-warning btn-xs"
                                href="{% url 'tale_edit_part' tale_part.id %}">{% trans 'Edit' %}</a></td>
                         <td>
-                            <a class=" btn btn-danger btn-xs
+                            <a class=" btn btn-danger btn-xs confirm
                             {% if tale_part.is_start %}
                             disabled
                             {% endif %}
@@ -54,7 +54,7 @@
                         <td>{{ tale_link.destination.name }}</td>
                         <td><a class="btn btn-warning btn-xs"
                                href="{% url 'tale_edit_link' tale_link.id %}">{% trans 'Edit' %}</a></td>
-                        <td><a class="btn btn-danger btn-xs"
+                        <td><a class="btn btn-danger btn-xs confirm"
                                href="{% url 'tale_delete_link' tale_link.id %}">{% trans 'Delete' %}</a></td>
                     </tr>
                 {% endfor %}
@@ -63,6 +63,9 @@
                   class="btn btn-success">{% trans 'Add New Link' %}</a></p>
 
             <h3>{% trans 'Tale Graph' %}</h3>
+
+            <p><a href="{% url 'tale_edit_graph' tale.slug %}"
+                  class="btn btn-primary">{% trans 'Open Tale Graph Editor' %}</a></p>
 
             <div id="canvas"></div>
         </div>

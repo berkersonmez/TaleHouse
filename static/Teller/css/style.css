@@ -4,6 +4,22 @@ body {
 
 #canvas {
     background-color: #f9f9f9;
+    overflow: scroll;
+    height: 500px;
+}
+
+#canvas .marker-arrowheads {
+    display: none
+}
+
+#canvas .link-tools .tool-remove {
+    display: none
+}
+
+#canvas-fluid {
+    background-color: #f9f9f9;
+    overflow: scroll;
+    height: 100%;
 }
 
 .tale-action-button {
@@ -12,4 +28,20 @@ body {
 
 .slight-border {
     border: 1px solid #CCCCCC;
+}
+
+#inspector-result {
+    color: #ff2341;
+}
+
+@media (max-width: 767px) {
+    .affix, .affix-top {
+        position: relative;
+    }
+}
+
+@media (min-width: 767px) {
+    .affix, .affix-top {
+        width: 16%;
+    }
 }

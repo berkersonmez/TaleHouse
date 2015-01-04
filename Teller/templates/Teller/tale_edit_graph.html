@@ -1,0 +1,418 @@
+{% extends "base_fluid-navbar.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block title %}{{ tale.name }}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul id="sidebar" class="nav nav-stacked affix">
+                <li><h3>{% trans 'Inspector' %}</h3></li>
+                <li><strong>Element Type: </strong></li>
+                <li><span id="inspector-selected-type">-</span></li>
+                <li><strong>Selected Element ID: </strong></li>
+                <li><span id="inspector-selected-id">-</span></li>
+                <li><strong>Selected Element Name: </strong></li>
+                <li><input id="inspector-selected-name" type="text" class="form-control"
+                           placeholder="{% trans 'Select a graph element' %}"></li>
+
+                <li>
+                    <small>{% trans 'Tip: Click on an element in the graph. Edit its name using the textbox above and press ENTER.' %}</small>
+                </li>
+                <li>
+                    <p>
+                        <a href="#" id="inspector-delete-selected"
+                           class="btn btn-danger btn-sm">{% trans 'Delete Element' %}</a>
+                    </p>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <p>
+                        <a href="#" id="inspector-add-part"
+                           class="btn btn-success btn-sm">{% trans 'Add New Part' %}</a>
+                        <a href="#" id="inspector-add-link"
+                           class="btn btn-success btn-sm">{% trans 'Add New Link' %}</a>
+                    </p>
+                </li>
+                <li>
+                    <small>{% trans 'Tip: You can add parts and links using the buttons above, but you cannot edit the content of tale part in this window yet.' %}</small>
+                </li>
+                <li>
+                    <hr/>
+                </li>
+                <li>
+                    <p>
+                        <a href="#" id="inspector-save" class="btn btn-primary btn-sm">{% trans 'Save Tale' %}</a>
+                        <a href="{% url 'tale_details' tale.slug %}"
+                           class="btn btn-warning btn-sm confirm">{% trans 'Cancel' %}</a>
+                    </p>
+                </li>
+                <li><span id="inspector-result"></span></li>
+                <li>
+                    <small>{% trans 'Tip: Click "Save" to apply all changes.' %}</small>
+                </li>
+                {% csrf_token %}
+            </ul>
+        </div>
+        <div class="col-sm-9 col-md-10">
+            <h2>{{ tale.name }} {% trans 'Graph Editor' %}</h2>
+
+            <div id="canvas-fluid"></div>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+    <script src="{% static 'Teller/js/joint.nojquery.min.js' %}"></script>
+    <script src="{% static 'Teller/js/joint.layout.DirectedGraph.min.js' %}"></script>
+    <script type="text/javascript">
+    function s_decode(str) {
+        var div = document.createElement('div');
+        div.innerHTML = str;
+        return div.firstChild.nodeValue;
+    }
+    function adjustVertices(graph, cell) {
+
+        // If the cell is a view, find its model.
+        cell = cell.model || cell;
+
+        if (cell instanceof joint.dia.Element) {
+
+            _.chain(graph.getConnectedLinks(cell)).groupBy(function (link) {
+                // the key of the group is the model id of the link's source or target, but not our cell id.
+                return _.omit([link.get('source').id, link.get('target').id], cell.id)[0];
+            }).each(function (group, key) {
+                // If the member of the group has both source and target model adjust vertices.
+                if (key !== 'undefined') adjustVertices(graph, _.first(group));
+            });
+
+            return;
+        }
+
+        // The cell is a link. Let's find its source and target models.
+        var srcId = cell.get('source').id || cell.previous('source').id;
+        var trgId = cell.get('target').id || cell.previous('target').id;
+
+        // If one of the ends is not a model, the link has no siblings.
+        if (!srcId || !trgId) return;
+
+        var siblings = _.filter(graph.getLinks(), function (sibling) {
+
+            var _srcId = sibling.get('source').id;
+            var _trgId = sibling.get('target').id;
+
+            return (_srcId === srcId && _trgId === trgId) || (_srcId === trgId && _trgId === srcId);
+        });
+
+        switch (siblings.length) {
+
+            case 0:
+                // The link was removed and had no siblings.
+                break;
+
+            case 1:
+                // There is only one link between the source and target. No vertices needed.
+                cell.unset('vertices');
+                break;
+
+            default:
+
+                // There is more than one siblings. We need to create vertices.
+
+                // First of all we'll find the middle point of the link.
+                var srcCenter = graph.getCell(srcId).getBBox().center();
+                var trgCenter = graph.getCell(trgId).getBBox().center();
+                var midPoint = g.line(srcCenter, trgCenter).midpoint();
+
+                // Then find the angle it forms.
+                var theta = srcCenter.theta(trgCenter);
+
+                // This is the maximum distance between links
+                var gap = 20;
+
+                _.each(siblings, function (sibling, index) {
+
+                    // We want the offset values to be calculated as follows 0, 20, 20, 40, 40, 60, 60 ..
+                    var offset = gap * Math.ceil(index / 2);
+
+                    // Now we need the vertices to be placed at points which are 'offset' pixels distant
+                    // from the first link and forms a perpendicular angle to it. And as index goes up
+                    // alternate left and right.
+                    //
+                    //  ^  odd indexes
+                    //  |
+                    //  |---->  index 0 line (straight line between a source center and a target center.
+                    //  |
+                    //  v  even indexes
+                    var sign = index % 2 ? 1 : -1;
+                    var angle = g.toRad(theta + sign * 90);
+
+                    // We found the vertex.
+                    var vertex = g.point.fromPolar(offset, angle, midPoint);
+
+                    sibling.set('vertices', [
+                        { x: vertex.x, y: vertex.y }
+                    ]);
+                });
+        }
+    }
+    ;
+
+    var graph = new joint.dia.Graph;
+    var canvas = $('#canvas-fluid');
+    var insSelectedName = $('#inspector-selected-name');
+    var insSelectedType = $('#inspector-selected-type');
+    var insSelectedId = $('#inspector-selected-id');
+    var insAddPart = $('#inspector-add-part');
+    var insAddLink = $('#inspector-add-link');
+    var insSave = $('#inspector-save');
+    var insDeleteSelected = $('#inspector-delete-selected');
+    var insResult = $('#inspector-result');
+    var selected;
+
+    var paper = new joint.dia.Paper({
+        el: canvas,
+        width: canvas.width(),
+        height: 5000,
+        model: graph,
+        gridSize: 1
+    });
+
+    var myAdjustVertices = _.partial(adjustVertices, graph);
+    // adjust vertices when a cell is removed or its source/target was changed
+    graph.on('add remove change:source change:target', myAdjustVertices);
+    // also when an user stops interacting with an element.
+    paper.on('cell:pointerup', myAdjustVertices);
+
+    function part(label) {
+        var rect = new joint.shapes.basic.Rect({
+            size: { width: 100, height: 30 },
+            attrs: { rect: { fill: '#D1D1D1', stroke: '#5E5E5E' }, text: { text: label, fill: '#5E5E5E' } }
+        });
+        graph.addCell(rect);
+        return rect;
+    }
+    function part_with_pos(label, x, y) {
+        var rect = new joint.shapes.basic.Rect({
+            size: { width: 100, height: 30, x: x, y: y},
+            attrs: { rect: { fill: '#D1D1D1', stroke: '#5E5E5E' }, text: { text: label, fill: '#5E5E5E' } }
+        });
+        graph.addCell(rect);
+        return rect;
+    }
+
+    function link(source, target, label) {
+        var link = new joint.dia.Link({
+            source: { id: source },
+            target: { id: target },
+            labels: [
+                { position: .5, attrs: { text: { text: label || '', 'font-weight': 'bold', fill: '#5E5E5E' } } }
+            ],
+            smooth: true,
+            attrs: {
+                '.connection': { stroke: '#5E5E5E', 'stroke-width': 2 },
+                '.marker-target': { fill: '#5E5E5E', d: 'M 10 0 L 0 5 L 10 10 z' }
+            }
+        });
+        graph.addCell(link);
+        return link;
+    }
+    function link_with_pos(label, sx, sy, tx, ty) {
+        var link = new joint.dia.Link({
+            source: { x: sx, y: sy },
+            target: { x: tx, y: ty },
+            labels: [
+                { position: .5, attrs: { text: { text: label || '', 'font-weight': 'bold', fill: '#5E5E5E' } } }
+            ],
+            smooth: true,
+            attrs: {
+                '.connection': { stroke: '#5E5E5E', 'stroke-width': 2 },
+                '.marker-target': { fill: '#5E5E5E', d: 'M 10 0 L 0 5 L 10 10 z' }
+            }
+        });
+        graph.addCell(link);
+        return link;
+    }
+
+    function inspect(element) {
+        selected = element;
+        insSelectedName.val(element.name);
+        insSelectedType.text(element.type);
+        insSelectedId.text(element.cell.id);
+    }
+
+    var parts = {};
+    var parts_name_to_id = {};
+    var links = {};
+
+    {% for tale_part in tale_part_list %}
+        var part_cell = part(s_decode("{{ tale_part.name }}"));
+        parts[part_cell.id] = {
+            cell: part_cell,
+            name: s_decode("{{ tale_part.name }}"),
+            is_new: false,
+            b_id: {{ tale_part.id }},
+            type: 'Part',
+            is_active: {{ tale_part.is_active|lower }},
+            deleted: false
+        };
+        parts_name_to_id[s_decode("{{ tale_part.name }}")] = part_cell.id;
+    {% endfor %}
+
+    {% for tale_link in tale_link_list %}
+        var link_cell = link(
+                parts_name_to_id[s_decode("{{ tale_link.source.name }}")],
+                parts_name_to_id[s_decode("{{ tale_link.destination.name }}")],
+                s_decode("{{ tale_link.action }}"));
+        links[link_cell.id] = {
+            cell: link_cell,
+            name: s_decode("{{ tale_link.action }}"),
+            is_new: false,
+            b_id: {{ tale_link.id }},
+            type: 'Link',
+            source: null,
+            destination: null,
+            deleted: false
+        };
+    {% endfor %}
+
+    joint.layout.DirectedGraph.layout(graph, {
+        rankDir: "TB",
+        nodeSep: 100,
+        edgeSep: 100,
+        rankSep: 100
+    });
+
+    $.each(links, function (key, value) {
+        adjustVertices(graph, value.cell);
+    });
+
+    paper.on('cell:pointerdown',
+            function (cellView, evt, x, y) {
+                if (cellView.model instanceof joint.dia.Link) {
+                    inspect(links[cellView.model.id]);
+                } else if (cellView.model instanceof joint.shapes.basic.Rect) {
+                    inspect(parts[cellView.model.id]);
+                }
+            }
+    );
+
+    graph.on('remove', function (cell) {
+        if (cell instanceof joint.dia.Link) {
+            links[cell.id].deleted = true;
+        } else if (cell instanceof joint.shapes.basic.Rect) {
+            parts[cell.id].deleted = true;
+        }
+    });
+
+    insSelectedName.change(function () {
+        if (selected == null) return;
+        selected.name = $(this).val();
+        if (selected.type == 'Part') {
+            selected.cell.attr('text', { text: $(this).val() });
+        }
+        else if (selected.type == 'Link') {
+            selected.cell.label(0, {
+                attrs: {
+                    text: { text: $(this).val() }
+                }
+            });
+        }
+    });
+
+    insAddPart.click(function () {
+        var part_cell = part_with_pos("--NEW PART--", 10, 10);
+        parts[part_cell.id] = {
+            cell: part_cell,
+            name: "--NEW PART--",
+            is_new: true,
+            b_id: 0,
+            type: 'Part',
+            is_active: false,
+            deleted: false
+        };
+    });
+
+    insAddLink.click(function () {
+        var link_cell = link_with_pos("--NEW LINK--", 10, 10, 100, 100);
+        links[link_cell.id] = {
+            cell: link_cell,
+            name: "--NEW LINK--",
+            is_new: true,
+            b_id: 0,
+            type: 'Link',
+            source: null,
+            destination: null,
+            deleted: false
+        };
+    });
+
+    insDeleteSelected.click(function () {
+        if (selected == null) return;
+        selected.cell.remove();
+        selected.deleted = true;
+        selected = null;
+    });
+
+    insSave.click(function () {
+        var parts_json = {};
+        var links_json = {};
+
+        try {
+            $.each(parts, function (key, value) {
+                if (value.is_new && value.deleted) return;
+                parts_json[value.cell.id] = {
+                    name: value.name,
+                    is_new: value.is_new,
+                    b_id: value.b_id,
+                    type: value.type,
+                    is_active: value.is_active,
+                    is_start: false,
+                    poll_end_date: null,
+                    deleted: value.deleted,
+                    content: '--ADDED VIA GRAPH EDITOR. WRITE THE CONTENT OF THE PART HERE.--'
+                };
+            });
+            $.each(links, function (key, value) {
+                if (value.is_new && value.deleted) return;
+                if (value.cell.get('source') == null || value.cell.get('source').id == null
+                        || value.cell.get('target') == null || value.cell.get('target').id == null) {
+                    throw "There are disconnected links.";
+                }
+                links_json[value.cell.id] = {
+                    action: value.name,
+                    is_new: value.is_new,
+                    b_id: value.b_id,
+                    type: value.type,
+                    source_node: value.cell.get('source').id,
+                    target_node: value.cell.get('target').id,
+                    deleted: value.deleted
+                };
+            });
+        }
+        catch (err) {
+            insResult.text("{% trans 'Cannot save the graph yet! There may be disconnected links.' %}");
+            return false;
+        }
+        console.log(parts);
+        $.ajax({
+            type: "POST",
+            url: "{% url 'tale_apply_graph' tale.slug %}",
+            data: {
+                csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                json_data: JSON.stringify({
+                    parts: parts_json,
+                    links: links_json
+                })
+            },
+            success: function (data) {
+                insResult.text(data)
+                if (data == "OK") {
+                    window.location.replace("{% url 'tale_details' tale.slug %}");
+                }
+            }
+        });
+        return false;
+    });
+    </script>
+{% endblock %}

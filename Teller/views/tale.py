@@ -10,6 +10,9 @@ from django.utils.translation import ugettext as _
 from django.utils import timezone
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from decimal import *
+from django.http import HttpResponse, Http404
+import json
+from django.db import IntegrityError, transaction
 
 
 # TODO: This can be better:
@@ -191,6 +194,8 @@ def tale_edit_link(request, tale_link_id):
         tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
     except TaleLink.DoesNotExist:
         return redirect('error_info', _('Tale link not found'))
+    prev_source = tale_link.source
+    prev_destination = tale_link.destination
     tale = tale_link.tale
     if request.method == 'POST':
         form = TaleLinkEditForm(tale, tale_link.action, data=request.POST)
@@ -199,6 +204,12 @@ def tale_edit_link(request, tale_link_id):
             tale_link.source = form.cleaned_data['source']
             tale_link.destination = form.cleaned_data['destination']
             tale_link.save()
+            tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
+            if tarjans_cycle_detection.detect_cycles():
+                tale_link.source = prev_source
+                tale_link.destination = prev_destination
+                tale_link.save()
+                return redirect('error_info', _('Links should not create cycles in the tale'))
             return redirect('tale_details', tale.slug)
     else:
         form = TaleLinkEditForm(tale, tale_link.action, tale_link)
@@ -350,11 +361,137 @@ def tale_details(request, tale_slug):
         tale = Tale.objects.get(user=profile, slug=tale_slug)
     except Tale.DoesNotExist:
         return redirect('error_info', _('Tale not found'))
-    tarjan = TarjansCycleDetection(tale.id, tale)
-    tarjan.detect_cycles()
+    # tarjan = TarjansCycleDetection(tale.id, tale)
+    # tarjan.detect_cycles()
     context = {'tale': tale}
     context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_details.html', context)
+
+
+def tale_edit_graph(request, tale_slug):
+    if not request.user.is_authenticated():
+        return redirect('user_add')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(user=profile, slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', _('Tale not found'))
+    # tarjan = TarjansCycleDetection(tale.id, tale)
+    # tarjan.detect_cycles()
+    context = {'tale': tale}
+    context = add_lists_to_context(context, tale)
+    return render_with_defaults(request, 'Teller/tale_edit_graph.html', context)
+
+
+def tale_apply_graph(request, tale_slug):
+    if not request.user.is_authenticated():
+        return HttpResponse(_('User is not authenticated'))
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(user=profile, slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', _('Tale not found'))
+    if request.is_ajax():
+        json_data = json.loads(request.POST['json_data'])
+        try:
+            with transaction.atomic():
+                parts = json_data['parts']
+                links = json_data['links']
+                # Step 1: Edit Parts
+                for key, value in parts.items():
+                    value['tale'] = tale.slug
+                    if value['is_new'] and not value['deleted']:
+                        part_form = TalePartForm(profile, tale, data=value)
+                        if not part_form.is_valid():
+                            raise ValueError(part_form.errors.keys()[0] + ": " + part_form.errors.values()[0][0])
+                        name = part_form.cleaned_data['name']
+                        content = part_form.cleaned_data['content']
+                        is_active = part_form.cleaned_data['is_active']
+                        poll_end_date = part_form.cleaned_data['poll_end_date']
+                        is_start = TalePart.objects.filter(tale=tale, is_start=True).count() == 0
+                        tale_part = TalePart.objects.create(tale=tale,
+                                                            name=name,
+                                                            content=content,
+                                                            is_active=is_active,
+                                                            poll_end_date=poll_end_date,
+                                                            is_start=is_start)
+                        if tale_part is None:
+                            raise ValueError(_('Could not create the tale part'))
+                        value['b_id'] = tale_part.id
+                    elif not value['deleted']:
+                        tale_part = TalePart.objects.get(id=value['b_id'], tale__user=profile)
+                        if tale_part is None:
+                            raise ValueError(_('Could not find the tale part: ') + value.get('b_id'))
+                        part_form = TaleEditPartForm(profile, tale, tale_part.name, data=value)
+                        if not part_form.is_valid():
+                            raise ValueError(part_form.errors.keys()[0] + ": " + part_form.errors.values()[0][0])
+                        tale_part.name = part_form.cleaned_data['name']
+                        tale_part.save()
+                # Step 2: Delete Links
+                for key, value in links.items():
+                    if not value['is_new'] and value['deleted']:
+                        tale_link = TaleLink.objects.get(id=value['b_id'], tale__user=profile)
+                        if tale_link is None:
+                            raise ValueError(_('Could not find the tale link: ') + value.get('b_id'))
+                        if tale_link.tale.is_poll_tale and Profile.objects.filter(selected_links=tale_link).count() > 0:
+                            raise ValueError(_('Poll tale link is voted and cannot be deleted'))
+                        tale_link.delete()
+                # Step 3: Edit Links
+                for key, value in links.items():
+                    if value['is_new'] and not value['deleted']:
+                        value['source'] = parts[value['source_node']]['b_id']
+                        value['destination'] = parts[value['target_node']]['b_id']
+                        link_form = TaleLinkAddForm(tale, data=value)
+                        if not link_form.is_valid():
+                            raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                        action = link_form.cleaned_data['action']
+                        source = link_form.cleaned_data['source']
+                        destination = link_form.cleaned_data['destination']
+                        tale_link = TaleLink.objects.create(source=source,
+                                                            destination=destination,
+                                                            action=action,
+                                                            tale=tale)
+                        if tale_link is None:
+                            raise ValueError(_('Tale link could not be created'))
+                        tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
+                        if tarjans_cycle_detection.detect_cycles():
+                            tale_link.delete()
+                            raise ValueError(_('Links should not create cycles in the tale'))
+                        value['b_id'] = tale_link.id
+                    elif not value['deleted']:
+                        tale_link = TaleLink.objects.get(id=value['b_id'], tale__user=profile)
+                        if tale_link is None:
+                            raise ValueError(_('Could not find the tale link: ') + value.get('b_id'))
+                        value['source'] = parts[value['source_node']]['b_id']
+                        value['destination'] = parts[value['target_node']]['b_id']
+                        link_form = TaleLinkEditForm(tale, tale_link.action, data=value)
+                        if not link_form.is_valid():
+                            raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                        tale_link.action = link_form.cleaned_data['action']
+                        tale_link.source = link_form.cleaned_data['source']
+                        tale_link.destination = link_form.cleaned_data['destination']
+                        tale_link.save()
+                        tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
+                        if tarjans_cycle_detection.detect_cycles():
+                            raise ValueError(_('Links should not create cycles in the tale'))
+                # Step 4: Delete Parts
+                for key, value in parts.items():
+                    if not value['is_new'] and value['deleted']:
+                        tale_part = TalePart.objects.get(id=value['b_id'], tale__user=profile)
+                        if tale_part.is_start:
+                            raise ValueError(_('Starting parts should not be deleted'))
+                        if TaleLink.objects.filter(Q(source=tale_part) | Q(destination=tale_part)).count() > 0:
+                            raise ValueError(_('Links of the tale part should be deleted first'))
+                        tale_part.delete()
+        except IntegrityError:
+            return HttpResponse(_('An error is occured'))
+        except KeyError:
+            return HttpResponse(_('Incorrect JSON'))
+        except ValueError as e:
+            return HttpResponse(_(e.message))
+        return HttpResponse('OK')
+    else:
+        raise Http404
 
 
 def tale_list(request):

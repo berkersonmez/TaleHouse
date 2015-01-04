@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-02 20:36+0000\n"
+"POT-Creation-Date: 2015-01-04 18:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: TaleHouse/settings.py:101 Teller/templates/base-navbar.html:31
-#: Teller/templates/base-navbar.html:92
+#: TaleHouse/settings.py:101 TaleHouse/settings_sample.py:101
+#: Teller/templates/base-navbar.html:31 Teller/templates/base-navbar.html:92
+#: Teller/templates/base_fluid-navbar.html:31
+#: Teller/templates/base_fluid-navbar.html:92
 msgid "Turkish"
 msgstr "Türkçe"
 
-#: TaleHouse/settings.py:102 Teller/templates/base-navbar.html:30
-#: Teller/templates/base-navbar.html:91
+#: TaleHouse/settings.py:102 TaleHouse/settings_sample.py:102
+#: Teller/templates/base-navbar.html:30 Teller/templates/base-navbar.html:91
+#: Teller/templates/base_fluid-navbar.html:30
+#: Teller/templates/base_fluid-navbar.html:91
 msgid "English"
 msgstr "İngilizce"
 
@@ -97,27 +101,27 @@ msgstr "Sadece takip edilen kullanıcılar"
 msgid "Tale type"
 msgstr "Masal tipi"
 
-#: Teller/forms.py:69
+#: Teller/forms.py:70
 msgid "Order by"
 msgstr "Sıralama tipi"
 
-#: Teller/forms.py:71 Teller/forms.py:149
+#: Teller/forms.py:73 Teller/forms.py:158
 #: Teller/templates/Teller/tale_list.html:13
 #: Teller/templates/Teller/tale_search.html:36
 #: Teller/templates/Teller/user_profile.html:22
 msgid "Language"
 msgstr "Dil"
 
-#: Teller/forms.py:77
+#: Teller/forms.py:81
 msgid "Tales consist of tale parts. Select a tale to add this tale part to."
 msgstr ""
 "Masallar, masal bölümlerinden oluşur. Bu bölümün ekleneceği masalı seç."
 
-#: Teller/forms.py:78 Teller/templates/Teller/tale_list.html:11
+#: Teller/forms.py:82 Teller/templates/Teller/tale_list.html:11
 msgid "Name"
 msgstr "Masal adı"
 
-#: Teller/forms.py:79
+#: Teller/forms.py:84
 msgid ""
 "Give a name to the tale part to recognize it easily. It will not be shown to "
 "the readers automatically."
@@ -125,11 +129,11 @@ msgstr ""
 "Masal bölümüne kolay tanınabilecek bir isim ver. Bu okuyucuya otomatik "
 "olarakgösterilmeyecektir."
 
-#: Teller/forms.py:81
+#: Teller/forms.py:86
 msgid "Content"
 msgstr "İçerik"
 
-#: Teller/forms.py:82
+#: Teller/forms.py:88
 msgid ""
 "Write the content of the tale part. Advance the story and prepare for the "
 "events that will lead to the next parts."
@@ -137,11 +141,11 @@ msgstr ""
 "Masal bölümünün içeriğini yaz. Hikayeyi ilerlet ve gelecek bölümlerdeki "
 "olaylara doğru gelişme sağla."
 
-#: Teller/forms.py:84
+#: Teller/forms.py:90
 msgid "Is active?"
 msgstr "Aktif mi?"
 
-#: Teller/forms.py:85
+#: Teller/forms.py:92
 msgid ""
 "If a tale part is not active, the story will not progress at that part. Use "
 "this to complete unfinished parts while not blocking the whole story."
@@ -150,11 +154,11 @@ msgstr ""
 "Yani, okurlar bu noktadan ileri gidemeyecekler. Bunu tüm hikayeyi "
 "engellemeden eksik kısımları tamamlamak için kullanabilirsin."
 
-#: Teller/forms.py:89
+#: Teller/forms.py:96
 msgid "Poll end date"
 msgstr "Oylama bitiş tarihi"
 
-#: Teller/forms.py:94
+#: Teller/forms.py:102
 msgid ""
 "Only applicible to poll tales. Poll tale parts stay open for community votes "
 "until poll end date. After that time, the story will advance according to "
@@ -164,36 +168,36 @@ msgstr ""
 "tarihekadar halk oylamasına açık kalır. Bu zaman sonrasında hikaye seçilen "
 "aksiyona göre ilerleyecektir."
 
-#: Teller/forms.py:110 Teller/forms.py:138
+#: Teller/forms.py:118 Teller/forms.py:146
 msgid "There is another tale part with the same name."
 msgstr "Aynı isimde başka bir masal bölümü var."
 
-#: Teller/forms.py:117
+#: Teller/forms.py:125
 msgid "Poll tale parts should have poll end date values."
 msgstr "Oylama masal bölümleri oylama sonu tarihi değerine sahip olmalıdır."
 
-#: Teller/forms.py:119
+#: Teller/forms.py:127
 msgid "Poll end date should be a future date."
 msgstr "Oylama sonu tarihi gelecek bir tarih olmalıdır."
 
-#: Teller/forms.py:143 Teller/templates/Teller/tale_search.html:33
+#: Teller/forms.py:151 Teller/templates/Teller/tale_search.html:33
 #: Teller/templates/Teller/user_profile.html:20
 msgid "Tale Name"
 msgstr "Masal adı"
 
-#: Teller/forms.py:148
+#: Teller/forms.py:157
 msgid "Give a unique name to your tale. For example: Little Red Riding Hood."
 msgstr "Masalına özgün bir isim ver. Mesela: Kırmızı Başlıklı Kız"
 
-#: Teller/forms.py:150
+#: Teller/forms.py:160
 msgid "Select the language of the tale for categorization purposes."
 msgstr "Masalı yazacağın dili seç. Bu dile göre masal filtrelemeyi sağlar."
 
-#: Teller/forms.py:151
+#: Teller/forms.py:161
 msgid "Is poll tale?"
 msgstr "Oylama masalı mı?"
 
-#: Teller/forms.py:152
+#: Teller/forms.py:163
 msgid ""
 "Poll tales advance at designated times according to community votes.Non-poll "
 "tales are individual and unique for every reader."
@@ -201,15 +205,15 @@ msgstr ""
 "Oylama masalları belli tarihlerde halk oylamasına göre ilerler. Normal "
 "masallar ise kullanıcıya özgüdür ve tekil olarak ilerler."
 
-#: Teller/forms.py:159
+#: Teller/forms.py:170
 msgid "There is another tale with the same name."
 msgstr "Aynı isimde bir masal zaten var."
 
-#: Teller/forms.py:164
+#: Teller/forms.py:175
 msgid "Action Name"
 msgstr "Aksiyon"
 
-#: Teller/forms.py:169
+#: Teller/forms.py:181
 msgid ""
 "Action name will be shown to the user to let them select as their choice."
 "According to selected actions, story will advance"
@@ -217,29 +221,29 @@ msgstr ""
 "Aksiyon kullanıcıya gösterilecek ve seçmesi istenilecek seçenekleri "
 "oluşturur.Masal seçilen aksiyonlara göre ilerler."
 
-#: Teller/forms.py:171 Teller/templates/Teller/tale_details.html:45
+#: Teller/forms.py:183 Teller/templates/Teller/tale_details.html:45
 msgid "Source"
 msgstr "Kaynak"
 
-#: Teller/forms.py:172
+#: Teller/forms.py:184
 msgid ""
 "When this action is selected, the story will depart from the source part."
 msgstr "Bu aksiyon seçildiğinde, okur kaynak bölümünden ayrılacaktır."
 
-#: Teller/forms.py:174 Teller/templates/Teller/tale_details.html:46
+#: Teller/forms.py:186 Teller/templates/Teller/tale_details.html:46
 msgid "Destination"
 msgstr "Hedef"
 
-#: Teller/forms.py:175
+#: Teller/forms.py:188
 msgid ""
 "When this action is selected, the story will arrive to the destination part."
 msgstr "Bu aksiyon seçildiğinde, okur hedef bölümüne ulaşacaktır."
 
-#: Teller/forms.py:188 Teller/forms.py:212
+#: Teller/forms.py:201 Teller/forms.py:225
 msgid "There is another link with the same action text."
 msgstr "Aynı aksiyon yazısıyla bir aksiyon linki zaten var."
 
-#: Teller/forms.py:195
+#: Teller/forms.py:208
 msgid "Destination cannot be the same as source."
 msgstr "Hedef kaynak ile aynı olamaz."
 
@@ -324,6 +328,7 @@ msgid "code"
 msgstr "dil kodu"
 
 #: Teller/templates/base-navbar.html:39
+#: Teller/templates/base_fluid-navbar.html:39
 #: Teller/templates/Teller/tale_add.html:4
 #: Teller/templates/Teller/tale_add.html:10
 #: Teller/templates/Teller/tale_add.html:38
@@ -331,39 +336,47 @@ msgid "Create Tale"
 msgstr "Masal Yarat"
 
 #: Teller/templates/base-navbar.html:40
+#: Teller/templates/base_fluid-navbar.html:40
 #: Teller/templates/Teller/tale_add_part.html:10
 #: Teller/templates/Teller/tale_add_part.html:54
 msgid "Create Tale Part"
 msgstr "Masal Bölümü Yarat"
 
 #: Teller/templates/base-navbar.html:41
+#: Teller/templates/base_fluid-navbar.html:41
 #: Teller/templates/Teller/tale_list.html:7
 msgid "Your Tales"
 msgstr "Senin Masalların"
 
 #: Teller/templates/base-navbar.html:49
+#: Teller/templates/base_fluid-navbar.html:49
 msgid "Search Tales"
 msgstr "Masal Ara"
 
 #: Teller/templates/base-navbar.html:57
+#: Teller/templates/base_fluid-navbar.html:57
 msgid "Search Users"
 msgstr "Kullanıcı Ara"
 
 #: Teller/templates/base-navbar.html:65
+#: Teller/templates/base_fluid-navbar.html:65
 #: Teller/templates/Teller/user_list.html:22
 #: Teller/templates/Teller/user_list.html:31
 msgid "Profile"
 msgstr "Profil"
 
 #: Teller/templates/base-navbar.html:68
+#: Teller/templates/base_fluid-navbar.html:68
 msgid "Log out"
 msgstr "Çıkış yap"
 
 #: Teller/templates/base-navbar.html:81
+#: Teller/templates/base_fluid-navbar.html:81
 msgid "Sign in"
 msgstr "Giriş yap"
 
 #: Teller/templates/base-navbar.html:82
+#: Teller/templates/base_fluid-navbar.html:82
 #: Teller/templates/Teller/user_add.html:4
 #: Teller/templates/Teller/user_add.html:9
 #: Teller/templates/Teller/user_add.html:28
@@ -730,6 +743,7 @@ msgid "Delete"
 msgstr "Sil"
 
 #: Teller/templates/Teller/tale_details.html:39
+#: Teller/templates/Teller/tale_edit_graph.html:33
 msgid "Add New Part"
 msgstr "Yeni Bölüm Ekle"
 
@@ -742,8 +756,74 @@ msgid "Link Action"
 msgstr "Bağ Aksiyonu"
 
 #: Teller/templates/Teller/tale_details.html:63
+#: Teller/templates/Teller/tale_edit_graph.html:35
 msgid "Add New Link"
 msgstr "Yeni Bağ Ekle"
+
+#: Teller/templates/Teller/tale_details.html:68
+msgid "Open Tale Graph Editor"
+msgstr "Masal Diyagramı Editörünü Aç"
+
+#: Teller/templates/Teller/tale_edit_graph.html:9
+msgid "Inspector"
+msgstr "Düzenleyici"
+
+#: Teller/templates/Teller/tale_edit_graph.html:10
+msgid "Element Type"
+msgstr "Seçili Elemanın Tipi"
+
+#: Teller/templates/Teller/tale_edit_graph.html:12
+msgid "Selected Element ID"
+msgstr "Seçili Elemanın ID'si"
+
+#: Teller/templates/Teller/tale_edit_graph.html:14
+msgid "Selected Element Name"
+msgstr "Seçili Elemanın Adı"
+
+#: Teller/templates/Teller/tale_edit_graph.html:16
+msgid "Select a graph element"
+msgstr "Diyagramdaki bir elemanı seç"
+
+#: Teller/templates/Teller/tale_edit_graph.html:19
+msgid ""
+"Tip: Click on an element in the graph. Edit its name using the textbox above "
+"and press ENTER."
+msgstr ""
+"İpucu: Diyagram elemanlarından birine tıkla. Üstten elemanın adını değiştir "
+"ve ENTER'a bas."
+
+#: Teller/templates/Teller/tale_edit_graph.html:24
+msgid "Delete Element"
+msgstr "Elemanı Sil"
+
+#: Teller/templates/Teller/tale_edit_graph.html:39
+msgid ""
+"Tip: You can add parts and links using the buttons above, but you cannot "
+"edit the content of tale part in this window yet."
+msgstr ""
+"İpucu: Yukarıdaki butonlardan masal bölümlerini ve bağlarını "
+"düzenleyebilirsin, fakat henüz bölüm içeriğini bu editör ile düzenlemen "
+"mümkün değildir."
+
+#: Teller/templates/Teller/tale_edit_graph.html:46
+msgid "Save Tale"
+msgstr "Masalı kaydet"
+
+#: Teller/templates/Teller/tale_edit_graph.html:48
+msgid "Cancel"
+msgstr "Vazgeç"
+
+#: Teller/templates/Teller/tale_edit_graph.html:53
+msgid "Tip: Click \"Save\" to apply all changes."
+msgstr "İpucu: \"Kaydet\"'e tıklayarak değişiklikleri kaydet."
+
+#: Teller/templates/Teller/tale_edit_graph.html:59
+msgid "Graph Editor"
+msgstr "Diyagram Editörü"
+
+#: Teller/templates/Teller/tale_edit_graph.html:394
+msgid "Cannot save the graph yet! There may be disconnected links."
+msgstr "Diyagram kaydedilemiyor! Ucu bağlanmamış bağlar olabilir."
 
 #: Teller/templates/Teller/tale_edit_link.html:4
 #: Teller/templates/Teller/tale_edit_link.html:8
@@ -797,15 +877,15 @@ msgstr "Başa Sar"
 msgid "Page"
 msgstr "Sayfa"
 
-#: Teller/templates/Teller/tale_read.html:15
+#: Teller/templates/Teller/tale_read.html:16
 msgid "Go to last page"
 msgstr "Son sayfaya git"
 
-#: Teller/templates/Teller/tale_read.html:22
+#: Teller/templates/Teller/tale_read.html:23
 msgid "Tale cannot progress"
 msgstr "Masal ilerleyemiyor"
 
-#: Teller/templates/Teller/tale_read.html:85
+#: Teller/templates/Teller/tale_read.html:86
 #, python-format
 msgid ""
 "\n"
@@ -816,17 +896,17 @@ msgstr ""
 "\n"
 "Masal %(date)s tarihinde oy bittiğinde ilerleyecek"
 
-#: Teller/templates/Teller/tale_read.html:90
+#: Teller/templates/Teller/tale_read.html:91
 msgid "The End."
 msgstr "Son."
 
-#: Teller/templates/Teller/tale_read.html:97
+#: Teller/templates/Teller/tale_read.html:98
 #: Teller/templates/Teller/tale_search.html:57
 #: Teller/templates/Teller/user_list.html:39
 msgid "Previous"
 msgstr "Önceki"
 
-#: Teller/templates/Teller/tale_read.html:98
+#: Teller/templates/Teller/tale_read.html:99
 #: Teller/templates/Teller/tale_search.html:64
 #: Teller/templates/Teller/user_list.html:44
 msgid "Next"
@@ -882,94 +962,119 @@ msgstr "Takibi bırak"
 msgid "No content yet..."
 msgstr "Daha içerik yok..."
 
-#: Teller/views/tale.py:42 Teller/views/tale.py:69
+#: Teller/views/tale.py:45 Teller/views/tale.py:72
 msgid "Tale does not have a starting part"
 msgstr "Masalın başlangıç bölümü yok"
 
-#: Teller/views/tale.py:46 Teller/views/tale.py:73
+#: Teller/views/tale.py:49 Teller/views/tale.py:76
 msgid "This tale part is not activated yet"
 msgstr "Bu masal bölümü daha aktifleştirilmemiş"
 
-#: Teller/views/tale.py:49 Teller/views/tale.py:76
+#: Teller/views/tale.py:52 Teller/views/tale.py:79
 msgid "Tale part does not have any links"
 msgstr "Masal bölümünün hiç bağı yok"
 
-#: Teller/views/tale.py:58 Teller/views/tale.py:91
+#: Teller/views/tale.py:61 Teller/views/tale.py:94
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
-#: Teller/views/tale.py:103 Teller/views/tale.py:119 Teller/views/tale.py:144
-#: Teller/views/tale.py:160 Teller/views/tale.py:235 Teller/views/tale.py:247
-#: Teller/views/tale.py:338 Teller/views/tale.py:352 Teller/views/tale.py:376
-#: Teller/views/tale.py:390
+#: Teller/views/tale.py:106 Teller/views/tale.py:122 Teller/views/tale.py:147
+#: Teller/views/tale.py:163 Teller/views/tale.py:246 Teller/views/tale.py:258
+#: Teller/views/tale.py:349 Teller/views/tale.py:363 Teller/views/tale.py:378
+#: Teller/views/tale.py:393 Teller/views/tale.py:513 Teller/views/tale.py:527
 msgid "Tale not found"
 msgstr "Masal bulunamadı"
 
-#: Teller/views/tale.py:123 Teller/views/tale.py:193 Teller/views/tale.py:217
+#: Teller/views/tale.py:126 Teller/views/tale.py:196 Teller/views/tale.py:228
 msgid "Tale link not found"
 msgstr "Masal bağı bulunamadı"
 
-#: Teller/views/tale.py:127 Teller/views/tale.py:271 Teller/views/tale.py:296
+#: Teller/views/tale.py:130 Teller/views/tale.py:282 Teller/views/tale.py:307
 msgid "Tale part not found"
 msgstr "Masal bölümü bulunamadı"
 
-#: Teller/views/tale.py:129
+#: Teller/views/tale.py:132
 msgid "You have already selected a link for this part"
 msgstr "Bu bölüm için zaten bir aksiyon seçtiniz"
 
-#: Teller/views/tale.py:131
+#: Teller/views/tale.py:134
 msgid "You cannot vote for this link at this time"
 msgstr "Bu link için oy veremezsin"
 
-#: Teller/views/tale.py:147
+#: Teller/views/tale.py:150
 msgid "Poll tale votes cannot be revoked"
 msgstr "Oylama masalı oyları geri alınamaz"
 
-#: Teller/views/tale.py:172
+#: Teller/views/tale.py:175 Teller/views/tale.py:455
 msgid "Tale link could not be created"
 msgstr "Masal bağı oluşturulamadı"
 
-#: Teller/views/tale.py:176
+#: Teller/views/tale.py:179 Teller/views/tale.py:212 Teller/views/tale.py:459
+#: Teller/views/tale.py:476
 msgid "Links should not create cycles in the tale"
 msgstr "Bağlar masalda döngü oluşturmamalıdır"
 
-#: Teller/views/tale.py:219
+#: Teller/views/tale.py:230 Teller/views/tale.py:437
 msgid "Poll tale link is voted and cannot be deleted"
 msgstr "Masal linkine oy verilmiş, bu yüzden silinemez"
 
-#: Teller/views/tale.py:255
+#: Teller/views/tale.py:266
 msgid "Tale part could not be created"
 msgstr "Masal bölümü yaratılamadı"
 
-#: Teller/views/tale.py:298
+#: Teller/views/tale.py:309 Teller/views/tale.py:482
 msgid "Starting parts should not be deleted"
 msgstr "Başlangıç bölümleri silinmemelidir"
 
-#: Teller/views/tale.py:300
+#: Teller/views/tale.py:311 Teller/views/tale.py:484
 msgid "Links of the tale part should be deleted first"
 msgstr "Önce bölümün bağları silinmelidir"
 
-#: Teller/views/tale.py:323
+#: Teller/views/tale.py:334
 msgid "Tale could not be created"
 msgstr "Masal oluşturulamadı"
 
-#: Teller/views/tale.py:392
+#: Teller/views/tale.py:388
+msgid "User is not authenticated"
+msgstr "Kullanıcı giriş yapmamış"
+
+#: Teller/views/tale.py:419
+msgid "Could not create the tale part"
+msgstr "Masal bölümü oluşturulamadı"
+
+#: Teller/views/tale.py:424
+msgid "Could not find the tale part: "
+msgstr "Masal bölümü bulunamadı: "
+
+#: Teller/views/tale.py:435 Teller/views/tale.py:464
+msgid "Could not find the tale link: "
+msgstr "Masal bağı bulunamadı: "
+
+#: Teller/views/tale.py:487
+msgid "An error is occured"
+msgstr "Bir hata oluştu"
+
+#: Teller/views/tale.py:489
+msgid "Incorrect JSON"
+msgstr "JSON yanlış"
+
+#: Teller/views/tale.py:529
 msgid "You cannot rate your own tale"
 msgstr "Kendi masalına puan veremezsin"
 
-#: Teller/views/tale.py:394
+#: Teller/views/tale.py:531
 msgid "You have already rated this tale"
 msgstr "Bu masala zaten puan verdin"
 
-#: Teller/views/tale.py:396
+#: Teller/views/tale.py:533
 msgid "Invalid rate amount"
 msgstr "Geçersiz puan miktarı"
 
-#: Teller/views/tale.py:399
+#: Teller/views/tale.py:536
 msgid "Rating could not be created"
 msgstr "Puan verilemedi"
 
-#: Teller/views/tale.py:432
+#: Teller/views/tale.py:569
 msgid "You do not follow any users"
 msgstr "Takip ettiğin kullanıcı yok"
 

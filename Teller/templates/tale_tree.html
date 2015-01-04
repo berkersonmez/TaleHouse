@@ -159,7 +159,7 @@
     function part(label) {
         var rect = new joint.shapes.basic.Rect({
             size: { width: 100, height: 30 },
-            attrs: { rect: { fill: 'blue' }, text: { text: label, fill: 'white' } }
+            attrs: { rect: { fill: '#D1D1D1', stroke: '#5E5E5E' }, text: { text: label, fill: '#5E5E5E' } }
         });
         graph.addCell(rect);
         return rect;
@@ -170,12 +170,12 @@
             source: { id: source },
             target: { id: target },
             labels: [
-                { position: .5, attrs: { text: { text: label || '', 'font-weight': 'bold' } } }
+                { position: .5, attrs: { text: { text: label || '', 'font-weight': 'bold', fill: '#5E5E5E' } } }
             ],
             smooth: true,
             attrs: {
-                '.marker-target': { fill: 'black', d: 'M 10 0 L 0 5 L 10 10 z' },
-                '.marker-vertices': { display: 'none' }
+                '.connection': { stroke: '#5E5E5E', 'stroke-width': 2 },
+                '.marker-target': { fill: '#5E5E5E', d: 'M 10 0 L 0 5 L 10 10 z' }
             }
         });
         graph.addCell(link);

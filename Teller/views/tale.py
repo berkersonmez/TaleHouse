@@ -1,8 +1,11 @@
 from django.utils.text import slugify
 import pprint
-from Teller.forms import TalePartForm, TaleAddForm, TaleLinkAddForm, TaleEditPartForm, TaleLinkEditForm, TaleSearchForm
-from Teller.models import Tale, Profile, TalePart, TaleLink, Rating
+from Teller.forms import TalePartForm, TaleAddForm, TaleLinkAddForm, TaleEditPartForm, TaleLinkEditForm, TaleSearchForm, \
+    TaleVariableAddForm, TaleVariableEditForm, TalePreconditionAddForm, TaleConsequenceAddForm
+from Teller.models import Tale, Profile, TalePart, TaleLink, Rating, TaleVariable, TaleLinkPrecondition, \
+    TaleLinkConsequence, UserTaleVariable
 from Teller.shortcuts.tarjans_cycle_detection import TarjansCycleDetection
+from Teller.shortcuts.teller_content_parser import TellerContentParser
 from Teller.shortcuts.teller_shortcuts import render_with_defaults
 from django.shortcuts import redirect
 from django.db.models import Q, Count
@@ -27,10 +30,12 @@ def part_status_vals():
 
 def add_lists_to_context(context, tale):
     tale_part_list = TalePart.objects.filter(tale=tale)
+    tale_variable_list = TaleVariable.objects.filter(tale=tale)
     tale_link_list = None
     if tale_part_list.count() > 0:
         tale_link_list = TaleLink.objects.filter(tale=tale)
-    context.update({'tale_link_list': tale_link_list, 'tale_part_list': tale_part_list})
+    context.update({'tale_link_list': tale_link_list, 'tale_part_list': tale_part_list,
+                    'tale_variable_list': tale_variable_list})
     return context
 
 
@@ -48,14 +53,17 @@ def get_last_part(tale, user, page_no):
         if not current_part.is_active:
             return {'message': _('This tale part is not activated yet'), 'status': part_status('ERROR'), 'page': i}
         links = TaleLink.objects.filter(tale=tale, source=current_part)
-        if links.count() == 0:
+        links = [x for x in links if x.check_conditions(user)]
+        if len(links) == 0:
             return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
                     'part': current_part, 'page': i}
-        selected_link = links.filter(profile=user)
-        if selected_link.count() == 0:
-            return {'part': current_part, 'status': part_status('VOTE'), 'links': links, 'page': i}
+        selected_link = [x for x in links if user.selected_links.filter(id=x.id)]
+        if len(selected_link) == 0:
+            return {'part': current_part, 'status': part_status('VOTE'),
+                    'links': links, 'page': i}
         if i == page_no:
-            return {'part': current_part, 'status': part_status('READ'), 'links': links,
+            return {'part': current_part, 'status': part_status('READ'),
+                    'links': links,
                     'selected_link': selected_link[0], 'page': i}
         current_part = selected_link[0].destination
     return {'status': part_status('ERROR'), 'message': _('Unknown error')}
@@ -94,6 +102,56 @@ def get_last_part_poll(tale, user, page_no):
     return {'status': part_status('ERROR'), 'message': _('Unknown error')}
 
 
+def edit_preconditions_and_consequences(json_data, tale_link):
+    tale = tale_link.tale
+    precons = json_data['precons']
+    precons_deleted = json_data['preconsDeleted']
+    conseqs = json_data['conseqs']
+    conseqs_deleted = json_data['conseqsDeleted']
+    for key, value in precons.items():
+        precon_form = TalePreconditionAddForm(tale, data=value)
+        if not precon_form.is_valid():
+            raise ValueError(precon_form.errors.keys()[0] + ": " + precon_form.errors.values()[0][0])
+        tale_variable = precon_form.cleaned_data['tale_variable']
+        condition = precon_form.cleaned_data['condition']
+        value = precon_form.cleaned_data['value']
+        if TaleLinkPrecondition.objects.filter(tale_link=tale_link, tale_variable=tale_variable).count() > 0:
+            precon = TaleLinkPrecondition.objects.get(tale_link=tale_link, tale_variable=tale_variable)
+            precon.condition = condition
+            precon.value = value
+            precon.save()
+        else:
+            TaleLinkPrecondition.objects.create(tale_link=tale_link,
+                                                tale_variable=tale_variable,
+                                                condition=condition,
+                                                value=value)
+    for key, value in precons_deleted.items():
+        if value and TaleLinkPrecondition.objects.filter(tale_link=tale_link, tale_variable__id=key).count() > 0:
+            precon = TaleLinkPrecondition.objects.get(tale_link=tale_link, tale_variable__id=key)
+            precon.delete()
+    for key, value in conseqs.items():
+        conseq_form = TaleConsequenceAddForm(tale, data=value)
+        if not conseq_form.is_valid():
+            raise ValueError(conseq_form.errors.keys()[0] + ": " + conseq_form.errors.values()[0][0])
+        tale_variable = conseq_form.cleaned_data['tale_variable']
+        consequence = conseq_form.cleaned_data['consequence']
+        value = conseq_form.cleaned_data['value']
+        if TaleLinkConsequence.objects.filter(tale_link=tale_link, tale_variable=tale_variable).count() > 0:
+            conseq = TaleLinkConsequence.objects.get(tale_link=tale_link, tale_variable=tale_variable)
+            conseq.consequence = consequence
+            conseq.value = value
+            conseq.save()
+        else:
+            TaleLinkConsequence.objects.create(tale_link=tale_link,
+                                               tale_variable=tale_variable,
+                                               consequence=consequence,
+                                               value=value)
+    for key, value in conseqs_deleted.items():
+        if value and TaleLinkConsequence.objects.filter(tale_link=tale_link, tale_variable__id=key).count() > 0:
+            conseq = TaleLinkConsequence.objects.get(tale_link=tale_link, tale_variable__id=key)
+            conseq.delete()
+
+
 def tale_read(request, tale_slug, page_no=-1):
     if not request.user.is_authenticated():
         return redirect('user_add')
@@ -108,6 +166,17 @@ def tale_read(request, tale_slug, page_no=-1):
         result = get_last_part_poll(tale, profile, page_no)
     else:
         result = get_last_part(tale, profile, page_no)
+        if 'part' in result and result['part'].is_start and result['status'] == part_status('VOTE'):
+            tale_variables = TaleVariable.objects.filter(tale=tale)
+            for tale_variable in tale_variables:
+                if UserTaleVariable.objects.filter(user=profile, tale_variable=tale_variable).count() == 0:
+                    UserTaleVariable.objects.create(user=profile,
+                                                    tale_variable=tale_variable,
+                                                    value=tale_variable.default_value)
+        if 'part' in result:
+            content_parser = TellerContentParser()
+            content_parser.prepare_conditional_content(result['part'], profile)
+
     context = {'tale': tale, 'profile': profile, 'result': result, 'status_enum': part_status_vals()}
     return render_with_defaults(request, 'Teller/tale_read.html', context)
 
@@ -132,6 +201,8 @@ def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
         return redirect('error_info', _('You have already selected a link for this part'))
     if tale.is_poll_tale and tale_part.poll_end_date < timezone.now():
         return redirect('error_info', _('You cannot vote for this link at this time'))
+    if not tale.is_poll_tale:
+        tale_link.apply_consequences(profile)
     profile.selected_links.add(tale_link)
     page_no_int = int(page_no) + 1
     return redirect('tale_read', tale_slug, page_no_int)
@@ -150,72 +221,108 @@ def tale_reset(request, tale_slug):
         return redirect('error_info', _('Poll tale votes cannot be revoked'))
     for link in voted_links:
         link.profile_set.remove(profile)
+    UserTaleVariable.objects.filter(user=profile, tale_variable__tale=tale).delete()
     return redirect('tale_read', tale.slug, -1)
 
 
 def tale_add_link(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return HttpResponse(_('User is not authenticated'))
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, slug=tale_slug)
     except Tale.DoesNotExist:
         return redirect('error_info', _('Tale not found'))
-    if request.method == 'POST':
-        form = TaleLinkAddForm(tale, data=request.POST)
-        if form.is_valid():
-            action = form.cleaned_data['action']
-            source = form.cleaned_data['source']
-            destination = form.cleaned_data['destination']
-            tale_link = TaleLink.objects.create(source=source,
-                                                destination=destination,
-                                                action=action,
-                                                tale=tale)
-            if tale_link is None:
-                return redirect('error_info', _('Tale link could not be created'))
-            tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
-            if tarjans_cycle_detection.detect_cycles():
-                tale_link.delete()
-                return redirect('error_info', _('Links should not create cycles in the tale'))
-            return redirect('tale_details', tale.slug)
+    if request.is_ajax():
+        json_data = json.loads(request.POST['json_data'])
+        try:
+            with transaction.atomic():
+                post_vals = json_data['postVals']
+                link_form = TaleLinkAddForm(tale, data=post_vals)
+                if not link_form.is_valid():
+                    raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                action = link_form.cleaned_data['action']
+                source = link_form.cleaned_data['source']
+                destination = link_form.cleaned_data['destination']
+                tale_link = TaleLink.objects.create(source=source,
+                                                    destination=destination,
+                                                    action=action,
+                                                    tale=tale)
+                if tale_link is None:
+                    raise ValueError(_('Tale link could not be created'))
+                tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
+                if tarjans_cycle_detection.detect_cycles():
+                    raise ValueError(_('Links should not create cycles in the tale'))
+                edit_preconditions_and_consequences(json_data, tale_link)
+        except IntegrityError:
+            return HttpResponse(_('An error is occured'))
+        except KeyError:
+            return HttpResponse(_('Incorrect JSON'))
+        except ValueError as e:
+            return HttpResponse(_(e.message))
+        return HttpResponse('OK')
     else:
         form = TaleLinkAddForm(tale)
-    context = {'tale_add_link_form': form,
-               'tale': tale}
-    context = add_lists_to_context(context, tale)
-    return render_with_defaults(request, 'Teller/tale_add_link.html', context)
+        preconditions_form = TalePreconditionAddForm(tale)
+        consequences_form = TaleConsequenceAddForm(tale)
+        context = {'tale_add_link_form': form,
+                   'tale_add_preconditions_form': preconditions_form,
+                   'tale_add_consequences_form': consequences_form,
+                   'tale': tale}
+        context = add_lists_to_context(context, tale)
+        return render_with_defaults(request, 'Teller/tale_add_link.html', context)
 
 
 def tale_edit_link(request, tale_link_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return HttpResponse(_('User is not authenticated'))
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
     except TaleLink.DoesNotExist:
         return redirect('error_info', _('Tale link not found'))
-    prev_source = tale_link.source
-    prev_destination = tale_link.destination
     tale = tale_link.tale
-    if request.method == 'POST':
-        form = TaleLinkEditForm(tale, tale_link.action, data=request.POST)
-        if form.is_valid():
-            tale_link.action = form.cleaned_data['action']
-            tale_link.source = form.cleaned_data['source']
-            tale_link.destination = form.cleaned_data['destination']
-            tale_link.save()
-            tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
-            if tarjans_cycle_detection.detect_cycles():
-                tale_link.source = prev_source
-                tale_link.destination = prev_destination
+    if request.is_ajax():
+        json_data = json.loads(request.POST['json_data'])
+        try:
+            with transaction.atomic():
+                post_vals = json_data['postVals']
+                link_form = TaleLinkEditForm(tale, tale_link.action, data=post_vals)
+                if not link_form.is_valid():
+                    raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                action = link_form.cleaned_data['action']
+                source = link_form.cleaned_data['source']
+                destination = link_form.cleaned_data['destination']
+                tale_link.action = action
+                tale_link.source = source
+                tale_link.destination = destination
                 tale_link.save()
-                return redirect('error_info', _('Links should not create cycles in the tale'))
-            return redirect('tale_details', tale.slug)
+                tarjans_cycle_detection = TarjansCycleDetection(tale.id, tale)
+                if tarjans_cycle_detection.detect_cycles():
+                    raise ValueError(_('Links should not create cycles in the tale'))
+                edit_preconditions_and_consequences(json_data, tale_link)
+        except IntegrityError:
+            return HttpResponse(_('An error is occured'))
+        except KeyError:
+            return HttpResponse(_('Incorrect JSON'))
+        except ValueError as e:
+            return HttpResponse(_(e.message))
+        return HttpResponse('OK')
     else:
         form = TaleLinkEditForm(tale, tale_link.action, tale_link)
-    context = {'tale_edit_link_form': form, 'tale_link': tale_link}
-    context = add_lists_to_context(context, tale)
-    return render_with_defaults(request, 'Teller/tale_edit_link.html', context)
+        precons = TaleLinkPrecondition.objects.filter(tale_link=tale_link)
+        conseqs = TaleLinkConsequence.objects.filter(tale_link=tale_link)
+        preconditions_form = TalePreconditionAddForm(tale)
+        consequences_form = TaleConsequenceAddForm(tale)
+        context = {'tale_edit_link_form': form,
+                   'tale_link': tale_link,
+                   'tale_link_preconditions': precons,
+                   'tale_link_consequences': conseqs,
+                   'tale_add_preconditions_form': preconditions_form,
+                   'tale_add_consequences_form': consequences_form,
+                   'tale': tale}
+        context = add_lists_to_context(context, tale)
+        return render_with_defaults(request, 'Teller/tale_edit_link.html', context)
 
 
 def tale_delete_link(request, tale_link_id):
@@ -267,7 +374,7 @@ def tale_add_part(request, tale_slug=0):
             return redirect('tale_details', tale.slug)
     else:
         form = TalePartForm(profile)
-    context = {'tale_add_part_form': form}
+    context = {'tale_add_part_form': form, 'tale': tale}
     context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_add_part.html', context)
 
@@ -292,7 +399,7 @@ def tale_edit_part(request, tale_part_id):
             return redirect('tale_details', tale.slug)
     else:
         form = TaleEditPartForm(profile, tale, tale_part.name, tale_part)
-    context = {'tale_edit_part_form': form, 'tale_part': tale_part}
+    context = {'tale_edit_part_form': form, 'tale_part': tale_part, 'tale': tale}
     context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_edit_part.html', context)
 
@@ -311,6 +418,69 @@ def tale_delete_part(request, tale_part_id):
         return redirect('error_info', _('Links of the tale part should be deleted first'))
     tale = tale_part.tale
     tale_part.delete()
+    return redirect('tale_details', tale.slug)
+
+
+def tale_add_variable(request, tale_slug):
+    if not request.user.is_authenticated():
+        return redirect('user_add')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale = Tale.objects.get(user=profile, slug=tale_slug)
+    except Tale.DoesNotExist:
+        return redirect('error_info', _('Tale not found'))
+    if request.method == 'POST':
+        form = TaleVariableAddForm(tale, data=request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            default_value = form.cleaned_data['default_value']
+            tale_variable = TaleVariable.objects.create(name=name,
+                                                        default_value=default_value,
+                                                        tale=tale)
+            if tale_variable is None:
+                return redirect('error_info', _('Tale variable could not be created'))
+            return redirect('tale_details', tale.slug)
+    else:
+        form = TaleVariableAddForm(tale)
+    context = {'tale_add_variable_form': form,
+               'tale': tale}
+    context = add_lists_to_context(context, tale)
+    return render_with_defaults(request, 'Teller/tale_add_variable.html', context)
+
+
+def tale_edit_variable(request, tale_variable_id):
+    if not request.user.is_authenticated():
+        return redirect('user_add')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_variable = TaleVariable.objects.get(id=tale_variable_id, tale__user=profile)
+    except TaleVariable.DoesNotExist:
+        return redirect('error_info', _('Tale variable not found'))
+    tale = tale_variable.tale
+    if request.method == 'POST':
+        form = TaleVariableEditForm(tale, tale_variable.name, data=request.POST)
+        if form.is_valid():
+            tale_variable.name = form.cleaned_data['name']
+            tale_variable.default_value = form.cleaned_data['default_value']
+            tale_variable.save()
+            return redirect('tale_details', tale.slug)
+    else:
+        form = TaleVariableEditForm(tale, tale_variable.name, tale_variable)
+    context = {'tale_edit_variable_form': form, 'tale_variable': tale_variable}
+    context = add_lists_to_context(context, tale)
+    return render_with_defaults(request, 'Teller/tale_edit_variable.html', context)
+
+
+def tale_delete_variable(request, tale_variable_id):
+    if not request.user.is_authenticated():
+        return redirect('user_add')
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_variable = TaleVariable.objects.get(id=tale_variable_id, tale__user=profile)
+    except TaleVariable.DoesNotExist:
+        return redirect('error_info', _('Tale variable not found'))
+    tale = tale_variable.tale
+    tale_variable.delete()
     return redirect('tale_details', tale.slug)
 
 

@@ -62,6 +62,30 @@
             <p><a href="{% url 'tale_add_link' tale.slug %}"
                   class="btn btn-success">{% trans 'Add New Link' %}</a></p>
 
+            <h3>{% trans 'Tale Variables' %}</h3>
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans 'Variable Name' %}</th>
+                    <th>{% trans 'Default Value' %}</th>
+                    <th>{% trans 'Edit' %}</th>
+                    <th>{% trans 'Delete' %}</th>
+                </tr>
+                {% for tale_variable in tale_variable_list %}
+                    <tr>
+                        <td>{{ tale_variable.name }}</td>
+                        <td>{{ tale_variable.default_value }}</td>
+                        <td><a class="btn btn-warning btn-xs"
+                               href="{% url 'tale_edit_variable' tale_variable.id %}">{% trans 'Edit' %}</a></td>
+                        <td>
+                            <a class=" btn btn-danger btn-xs confirm"
+                               href="{% url 'tale_delete_variable' tale_variable.id %}">{% trans 'Delete' %}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <p><a href="{% url 'tale_add_variable' tale.slug %}"
+                  class="btn btn-success">{% trans 'Add New Variable' %}</a></p>
+
             <h3>{% trans 'Tale Graph' %}</h3>
 
             <p><a href="{% url 'tale_edit_graph' tale.slug %}"

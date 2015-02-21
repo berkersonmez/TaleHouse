@@ -56,6 +56,85 @@ class TaleLink(models.Model):
     def __unicode__(self):
         return u"%s" % self.action
 
+    def check_conditions(self, user):
+        for precondition in self.preconditions.all():
+            try:
+                user_tale_variable = user.variables.get(tale_variable=precondition.tale_variable)
+            except UserTaleVariable.DoesNotExist:
+                user_tale_variable = UserTaleVariable.objects.create(user=user,
+                                                                     tale_variable=precondition.tale_variable,
+                                                                     value=precondition.tale_variable.default_value)
+            if precondition.condition == 'LT':
+                if user_tale_variable.value < precondition.value:
+                    return False
+            elif precondition.condition == 'ST':
+                if user_tale_variable.value > precondition.value:
+                    return False
+            elif precondition.condition == 'EQ':
+                if not user_tale_variable.value == precondition.value:
+                    return False
+        return True
+
+    def apply_consequences(self, user):
+        for consequence in self.consequences.all():
+            try:
+                user_tale_variable = user.variables.get(tale_variable=consequence.tale_variable)
+            except UserTaleVariable.DoesNotExist:
+                user_tale_variable = UserTaleVariable.objects.create(user=user,
+                                                                     tale_variable=consequence.tale_variable,
+                                                                     value=consequence.tale_variable.default_value)
+            if consequence.consequence == 'AD':
+                user_tale_variable.value = user_tale_variable.value + consequence.value
+            if consequence.consequence == 'SB':
+                user_tale_variable.value = user_tale_variable.value - consequence.value
+            if consequence.consequence == 'EQ':
+                user_tale_variable.value = consequence.value
+            user_tale_variable.save()
+
+
+class TaleVariable(models.Model):
+    tale = models.ForeignKey(Tale, verbose_name=_('tale'), related_name='variables')
+    name = models.CharField(_('name'), max_length=200)
+    default_value = models.IntegerField(_('default_value'), default=0)
+
+    def __unicode__(self):
+        return u"%s" % self.name
+
+
+class UserTaleVariable(models.Model):
+    user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='variables')
+    tale_variable = models.ForeignKey(TaleVariable, verbose_name=_('tale_variable'), related_name='user_values')
+    value = models.IntegerField(_('value'), default=0)
+
+    def __unicode__(self):
+        return u"%s" % self.user.user.username + " - " + self.tale_variable.name
+
+
+class TaleLinkPrecondition(models.Model):
+    PRECONDITION_CHOICES = (
+        ('LT', _('Larger Than or Equal To')),
+        ('ST', _('Smaller Than or Equal to')),
+        ('EQ', _('Equals'))
+    )
+
+    tale_link = models.ForeignKey(TaleLink, verbose_name=_('tale_link'), related_name='preconditions')
+    value = models.IntegerField(_('value'), default=0)
+    condition = models.CharField(max_length=2, choices=PRECONDITION_CHOICES, default='LT')
+    tale_variable = models.ForeignKey(TaleVariable, verbose_name=_('tale_variable'), related_name='preconditions')
+
+
+class TaleLinkConsequence(models.Model):
+    CONSEQUENCE_CHOICES = (
+        ('AD', _('Add')),
+        ('SB', _('Substract')),
+        ('EQ', _('Equate'))
+    )
+
+    tale_link = models.ForeignKey(TaleLink, verbose_name=_('tale_link'), related_name='consequences')
+    value = models.IntegerField(_('value'), default=0)
+    consequence = models.CharField(max_length=2, choices=CONSEQUENCE_CHOICES, default='AD')
+    tale_variable = models.ForeignKey(TaleVariable, verbose_name=_('tale_variable'), related_name='consequences')
+
 
 class Language(models.Model):
     name = models.CharField(_('language name'), max_length=20)

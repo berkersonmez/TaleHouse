@@ -1,0 +1,43 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% block title %}{% trans 'Edit Tale Variable' %}{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Edit Tale Variable' %}</h2>
+            {{ tale_edit_variable_form.non_field_errors }}
+            <form action="{% url 'tale_edit_variable' tale_variable.id %}" role="form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_action">{{ tale_edit_variable_form.name.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_edit_variable_form.name.help_text }}"></span>
+                    </label>
+                    {% render_field tale_edit_variable_form.name class="form-control" %}
+                    <span class="help-block">{{ tale_edit_variable_form.name.errors }}</span>
+                </div>
+                <div class="form-group">
+                    <label for="id_source">{{ tale_edit_variable_form.default_value.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_edit_variable_form.default_value.help_text }}"></span>
+                    </label>
+                    {% render_field tale_edit_variable_form.default_value class="form-control" %}
+                    <span class="help-block">{{ tale_edit_variable_form.default_value.errors }}</span>
+                </div>
+                <button type="submit" class="btn btn-success">{% trans 'Edit Tale Variable' %}</button>
+            </form>
+            <h3>{% trans 'Tale Graph' %}</h3>
+
+            <div id="canvas"></div>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+    {% include "tale_tree.html" %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% include 'Teller/snippets/form_js.html' %}
+        });
+    </script>
+{% endblock %}

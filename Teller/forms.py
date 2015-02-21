@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from ckeditor.widgets import CKEditorWidget
 from django.core import validators
 from django.utils import timezone
-from Teller.models import Language, TalePart, Tale, TaleLink
+from Teller.models import Language, TalePart, Tale, TaleLink, TaleVariable, TaleLinkPrecondition, TaleLinkConsequence
 from django.db.models import Q
 
 
@@ -82,16 +82,16 @@ class TalePartForm(forms.Form):
     name = forms.CharField(label=ugettext_lazy('Name'),
                            help_text=ugettext_lazy(
                                'Give a name to the tale part to recognize it easily. It will not be shown to '
-                                       'the readers automatically.'))
+                               'the readers automatically.'))
     content = forms.CharField(widget=CKEditorWidget(), label=ugettext_lazy('Content'),
                               help_text=ugettext_lazy(
                                   'Write the content of the tale part. Advance the story and prepare for the '
-                                          'events that will lead to the next parts.'))
+                                  'events that will lead to the next parts.'))
     is_active = forms.BooleanField(label=ugettext_lazy('Is active?'), required=False, initial=True,
                                    help_text=ugettext_lazy(
                                        'If a tale part is not active, the story will not progress at'
-                                               ' that part. Use this to complete unfinished parts while not blocking'
-                                               ' the whole story.'))
+                                       ' that part. Use this to complete unfinished parts while not blocking'
+                                       ' the whole story.'))
     poll_end_date = forms.DateTimeField(
         label=ugettext_lazy('Poll end date'),
         required=False,
@@ -100,7 +100,7 @@ class TalePartForm(forms.Form):
         ),
         help_text=ugettext_lazy(
             'Only applicible to poll tales. Poll tale parts stay open for community votes until poll end date. '
-                    'After that time, the story will advance according to the mostly voted part.')
+            'After that time, the story will advance according to the mostly voted part.')
     )
 
     def __init__(self, user=None, tale=None, *args, **kwargs):
@@ -126,6 +126,120 @@ class TalePartForm(forms.Form):
         if poll_end_date and poll_end_date < timezone.now():
             raise forms.ValidationError(_("Poll end date should be a future date."))
         return poll_end_date
+
+
+class TaleVariableAddForm(forms.Form):
+
+    name = forms.CharField(label=ugettext_lazy('Name'), required=True,
+                           help_text=ugettext_lazy(
+                               'Tale variables let you create immersive choices and consequences. '
+                               'Give a name to the tale variable to recognize it easily. It will not be shown to '
+                               'the readers automatically.'))
+
+    default_value = forms.IntegerField(label=ugettext_lazy('Default Value'),
+                                       help_text=ugettext_lazy(
+                                       'Give a starting value to this variable according to its purpose. '
+                                       'For example, if this is "gold" you might want to start the player with '
+                                       '200 gold and make them spend it throughout the story.'),
+                                       required=True)
+
+    def __init__(self, tale=None, *args, **kwargs):
+        super(TaleVariableAddForm, self).__init__(*args, **kwargs)
+        self.tale = tale
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        if name and TaleVariable.objects.filter(name=name, tale=self.tale).count() > 0:
+            raise forms.ValidationError(_("There is another variable with the same name."))
+        return name
+
+    def clean_default_value(self):
+        default_value = self.cleaned_data.get("default_value")
+        if default_value:
+            try:
+                int(default_value)
+            except ValueError:
+                raise forms.ValidationError(_("Default value should be an integer."))
+            if int(default_value) > 2147483646 or int(default_value) < -2147483646:
+                raise forms.ValidationError(_("Default value is invalid."))
+        return default_value
+
+
+class TaleVariableEditForm(TaleVariableAddForm):
+    def __init__(self, tale=None, tale_variable_name=None, tale_variable=None, *args, **kwargs):
+        super(TaleVariableEditForm, self).__init__(tale, *args, **kwargs)
+        self.tale_variable_name = tale_variable_name
+        if not tale_variable is None:
+            self.fields['name'].initial = tale_variable.name
+            self.fields['default_value'].initial = tale_variable.default_value
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        if name and name != self.tale_variable_name and TaleVariable.objects.filter(name=name,
+                                                                                    tale=self.tale).count() > 0:
+            raise forms.ValidationError(_("There is another variable with the same name."))
+        return name
+
+
+class TalePreconditionAddForm(forms.Form):
+    PRECONDITION_CHOICES = TaleLinkPrecondition.PRECONDITION_CHOICES
+
+    tale_variable = forms.ModelChoiceField(label=ugettext_lazy('Variable'), queryset=TalePart.objects.all(), required=True,
+                                           help_text=ugettext_lazy('If this variable does not yield the condition, '
+                                                                   'the link will not be available to choose for the '
+                                                                   'reader.'))
+
+    condition = forms.ChoiceField(label=ugettext_lazy('Condition'), choices=PRECONDITION_CHOICES,
+                                  initial=PRECONDITION_CHOICES[0][0],
+                                  required=True)
+
+    value = forms.IntegerField(label=ugettext_lazy('Value'), required=True)
+
+    def __init__(self, tale=None, *args, **kwargs):
+        super(TalePreconditionAddForm, self).__init__(*args, **kwargs)
+        self.tale = tale
+        if not tale is None:
+            self.fields['tale_variable'].queryset = TaleVariable.objects.filter(tale=tale)
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+        if value:
+            try:
+                int(value)
+            except ValueError:
+                raise forms.ValidationError(_("Value should be an integer."))
+            if int(value) > 2147483646 or int(value) < -2147483646:
+                raise forms.ValidationError(_("Value is invalid."))
+        return value
+
+
+class TaleConsequenceAddForm(forms.Form):
+    CONSEQUENCE_CHOICES = TaleLinkConsequence.CONSEQUENCE_CHOICES
+
+    tale_variable = forms.ModelChoiceField(label=ugettext_lazy('Variable'), queryset=TalePart.objects.all(), required=True)
+
+    consequence = forms.ChoiceField(label=ugettext_lazy('Consequence'), choices=CONSEQUENCE_CHOICES,
+                                    initial=CONSEQUENCE_CHOICES[0][0],
+                                    required=True)
+
+    value = forms.IntegerField(label=ugettext_lazy('Value'), required=True)
+
+    def __init__(self, tale=None, *args, **kwargs):
+        super(TaleConsequenceAddForm, self).__init__(*args, **kwargs)
+        self.tale = tale
+        if not tale is None:
+            self.fields['tale_variable'].queryset = TaleVariable.objects.filter(tale=tale)
+
+    def clean_value(self):
+        value = self.cleaned_data.get("value")
+        if value:
+            try:
+                int(value)
+            except ValueError:
+                raise forms.ValidationError(_("Value should be an integer."))
+            if int(value) > 2147483646 or int(value) < -2147483646:
+                raise forms.ValidationError(_("Value is invalid."))
+        return value
 
 
 class TaleEditPartForm(TalePartForm):

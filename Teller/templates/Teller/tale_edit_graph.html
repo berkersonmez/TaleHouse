@@ -394,7 +394,6 @@
             insResult.text("{% trans 'Cannot save the graph yet! There may be disconnected links.' %}");
             return false;
         }
-        console.log(parts);
         $.ajax({
             type: "POST",
             url: "{% url 'tale_apply_graph' tale.slug %}",

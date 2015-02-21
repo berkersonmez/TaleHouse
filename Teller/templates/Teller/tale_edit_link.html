@@ -6,6 +6,7 @@
     <div class="row">
         <div class="col-md-12">
             <h2>{% trans 'Edit Tale Link' %}</h2>
+            <p id="validation-errors"></p>
             {{ tale_edit_link_form.non_field_errors }}
             <form action="{% url 'tale_edit_link' tale_link.id %}" role="form" method="post">
                 {% csrf_token %}
@@ -33,7 +34,78 @@
                     {% render_field tale_edit_link_form.destination class="form-control" %}
                     <span class="help-block">{{ tale_edit_link_form.destination.errors }}</span>
                 </div>
-                <button type="submit" class="btn btn-success">{% trans 'Edit Tale Link' %}</button>
+                <h3>
+                    {% trans 'Conditions' %}
+                    <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                                  title="{% trans 'Conditions designate the rules for the links to be shown to the reader. If the reader can not satisfy all the conditions, the choice will not be available for them.' %}"></span>
+                </h3>
+                <table class="table table-striped" id="table-precondition">
+                    <tr>
+                        <th>{% trans 'Variable' %}</th>
+                        <th>{% trans 'Condition' %}</th>
+                        <th>{% trans 'Value' %}</th>
+                        <th>{% trans 'Delete' %}</th>
+                    </tr>
+                    {% for tale_link_precondition in tale_link_preconditions %}
+                        <tr>
+                            <td>{{ tale_link_precondition.tale_variable.name }}</td>
+                            <td>{{ tale_link_precondition.get_condition_display }}</td>
+                            <td>{{ tale_link_precondition.value }}</td>
+                            <td><a class="btn btn-danger btn-xs" onclick="onClickDeleteCondition({{ tale_link_precondition.tale_variable.id }})">{% trans 'Delete' %}</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="form-inline" id="form-precondition">
+                    <div class="form-group">
+                        {% render_field tale_add_preconditions_form.tale_variable class="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {% render_field tale_add_preconditions_form.condition class="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {% render_field tale_add_preconditions_form.value class="form-control" %}
+                    </div>
+                    <a id="tale-precondition-save" onclick="onClickAddCondition()" class="btn btn-primary">
+                        {% trans 'Save Precondition' %}
+                    </a>
+
+                </div>
+                <h3>
+                    {% trans 'Consequences' %}
+                    <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                                  title="{% trans 'Consequences designate the way the variables will be changed when the link is selected by the reader.' %}"></span>
+                </h3>
+                <table class="table table-striped" id="table-consequence">
+                    <tr>
+                        <th>{% trans 'Variable' %}</th>
+                        <th>{% trans 'Consequence' %}</th>
+                        <th>{% trans 'Value' %}</th>
+                        <th>{% trans 'Delete' %}</th>
+                    </tr>
+                    {% for tale_link_consequence in tale_link_consequences %}
+                        <tr>
+                            <td>{{ tale_link_consequence.tale_variable.name }}</td>
+                            <td>{{ tale_link_consequence.get_consequence_display }}</td>
+                            <td>{{ tale_link_consequence.value }}</td>
+                            <td><a class="btn btn-danger btn-xs" onclick="onClickDeleteConsequence({{ tale_link_consequence.tale_variable.id }})">{% trans 'Delete' %}</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="form-inline" id="form-consequence">
+                    <div class="form-group">
+                        {% render_field tale_add_consequences_form.tale_variable class="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {% render_field tale_add_consequences_form.consequence class="form-control" %}
+                    </div>
+                    <div class="form-group">
+                        {% render_field tale_add_consequences_form.value class="form-control" %}
+                    </div>
+                    <a id="tale-consequence-save" onclick="onClickAddConsequence()" class="btn btn-primary">
+                        {% trans 'Save Consequence' %}
+                    </a>
+                </div>
+                <div style="padding-top: 10px;"><a class="btn btn-success" onclick="postForm()">{% trans 'Edit Tale Link' %}</a></div>
             </form>
             <h3>{% trans 'Tale Graph' %}</h3>
 
@@ -44,6 +116,155 @@
 {% block scriptblock %}
     {% include "tale_tree.html" %}
     <script type="text/javascript">
+         var precons = {};
+         var preconsDeleted = {};
+        var conseqs = {};
+         var conseqsDeleted = {};
+
+        {% for tale_link_precondition in tale_link_preconditions %}
+            precons['{{ tale_link_precondition.tale_variable.id }}'] = {
+                tale_variable : "{{ tale_link_precondition.tale_variable.id }}",
+                variableText : "{{ tale_link_precondition.tale_variable }}",
+                condition: "{{ tale_link_precondition.condition }}",
+                conditionText: "{{ tale_link_precondition.get_condition_display }}",
+                value: "{{ tale_link_precondition.value }}"
+            };
+        {% endfor %}
+        {% for tale_link_consequence in tale_link_consequences %}
+            conseqs['{{ tale_link_consequence.tale_variable.id }}'] = {
+                tale_variable : "{{ tale_link_consequence.tale_variable.id }}",
+                variableText : "{{ tale_link_consequence.tale_variable }}",
+                consequence: "{{ tale_link_consequence.consequence }}",
+                consequenceText: "{{ tale_link_consequence.get_consequence_display }}",
+                value: "{{ tale_link_consequence.value }}"
+            };
+        {% endfor %}
+
+        function refreshPreconTable()
+        {
+            $("#table-precondition").find('tbody').find("tr:gt(0)").remove();
+            $.each(precons, function (key, value) {
+                $('#table-precondition').find('tbody')
+                    .append(
+                        $('<tr>')
+                                .append($('<td>').text(value.variableText))
+                                .append($('<td>').text(value.conditionText))
+                                .append($('<td>').text(value.value))
+                                .append($('<td>').append(
+                                    $('<a>')
+                                            .attr('class', 'btn btn-danger btn-xs')
+                                            .attr('onClick', 'onClickDeleteCondition(' + key + ')')
+                                            .text('{% trans 'Delete' %}')
+                                )
+
+                        )
+                );
+            });
+        }
+
+        function refreshConseqTable()
+        {
+            $("#table-consequence").find('tbody').find("tr:gt(0)").remove();
+            $.each(conseqs, function (key, value) {
+                $('#table-consequence').find('tbody')
+                    .append(
+                        $('<tr>')
+                                .append($('<td>').text(value.variableText))
+                                .append($('<td>').text(value.consequenceText))
+                                .append($('<td>').text(value.value))
+                                .append($('<td>').append(
+                                    $('<a>')
+                                            .attr('class', 'btn btn-danger btn-xs')
+                                            .attr('onClick', 'onClickDeleteConsequence(' + key + ')')
+                                            .text('{% trans 'Delete' %}')
+                                )
+
+                        )
+                );
+            });
+        }
+
+        function onClickAddCondition() {
+            var preconForm = $('#form-precondition');
+            var preconVariable = preconForm.find('#id_tale_variable');
+            var preconCondition = preconForm.find('#id_condition');
+            var preconValue = preconForm.find('#id_value');
+            var preconId = preconVariable.val();
+            if (preconVariable.val() == null || preconVariable.val() == "" || preconValue.val() == ""){
+                return;
+            }
+            precons[preconId] = {
+                        tale_variable : preconVariable.val(),
+                        variableText : preconVariable.find('option:selected').text(),
+                        condition: preconCondition.val(),
+                        conditionText: preconCondition.find('option:selected').text(),
+                        value: preconValue.val()
+                    };
+            preconsDeleted[preconId] = false;
+            refreshPreconTable();
+        }
+
+        function onClickAddConsequence() {
+            var conseqForm = $('#form-consequence');
+            var conseqVariable = conseqForm.find('#id_tale_variable');
+            var conseqConsequence = conseqForm.find('#id_consequence');
+            var conseqValue = conseqForm.find('#id_value');
+            var conseqId = conseqVariable.val();
+            if (conseqVariable.val() == null || conseqVariable.val() == "" || conseqValue.val() == ""){
+                return;
+            }
+            conseqs[conseqId] = {
+                        tale_variable : conseqVariable.val(),
+                        variableText : conseqVariable.find('option:selected').text(),
+                        consequence: conseqConsequence.val(),
+                        consequenceText: conseqConsequence.find('option:selected').text(),
+                        value: conseqValue.val()
+                    };
+            conseqsDeleted[conseqId] = false;
+            refreshConseqTable();
+        }
+
+        function onClickDeleteCondition(preconId) {
+            delete precons[preconId];
+            preconsDeleted[preconId] = true;
+            refreshPreconTable();
+        }
+
+        function onClickDeleteConsequence(conseqId) {
+            delete conseqs[conseqId];
+            conseqsDeleted[conseqId] = true;
+            refreshConseqTable();
+        }
+
+        function postForm()
+        {
+            var postVals = {
+                action: $('#id_action').val(),
+                source: $('#id_source').val(),
+                destination: $('#id_destination').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'tale_edit_link' tale_link.id %}",
+                data: {
+                    csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                    json_data: JSON.stringify({
+                        precons: precons,
+                        postVals: postVals,
+                        preconsDeleted: preconsDeleted,
+                        conseqsDeleted: conseqsDeleted,
+                        conseqs: conseqs
+                    })
+                },
+                success: function (data) {
+                    $("#validation-errors").text(data);
+                    if (data == "OK") {
+                        window.location.replace("{% url 'tale_details' tale.slug %}");
+                    }
+                }
+            });
+        }
+
         $(document).ready(function () {
             {% include 'Teller/snippets/form_js.html' %}
         });

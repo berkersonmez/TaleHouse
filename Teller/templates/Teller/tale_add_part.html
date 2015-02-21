@@ -3,6 +3,14 @@
 {% load i18n %}
 {% block title %}{% trans 'Write Tale Part' %}{% endblock %}
 {% block body %}
+    <script type="text/javascript">
+        var ckeditor_talelogic_variable_list = [
+            [ 'Select a variable...', '-1' ],
+            {% for tale_variable in tale.variables.all %}
+                [ '{{ tale_variable.name }}', '{{ tale_variable.id }}' ],
+            {% endfor %}
+        ];
+    </script>
     {{ tale_add_part_form.media }}
     <!-- Example row of columns -->
     <div class="row">

@@ -1,0 +1,55 @@
+body {
+    padding-top: 54px;
+}
+
+#canvas {
+    background-color: #f9f9f9;
+    overflow: scroll;
+    height: 500px;
+}
+
+#canvas .marker-arrowheads {
+    display: none
+}
+
+#canvas .link-tools .tool-remove {
+    display: none
+}
+
+#canvas-fluid {
+    background-color: #f9f9f9;
+    overflow: scroll;
+    height: 100%;
+}
+
+.tale-action-button {
+    height: 30px;
+}
+
+.slight-border {
+    border: 1px solid #CCCCCC;
+}
+
+#inspector-result {
+    color: #ff2341;
+}
+
+@media (max-width: 767px) {
+    .affix, .affix-top {
+        position: relative;
+    }
+}
+
+@media (min-width: 767px) {
+    .affix, .affix-top {
+        width: 16%;
+    }
+}
+
+.navbar-form .form-control {
+    width: 86px;
+}
+
+.navbar-form img.captcha {
+    max-height: 36px;
+}

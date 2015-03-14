@@ -20,22 +20,31 @@ def index(request):
     ).order_by(
         '-recent_avg_rating'
     )
+    best_recent_tale_content = None
     if best_recent_tales.count() == 0:
         best_recent_tales = Tale.objects.filter(is_published=True)
-    best_recent_tale_parts = TalePart.objects.filter(tale=best_recent_tales[0], is_start=True)
-    if best_recent_tale_parts.count() > 0:
-        best_recent_tale_part = teller_content_parser.clean_conditional_content(best_recent_tale_parts[0])
-        best_recent_tale_content = best_recent_tale_part.content
-    else:
-        best_recent_tale_content = _('No content yet...')
+        if best_recent_tales.count() != 0:
+            best_recent_tale_parts = TalePart.objects.filter(tale=best_recent_tales[0], is_start=True)
+            if best_recent_tale_parts.count() > 0:
+                best_recent_tale_part = teller_content_parser.clean_conditional_content(best_recent_tale_parts[0])
+                best_recent_tale_content = best_recent_tale_part.content
+            else:
+                best_recent_tale_content = _('No content yet...')
+        else:
+            best_recent_tales = None
 
-    freshly_written_tale = Tale.objects.filter(is_published=True).latest('created_at')
-    freshly_written_tale_parts = TalePart.objects.filter(tale=freshly_written_tale, is_start=True)
-    if freshly_written_tale_parts.count() > 0:
-        freshly_written_tale_part = teller_content_parser.clean_conditional_content(freshly_written_tale_parts[0])
-        freshly_written_tale_content = freshly_written_tale_part.content
+    freshly_written_tale = Tale.objects.filter(is_published=True)
+    freshly_written_tale_content = None
+    if freshly_written_tale.count() > 0:
+        freshly_written_tale = freshly_written_tale.latest('created_at')
+        freshly_written_tale_parts = TalePart.objects.filter(tale=freshly_written_tale, is_start=True)
+        if freshly_written_tale_parts.count() > 0:
+            freshly_written_tale_part = teller_content_parser.clean_conditional_content(freshly_written_tale_parts[0])
+            freshly_written_tale_content = freshly_written_tale_part.content
+        else:
+            freshly_written_tale_content = _('No content yet...')
     else:
-        freshly_written_tale_content = _('No content yet...')
+        freshly_written_tale = None
 
     try:
         nearest_time_poll_part = TalePart.objects.filter(tale__is_published=True,
@@ -48,10 +57,10 @@ def index(request):
         nearest_time_poll_part = None
 
     context = {
-        'best_recent_tale': best_recent_tales[0],
-        'best_recent_tale_content': best_recent_tale_content,
+        'best_recent_tale': best_recent_tales[0] if best_recent_tales is not None else None,
+        'best_recent_tale_content': best_recent_tale_content if best_recent_tales is not None else None,
         'freshly_written_tale': freshly_written_tale,
-        'freshly_written_tale_content': freshly_written_tale_content,
+        'freshly_written_tale_content': freshly_written_tale_content if freshly_written_tale is not None else None,
         'nearest_time_poll_tale': nearest_time_poll,
         'nearest_time_poll_part': nearest_time_poll_part,
     }

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 admin.autodiscover()
 
@@ -15,6 +16,7 @@ urlpatterns = patterns('',
                        url(r'^captcha/', include('captcha.urls')),
                        url(r'', include('Teller.urls')),
 )
+
 
 if settings.DEBUG:
     # static files (images, css, javascript, etc.)

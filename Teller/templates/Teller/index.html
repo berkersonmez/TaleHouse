@@ -19,25 +19,36 @@
     <div class="row">
         <div class="col-md-4">
             <h2>{% trans 'Recent Best Rated' %}</h2>
+            {% if best_recent_tale == None %}
+                <h3>{% trans 'No tales to show here' %}</h3>
+                <p><a class="btn btn-primary" href="{% url 'tale_add' %}"
+                      role="button">{% trans 'Write Your Own' %} &raquo;</a></p>
+            {% else %}
+                <h3>{{ best_recent_tale.name }}
+                    <small>{{ best_recent_tale.overall_rating }}/5</small>
+                </h3>
+                <p>{{ best_recent_tale_content|striptags|truncatechars:300|safe }}</p>
 
-            <h3>{{ best_recent_tale.name }}
-                <small>{{ best_recent_tale.overall_rating }}/5</small>
-            </h3>
-            <p>{{ best_recent_tale_content|striptags|truncatechars:300|safe }}</p>
-
-            <p><a class="btn btn-primary" href="{% url 'tale_read_continue' best_recent_tale.slug %}"
-                  role="button">{% trans 'Read Now' %} &raquo;</a></p>
+                <p><a class="btn btn-primary" href="{% url 'tale_read_continue' best_recent_tale.slug %}"
+                      role="button">{% trans 'Read Now' %} &raquo;</a></p>
+            {% endif %}
         </div>
         <div class="col-md-4">
             <h2>{% trans 'Freshly Written' %}</h2>
 
-            <h3>{{ freshly_written_tale.name }}
-                <small>by {{ freshly_written_tale.user.user.username }}</small>
-            </h3>
-            <p>{{ freshly_written_tale_content|striptags|truncatechars:300|safe }}</p>
+            {% if freshly_written_tale == None %}
+                <h3>{% trans 'No tales to show here' %}</h3>
+                <p><a class="btn btn-primary" href="{% url 'tale_add' %}"
+                      role="button">{% trans 'Write Your Own' %} &raquo;</a></p>
+            {% else %}
+                <h3>{{ freshly_written_tale.name }}
+                    <small>by {{ freshly_written_tale.user.user.username }}</small>
+                </h3>
+                <p>{{ freshly_written_tale_content|striptags|truncatechars:300|safe }}</p>
 
-            <p><a class="btn btn-primary" href="{% url 'tale_read_continue' freshly_written_tale.slug %}"
-                  role="button">{% trans 'Read Now' %} &raquo;</a></p>
+                <p><a class="btn btn-primary" href="{% url 'tale_read_continue' freshly_written_tale.slug %}"
+                      role="button">{% trans 'Read Now' %} &raquo;</a></p>
+            {% endif %}
         </div>
         <div class="col-md-4">
             <h2>{% trans 'Nearest Poll Time' %}</h2>

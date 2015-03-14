@@ -1,6 +1,7 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load staticfiles %}
 {% block title %}{% trans 'Create Tale' %}{% endblock %}
 {% block body %}
     {{ tale_add_form.media }}
@@ -9,7 +10,7 @@
         <div class="col-md-12">
             <h2>{% trans 'Create Tale' %}</h2>
             {{ tale_add_form.non_field_errors }}
-            <form action="{% url 'tale_add' %}" role="form" method="post">
+            <form action="{% url 'tale_add' %}" role="form" method="post" data-parsley-validate>
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_name">{{ tale_add_form.name.label }}
@@ -41,6 +42,7 @@
     </div>
 {% endblock %}
 {% block scriptblock %}
+    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             {% include 'Teller/snippets/form_js.html' %}

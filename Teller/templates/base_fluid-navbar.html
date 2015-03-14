@@ -37,7 +37,6 @@
                                     class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{% url 'tale_add' %}">{% trans 'Create Tale' %}</a></li>
-                                <li><a href="{% url 'tale_add_part' %}">{% trans 'Create Tale Part' %}</a></li>
                                 <li><a href="{% url 'tale_list' %}">{% trans 'Your Tales' %}</a></li>
                             </ul>
                         </li>
@@ -62,7 +61,7 @@
                                 {{ profile.user.username }} <span
                                     class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="{% url 'user_profile' profile.user.username %}">{% trans 'Profile' %}</a>
+                                <li><a href="{% url 'user_profile' profile.slug %}">{% trans 'Profile' %}</a>
                                 </li>
                                 <li class="divider"></li>
                                 <li><a href="{% url 'user_logout' %}">{% trans 'Log out' %}</a></li>

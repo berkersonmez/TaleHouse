@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
+from django.utils.text import slugify
 from Teller.models import Profile
 from Teller.shortcuts.teller_shortcuts import render_with_defaults
 from Teller.forms import UserLoginForm, UserAddForm, UserSearchForm
@@ -45,7 +46,7 @@ def user_profile(request, user_username):
     if user_username is None:
         return redirect('error_info', _('An error occured'))
     try:
-        profile = Profile.objects.get(user__username=user_username)
+        profile = Profile.objects.get(slug=user_username)
     except Profile.DoesNotExist:
         return redirect('error_info', _('User not found'))
     context = {'profile_user': profile, 'profile_tales': profile.tales.filter(is_published=True)}
@@ -61,8 +62,9 @@ def user_add(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             email = form.cleaned_data['email']
+            slug = slugify(username)
             user = User.objects.create_user(username, email, password)
-            profile = Profile.objects.create(user=user)
+            profile = Profile.objects.create(user=user, slug=slug)
             user = authenticate(username=username, password=password)
             if user is None or not user.is_active or profile is None:
                 return redirect('error_info', _('An error occured'))
@@ -108,11 +110,11 @@ def user_follow(request, target_username):
     if profile.user.username == target_username:
         return redirect('error_info', _('That makes no sense'))
     try:
-        target = Profile.objects.get(user__username=target_username)
+        target = Profile.objects.get(slug=target_username)
     except Profile.DoesNotExist:
         return redirect('error_info', _('User not found'))
     if profile.is_following(target):
         profile.followed_users.remove(target)
     else:
         profile.followed_users.add(target)
-    return redirect('user_profile', target.user.username)
+    return redirect('user_profile', target.slug)

@@ -23,7 +23,7 @@
             <h3>{{ best_recent_tale.name }}
                 <small>{{ best_recent_tale.overall_rating }}/5</small>
             </h3>
-            <p>{{ best_recent_tale_content|striptags|truncatechars:300 }}</p>
+            <p>{{ best_recent_tale_content|striptags|truncatechars:300|safe }}</p>
 
             <p><a class="btn btn-primary" href="{% url 'tale_read_continue' best_recent_tale.slug %}"
                   role="button">{% trans 'Read Now' %} &raquo;</a></p>
@@ -34,7 +34,7 @@
             <h3>{{ freshly_written_tale.name }}
                 <small>by {{ freshly_written_tale.user.user.username }}</small>
             </h3>
-            <p>{{ freshly_written_tale_content|striptags|truncatechars:300 }}</p>
+            <p>{{ freshly_written_tale_content|striptags|truncatechars:300|safe }}</p>
 
             <p><a class="btn btn-primary" href="{% url 'tale_read_continue' freshly_written_tale.slug %}"
                   role="button">{% trans 'Read Now' %} &raquo;</a></p>
@@ -49,7 +49,7 @@
                 <h3>{{ nearest_time_poll_tale.name }} <br/>
                     <small>resolves at {{ nearest_time_poll_part.poll_end_date }}</small>
                 </h3>
-                <p>{{ nearest_time_poll_part.content|striptags|truncatechars:300 }}</p>
+                <p>{{ nearest_time_poll_part.content|striptags|truncatechars:300|safe }}</p>
                 <p><a class="btn btn-primary" href="{% url 'tale_read_continue' nearest_time_poll_tale.slug %}"
                       role="button">{% trans 'Read Now' %} &raquo;</a></p>
             {% endif %}

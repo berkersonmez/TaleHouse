@@ -1,9 +1,10 @@
 from django.utils.text import slugify
+from lxml import etree
 import pprint
 from Teller.forms import TalePartForm, TaleAddForm, TaleLinkAddForm, TaleEditPartForm, TaleLinkEditForm, TaleSearchForm, \
     TaleVariableAddForm, TaleVariableEditForm, TalePreconditionAddForm, TaleConsequenceAddForm
 from Teller.models import Tale, Profile, TalePart, TaleLink, Rating, TaleVariable, TaleLinkPrecondition, \
-    TaleLinkConsequence, UserTaleVariable
+    TaleLinkConsequence
 from Teller.shortcuts.tarjans_cycle_detection import TarjansCycleDetection
 from Teller.shortcuts.teller_content_parser import TellerContentParser
 from Teller.shortcuts.teller_shortcuts import render_with_defaults
@@ -16,6 +17,7 @@ from decimal import *
 from django.http import HttpResponse, Http404
 import json
 from django.db import IntegrityError, transaction
+from django.conf import settings
 
 
 # TODO: This can be better:
@@ -46,6 +48,9 @@ def get_last_part(tale, user, page_no):
     i = 0
     try:
         current_part = TalePart.objects.get(tale=tale, is_start=True)
+        variables = TaleVariable.objects.filter(tale=tale)
+        for variable in variables:
+            variable.init_value()
     except TalePart.DoesNotExist:
         return {'message': _('Tale does not have a starting part'), 'status': part_status('ERROR')}
     while page_no == -1 or i < page_no:
@@ -53,18 +58,20 @@ def get_last_part(tale, user, page_no):
         if not current_part.is_active:
             return {'message': _('This tale part is not activated yet'), 'status': part_status('ERROR'), 'page': i}
         links = TaleLink.objects.filter(tale=tale, source=current_part)
-        links = [x for x in links if x.check_conditions(user)]
+
+        links = [x for x in links if x.check_conditions(variables)]
         if len(links) == 0:
             return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
-                    'part': current_part, 'page': i}
+                    'part': current_part, 'page': i, 'variables': variables}
         selected_link = [x for x in links if user.selected_links.filter(id=x.id)]
         if len(selected_link) == 0:
             return {'part': current_part, 'status': part_status('VOTE'),
-                    'links': links, 'page': i}
+                    'links': links, 'page': i, 'variables': variables}
         if i == page_no:
             return {'part': current_part, 'status': part_status('READ'),
                     'links': links,
-                    'selected_link': selected_link[0], 'page': i}
+                    'selected_link': selected_link[0], 'page': i, 'variables': variables}
+        selected_link[0].apply_consequences(variables)
         current_part = selected_link[0].destination
     return {'status': part_status('ERROR'), 'message': _('Unknown error')}
 
@@ -76,6 +83,9 @@ def get_last_part_poll(tale, user, page_no):
     i = 0
     try:
         current_part = TalePart.objects.get(tale=tale, is_start=True)
+        variables = TaleVariable.objects.filter(tale=tale)
+        for variable in variables:
+            variable.init_value()
     except TalePart.DoesNotExist:
         return {'message': _('Tale does not have a starting part'), 'status': part_status('ERROR')}
     while page_no == -1 or i < page_no:
@@ -85,19 +95,21 @@ def get_last_part_poll(tale, user, page_no):
         links = TaleLink.objects.filter(tale=tale, source=current_part)
         if links.count() == 0:
             return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
-                    'part': current_part, 'page': i}
+                    'part': current_part, 'page': i, 'variables': variables}
         selected_link = links.filter(profile=user)
         if current_part.poll_end_date > timezone.now() and selected_link.count() == 0:
-            return {'part': current_part, 'status': part_status('VOTE'), 'links': links, 'page': i}
+            return {'part': current_part, 'status': part_status('VOTE'), 'links': links, 'page': i,
+                    'variables': variables}
         link_votes = links.annotate(num_votes=Count('profile')).values_list('num_votes')
         links_with_votes = zip(links, link_votes)
         if current_part.poll_end_date > timezone.now() and selected_link.count() > 0:
             return {'part': current_part, 'status': part_status('DATE_CONSTRAINT'), 'selected_link': selected_link[0],
-                    'links': links_with_votes, 'page': i}
+                    'links': links_with_votes, 'page': i, 'variables': variables}
         voted_link = links.annotate(num_votes=Count('profile')).order_by('-num_votes')[0]
         if i == page_no:
             return {'part': current_part, 'status': part_status('READ'), 'links': links_with_votes,
-                    'selected_link': voted_link, 'page': i}
+                    'selected_link': voted_link, 'page': i, 'variables': variables}
+        voted_link.apply_consequences(variables)
         current_part = voted_link.destination
     return {'status': part_status('ERROR'), 'message': _('Unknown error')}
 
@@ -166,16 +178,17 @@ def tale_read(request, tale_slug, page_no=-1):
         result = get_last_part_poll(tale, profile, page_no)
     else:
         result = get_last_part(tale, profile, page_no)
-        if 'part' in result and result['part'].is_start and result['status'] == part_status('VOTE'):
-            tale_variables = TaleVariable.objects.filter(tale=tale)
-            for tale_variable in tale_variables:
-                if UserTaleVariable.objects.filter(user=profile, tale_variable=tale_variable).count() == 0:
-                    UserTaleVariable.objects.create(user=profile,
-                                                    tale_variable=tale_variable,
-                                                    value=tale_variable.default_value)
-        if 'part' in result:
+
+    if 'part' in result and 'variables' in result:
+        try:
             content_parser = TellerContentParser()
-            content_parser.prepare_conditional_content(result['part'], profile)
+            content_parser.prepare_conditional_content(result['part'], profile, result['variables'])
+        except etree.XMLSyntaxError:
+            return redirect('error_info', _('An error occurred'))
+        except etree.ParseError:
+            return redirect('error_info', _('An error occurred'))
+        except etree.Error:
+            return redirect('error_info', _('An error occurred'))
 
     context = {'tale': tale, 'profile': profile, 'result': result, 'status_enum': part_status_vals()}
     return render_with_defaults(request, 'Teller/tale_read.html', context)
@@ -197,12 +210,14 @@ def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
         tale_part = TalePart.objects.get(id=tale_part_id, tale=tale)
     except TalePart.DoesNotExist:
         return redirect('error_info', _('Tale part not found'))
+    if not tale_link.source.id == tale_part.id:
+        return redirect('error_info', _('This link does not belong to the given part'))
+    if not tale.is_poll_tale and not tale_part.is_start and TaleLink.objects.filter(destination=tale_part).filter(profile=profile).count() == 0:
+        return redirect('error_info', _('You cannot take that action'))
     if TaleLink.objects.filter(source=tale_part).filter(profile=profile).count() > 0:
         return redirect('error_info', _('You have already selected a link for this part'))
     if tale.is_poll_tale and tale_part.poll_end_date < timezone.now():
         return redirect('error_info', _('You cannot vote for this link at this time'))
-    if not tale.is_poll_tale:
-        tale_link.apply_consequences(profile)
     profile.selected_links.add(tale_link)
     page_no_int = int(page_no) + 1
     return redirect('tale_read', tale_slug, page_no_int)
@@ -221,7 +236,6 @@ def tale_reset(request, tale_slug):
         return redirect('error_info', _('Poll tale votes cannot be revoked'))
     for link in voted_links:
         link.profile_set.remove(profile)
-    UserTaleVariable.objects.filter(user=profile, tale_variable__tale=tale).delete()
     return redirect('tale_read', tale.slug, -1)
 
 
@@ -244,6 +258,9 @@ def tale_add_link(request, tale_slug):
                 action = link_form.cleaned_data['action']
                 source = link_form.cleaned_data['source']
                 destination = link_form.cleaned_data['destination']
+                if TaleLink.objects.filter(source=source).count() >= settings.TELLER_MAX_LINKS_PER_PART:
+                    raise ValueError(_('Parts can contain maximum of %(max_links_per_part)s links') %
+                                     {'max_links_per_part': settings.TELLER_MAX_LINKS_PER_PART})
                 tale_link = TaleLink.objects.create(source=source,
                                                     destination=destination,
                                                     action=action,
@@ -346,23 +363,28 @@ def tale_add_part(request, tale_slug=0):
     profile = Profile.objects.get(user__id=request.user.id)
 
     tale = None
-    if tale_slug != 0:
-        try:
-            tale = Tale.objects.get(slug=tale_slug, user=profile)
-        except Tale.DoesNotExist:
-            return redirect('error_info', _('Tale not found'))
-        form = TalePartForm(profile, tale, initial={'tale': tale_slug})
-    elif request.method == 'POST':
-        form = TalePartForm(profile, data=request.POST)
+    if tale_slug == 0:
+        return redirect('error_info', _('Tale not found'))
+    try:
+        tale = Tale.objects.get(slug=tale_slug, user=profile)
+    except Tale.DoesNotExist:
+        return redirect('error_info', _('Tale not found'))
+    if request.method == 'POST':
+        form = TalePartForm(profile, tale, initial={'tale': tale_slug}, data=request.POST)
         if form.is_valid():
             tale = form.cleaned_data['tale']
             name = form.cleaned_data['name']
             content = form.cleaned_data['content']
+            content_parser = TellerContentParser()
+            content = content_parser.clean_html(content)
             is_active = form.cleaned_data['is_active']
             poll_end_date = form.cleaned_data['poll_end_date']
             is_start = TalePart.objects.filter(tale=tale, is_start=True).count() == 0
             if tale is None:
-                redirect('error_info', _('Tale not found'))
+                return redirect('error_info', _('Tale not found'))
+            if TalePart.objects.filter(tale=tale).count() >= settings.TELLER_MAX_PARTS_PER_TALE:
+                return redirect('error_info', _('Tales can contain maximum of %(max_parts_per_tale)s parts') %
+                                {'max_parts_per_tale': settings.TELLER_MAX_PARTS_PER_TALE})
             tale_part = TalePart.objects.create(tale=tale,
                                                 name=name,
                                                 content=content,
@@ -373,7 +395,7 @@ def tale_add_part(request, tale_slug=0):
                 return redirect('error_info', _('Tale part could not be created'))
             return redirect('tale_details', tale.slug)
     else:
-        form = TalePartForm(profile)
+        form = TalePartForm(profile, tale, initial={'tale': tale_slug})
     context = {'tale_add_part_form': form, 'tale': tale}
     context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_add_part.html', context)
@@ -393,6 +415,8 @@ def tale_edit_part(request, tale_part_id):
         if form.is_valid():
             tale_part.name = form.cleaned_data['name']
             tale_part.content = form.cleaned_data['content']
+            content_parser = TellerContentParser()
+            tale_part.content = content_parser.clean_html(tale_part.content)
             tale_part.is_active = form.cleaned_data['is_active']
             tale_part.poll_end_date = form.cleaned_data['poll_end_date']
             tale_part.save()
@@ -434,6 +458,9 @@ def tale_add_variable(request, tale_slug):
         if form.is_valid():
             name = form.cleaned_data['name']
             default_value = form.cleaned_data['default_value']
+            if TaleVariable.objects.filter(tale=tale).count() >= settings.TELLER_MAX_VARIABLES_PER_TALE:
+                return redirect('error_info', _('Tales can contain maximum of %(max_vars_per_tale)s variables') %
+                                {'max_vars_per_tale': settings.TELLER_MAX_VARIABLES_PER_TALE})
             tale_variable = TaleVariable.objects.create(name=name,
                                                         default_value=default_value,
                                                         tale=tale)
@@ -495,6 +522,9 @@ def tale_add(request):
             language = form.cleaned_data['language']
             is_poll_tale = form.cleaned_data['is_poll_tale']
             slug = slugify(name)
+            if Tale.objects.filter(user=profile).count() >= settings.TELLER_MAX_TALES_PER_USER:
+                return redirect('error_info', _('You can have a maximum of %(max_tales_per_user)s tales at once') %
+                                {'max_tales_per_user': settings.TELLER_MAX_TALES_PER_USER})
             tale = Tale.objects.create(name=name,
                                        language=language,
                                        is_poll_tale=is_poll_tale,
@@ -502,7 +532,15 @@ def tale_add(request):
                                        slug=slug)
             if tale is None:
                 return redirect('error_info', _('Tale could not be created'))
-            return redirect('tale_add_part_idgiven', tale.slug)
+            tale_part = TalePart.objects.create(tale=tale,
+                                                name=_('STARTING PART'),
+                                                content=_('&lt;START WRITING YOUR STORY HERE...&gt;'),
+                                                is_active=True,
+                                                poll_end_date=None,
+                                                is_start=True)
+            if tale is None:
+                return redirect('error_info', _('Starting part could not be created'))
+            return redirect('tale_edit_part', tale_part.id)
     else:
         form = TaleAddForm()
     context = {'tale_add_form': form}
@@ -579,6 +617,9 @@ def tale_apply_graph(request, tale_slug):
                         is_active = part_form.cleaned_data['is_active']
                         poll_end_date = part_form.cleaned_data['poll_end_date']
                         is_start = TalePart.objects.filter(tale=tale, is_start=True).count() == 0
+                        if TalePart.objects.filter(tale=tale).count() >= settings.TELLER_MAX_PARTS_PER_TALE:
+                            raise ValueError(_('Tales can contain maximum of %(max_parts_per_tale)s parts') %
+                                             {'max_parts_per_tale': settings.TELLER_MAX_PARTS_PER_TALE})
                         tale_part = TalePart.objects.create(tale=tale,
                                                             name=name,
                                                             content=content,
@@ -617,6 +658,9 @@ def tale_apply_graph(request, tale_slug):
                         action = link_form.cleaned_data['action']
                         source = link_form.cleaned_data['source']
                         destination = link_form.cleaned_data['destination']
+                        if TaleLink.objects.filter(source=source).count() >= settings.TELLER_MAX_LINKS_PER_PART:
+                            raise ValueError(_('Parts can contain maximum of %(max_links_per_part)s links') %
+                                             {'max_links_per_part': settings.TELLER_MAX_LINKS_PER_PART})
                         tale_link = TaleLink.objects.create(source=source,
                                                             destination=destination,
                                                             action=action,

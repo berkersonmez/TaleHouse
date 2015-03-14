@@ -45,3 +45,11 @@ body {
         width: 16%;
     }
 }
+
+.navbar-form .form-control {
+    width: 86px;
+}
+
+.navbar-form img.captcha {
+    max-height: 36px;
+}

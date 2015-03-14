@@ -1,10 +1,10 @@
 /**
  * Created by brkrs_000 on 20.2.2015.
  */
-CKEDITOR.dialog.add( 'talelogicDialog', function ( editor ) {
+CKEDITOR.dialog.add( 'talelogicinlineDialog', function ( editor ) {
     var ckeditor_talelogic_condition_list = [ [ 'Select a condition...', '-1' ], [ 'Larger than or equal to', '>=' ], [ 'Smaller than or equal to', '<=' ], [ 'Equals', '=' ] ];
     return {
-        title: 'Add Conditional Paragraph',
+        title: 'Add Conditional Inline Text',
         minWidth: 400,
         minHeight: 200,
 

@@ -8,19 +8,25 @@ from django.utils.translation import ugettext as _
 from ckeditor.widgets import CKEditorWidget
 from django.core import validators
 from django.utils import timezone
+from parsley.decorators import parsleyfy
 from Teller.models import Language, TalePart, Tale, TaleLink, TaleVariable, TaleLinkPrecondition, TaleLinkConsequence
 from django.db.models import Q
+from captcha.fields import CaptchaField
 
 
+@parsleyfy
 class UserLoginForm(forms.Form):
     username = forms.CharField(label=ugettext_lazy('Username'))
     password = forms.CharField(widget=forms.PasswordInput(), label=ugettext_lazy('Password'))
+    captcha = CaptchaField()
 
 
+@parsleyfy
 class UserSearchForm(forms.Form):
     username = forms.CharField(label=ugettext_lazy('Username'))
 
 
+@parsleyfy
 class UserAddForm(forms.Form):
     username = forms.CharField(label=ugettext_lazy('Username'),
                                validators=[
@@ -34,9 +40,14 @@ class UserAddForm(forms.Form):
                                ])
     email = forms.EmailField(label=ugettext_lazy('E-mail'))
 
+    captcha = CaptchaField()
+
     def clean_username(self):
         username = self.cleaned_data.get("username")
+        slug = slugify(username)
         if username and User.objects.filter(username=username).count() > 0:
+            raise forms.ValidationError(_("Username is already in use."))
+        if username and slug and User.objects.filter(slug=slug).count() > 0:
             raise forms.ValidationError(_("Username is already in use."))
         return username
 
@@ -47,6 +58,7 @@ class UserAddForm(forms.Form):
         return email
 
 
+@parsleyfy
 class TaleSearchForm(forms.Form):
     TYPE_CHOICES = (
         ('all', ugettext_lazy('Search all types')),
@@ -75,6 +87,7 @@ class TaleSearchForm(forms.Form):
                                  required=True)
 
 
+@parsleyfy
 class TalePartForm(forms.Form):
     tale = forms.ModelChoiceField(queryset=Tale.objects.all(), required=True, to_field_name='slug',
                                   help_text=ugettext_lazy(
@@ -128,6 +141,7 @@ class TalePartForm(forms.Form):
         return poll_end_date
 
 
+@parsleyfy
 class TaleVariableAddForm(forms.Form):
 
     name = forms.CharField(label=ugettext_lazy('Name'), required=True,
@@ -165,6 +179,7 @@ class TaleVariableAddForm(forms.Form):
         return default_value
 
 
+@parsleyfy
 class TaleVariableEditForm(TaleVariableAddForm):
     def __init__(self, tale=None, tale_variable_name=None, tale_variable=None, *args, **kwargs):
         super(TaleVariableEditForm, self).__init__(tale, *args, **kwargs)
@@ -181,6 +196,7 @@ class TaleVariableEditForm(TaleVariableAddForm):
         return name
 
 
+@parsleyfy
 class TalePreconditionAddForm(forms.Form):
     PRECONDITION_CHOICES = TaleLinkPrecondition.PRECONDITION_CHOICES
 
@@ -213,6 +229,7 @@ class TalePreconditionAddForm(forms.Form):
         return value
 
 
+@parsleyfy
 class TaleConsequenceAddForm(forms.Form):
     CONSEQUENCE_CHOICES = TaleLinkConsequence.CONSEQUENCE_CHOICES
 
@@ -242,6 +259,7 @@ class TaleConsequenceAddForm(forms.Form):
         return value
 
 
+@parsleyfy
 class TaleEditPartForm(TalePartForm):
     def __init__(self, user=None, tale=None, tale_part_name=None, tale_part=None, *args, **kwargs):
         super(TaleEditPartForm, self).__init__(user, tale, *args, **kwargs)
@@ -261,6 +279,7 @@ class TaleEditPartForm(TalePartForm):
         return name
 
 
+@parsleyfy
 class TaleAddForm(forms.Form):
     name = forms.CharField(label=ugettext_lazy('Tale Name'),
                            validators=[
@@ -285,6 +304,7 @@ class TaleAddForm(forms.Form):
         return name
 
 
+@parsleyfy
 class TaleLinkAddForm(forms.Form):
     action = forms.CharField(label=ugettext_lazy('Action Name'),
                              validators=[
@@ -323,6 +343,7 @@ class TaleLinkAddForm(forms.Form):
         return destination
 
 
+@parsleyfy
 class TaleLinkEditForm(TaleLinkAddForm):
     def __init__(self, tale=None, tale_link_action=None, tale_link=None, *args, **kwargs):
         super(TaleLinkEditForm, self).__init__(tale, *args, **kwargs)

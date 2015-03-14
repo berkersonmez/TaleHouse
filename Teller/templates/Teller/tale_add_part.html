@@ -1,6 +1,7 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load staticfiles %}
 {% block title %}{% trans 'Write Tale Part' %}{% endblock %}
 {% block body %}
     <script type="text/javascript">
@@ -17,7 +18,7 @@
         <div class="col-md-12">
             <h2>{% trans 'Create Tale Part' %}</h2>
             {{ tale_add_part_form.non_field_errors }}
-            <form action="{% url 'tale_add_part' %}" role="form" method="post">
+            <form action="{% url 'tale_add_part_idgiven' tale.slug %}" role="form" method="post" data-parsley-validate>
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_name">{{ tale_add_part_form.tale.label }}
@@ -69,6 +70,7 @@
     </div>
 {% endblock %}
 {% block scriptblock %}
+    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
     {% if tale_part_list %}
         {% include "tale_tree.html" %}
     {% endif %}

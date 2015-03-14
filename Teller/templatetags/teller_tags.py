@@ -20,12 +20,12 @@ def print_follow_button(profile, target):
         return ''
     if profile.is_following(target):
         return '<a class="btn btn-success btn-xs" href="%s">%s</a>' % (
-            reverse('user_follow', args=[target.user.username]),
+            reverse('user_follow', args=[target.slug]),
             _('Unfollow')
         )
     else:
         return '<a class="btn btn-success btn-xs" href="%s">%s</a>' % (
-            reverse('user_follow', args=[target.user.username]),
+            reverse('user_follow', args=[target.slug]),
             _('Follow')
         )
 

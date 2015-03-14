@@ -11,6 +11,7 @@ class Profile(models.Model):
     selected_links = models.ManyToManyField('TaleLink', verbose_name=_('selected links'), blank=True, null=True)
     followed_users = models.ManyToManyField('self', verbose_name=_('followed users'), blank=True, null=True,
                                             symmetrical=False)
+    slug = models.SlugField(_('slug'), max_length=150, unique=True)
 
     def __unicode__(self):
         return u"%s" % self.user.username
@@ -56,14 +57,11 @@ class TaleLink(models.Model):
     def __unicode__(self):
         return u"%s" % self.action
 
-    def check_conditions(self, user):
+    def check_conditions(self, tale_variables):
         for precondition in self.preconditions.all():
-            try:
-                user_tale_variable = user.variables.get(tale_variable=precondition.tale_variable)
-            except UserTaleVariable.DoesNotExist:
-                user_tale_variable = UserTaleVariable.objects.create(user=user,
-                                                                     tale_variable=precondition.tale_variable,
-                                                                     value=precondition.tale_variable.default_value)
+            user_tale_variable = next((x for x in tale_variables if x.id == precondition.tale_variable.id), None)
+            if user_tale_variable is None:
+                return False
             if precondition.condition == 'LT':
                 if user_tale_variable.value < precondition.value:
                     return False
@@ -75,21 +73,17 @@ class TaleLink(models.Model):
                     return False
         return True
 
-    def apply_consequences(self, user):
+    def apply_consequences(self, tale_variables):
         for consequence in self.consequences.all():
-            try:
-                user_tale_variable = user.variables.get(tale_variable=consequence.tale_variable)
-            except UserTaleVariable.DoesNotExist:
-                user_tale_variable = UserTaleVariable.objects.create(user=user,
-                                                                     tale_variable=consequence.tale_variable,
-                                                                     value=consequence.tale_variable.default_value)
+            user_tale_variable = next((x for x in tale_variables if x.id == consequence.tale_variable.id), None)
+            if user_tale_variable is None:
+                return
             if consequence.consequence == 'AD':
-                user_tale_variable.value = user_tale_variable.value + consequence.value
+                user_tale_variable.value += consequence.value
             if consequence.consequence == 'SB':
-                user_tale_variable.value = user_tale_variable.value - consequence.value
+                user_tale_variable.value -= consequence.value
             if consequence.consequence == 'EQ':
                 user_tale_variable.value = consequence.value
-            user_tale_variable.save()
 
 
 class TaleVariable(models.Model):
@@ -97,17 +91,11 @@ class TaleVariable(models.Model):
     name = models.CharField(_('name'), max_length=200)
     default_value = models.IntegerField(_('default_value'), default=0)
 
+    def init_value(self):
+        self.value = self.default_value
+
     def __unicode__(self):
         return u"%s" % self.name
-
-
-class UserTaleVariable(models.Model):
-    user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='variables')
-    tale_variable = models.ForeignKey(TaleVariable, verbose_name=_('tale_variable'), related_name='user_values')
-    value = models.IntegerField(_('value'), default=0)
-
-    def __unicode__(self):
-        return u"%s" % self.user.user.username + " - " + self.tale_variable.name
 
 
 class TaleLinkPrecondition(models.Model):

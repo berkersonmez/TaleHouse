@@ -2,13 +2,14 @@
 {% load widget_tweaks %}
 {% load i18n %}
 {% load teller_tags %}
+{% load staticfiles %}
 {% block title %}{% trans 'Search User' %}{% endblock %}
 {% block body %}
     <div class="row">
         <div class="col-md-12">
             <h2>{% trans 'Search User' %}</h2>
             {{ user_list_form.non_field_errors }}
-            <form action="{% url 'user_list' %}" role="form" method="get" class="form-inline">
+            <form action="{% url 'user_list' %}" role="form" method="get" class="form-inline" data-parsley-validate>
                 <div class="form-group">
                     {% render_field user_list_form.username class="form-control" placeholder=user_list_form.username.label %}
                 </div>
@@ -28,7 +29,7 @@
                             {{ profile|print_follow_button:profile_row|safe }}
                         </td>
                         <td><a class="btn btn-primary btn-xs"
-                               href="{% url 'user_profile' profile_row.user.username %}">{% trans 'Profile' %}</a></td>
+                               href="{% url 'user_profile' profile_row.slug %}">{% trans 'Profile' %}</a></td>
                     </tr>
                 {% endfor %}
             </table>
@@ -50,4 +51,5 @@
     </div>
 {% endblock %}
 {% block scriptblock %}
+    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
 {% endblock %}

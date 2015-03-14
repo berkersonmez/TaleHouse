@@ -1,6 +1,7 @@
 {% extends "base-navbar.html" %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load staticfiles %}
 {% block title %}{% trans 'Add Tale Link' %}{% endblock %}
 {% block body %}
     <div class="row">
@@ -8,7 +9,7 @@
             <h2>{% trans 'Add Tale Link' %}</h2>
             <p id="validation-errors"></p>
             {{ tale_add_link_form.non_field_errors }}
-            <form action="{% url 'tale_add_link' tale.slug %}" role="form" method="post">
+            <form action="{% url 'tale_add_link' tale.slug %}" role="form" method="post" data-parsley-validate>
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_action">{{ tale_add_link_form.action.label }}
@@ -98,6 +99,7 @@
     </div>
 {% endblock %}
 {% block scriptblock %}
+    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
     {% include "tale_tree.html" %}
     <script type="text/javascript">
         var precons = {};

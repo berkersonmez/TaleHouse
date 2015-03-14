@@ -9,7 +9,8 @@ from ckeditor.widgets import CKEditorWidget
 from django.core import validators
 from django.utils import timezone
 from parsley.decorators import parsleyfy
-from Teller.models import Language, TalePart, Tale, TaleLink, TaleVariable, TaleLinkPrecondition, TaleLinkConsequence
+from Teller.models import Language, TalePart, Tale, TaleLink, TaleVariable, TaleLinkPrecondition, TaleLinkConsequence, \
+    Profile
 from django.db.models import Q
 from captcha.fields import CaptchaField
 
@@ -47,7 +48,7 @@ class UserAddForm(forms.Form):
         slug = slugify(username)
         if username and User.objects.filter(username=username).count() > 0:
             raise forms.ValidationError(_("Username is already in use."))
-        if username and slug and User.objects.filter(slug=slug).count() > 0:
+        if username and slug and Profile.objects.filter(slug=slug).count() > 0:
             raise forms.ValidationError(_("Username is already in use."))
         return username
 

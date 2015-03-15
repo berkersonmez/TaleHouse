@@ -35,6 +35,7 @@ INSTALLED_APPS = (
     'bootstrap3_datetime',
     'captcha',
     'parsley',
+    'social.apps.django_app.default',
     'Teller',
 )
 
@@ -56,8 +57,19 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.request"
+    "django.core.context_processors.request",
+    "social.apps.django_app.context_processors.backends",
+    "social.apps.django_app.context_processors.login_redirect",
 )
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.Facebook2OAuth2',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+LOGIN_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'TaleHouse.urls'
 
@@ -88,6 +100,7 @@ CSRF_COOKIE_HTTPONLY = True
 
 SOUTH_MIGRATION_MODULES = {
     'captcha': 'captcha.south_migrations',
+    'default': 'social.apps.django_app.default.south_migrations'
 }
 
 # Static files (CSS, JavaScript, Images)
@@ -152,6 +165,8 @@ CKEDITOR_CONFIGS = {
 CKEDITOR_RESTRICT_BY_USER = True
 
 CAPTCHA_FOREGROUND_COLOR = '#158cba'
+
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 TELLER_MAX_LINKS_PER_PART = 10
 TELLER_MAX_PARTS_PER_TALE = 50

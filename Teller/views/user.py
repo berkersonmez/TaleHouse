@@ -62,11 +62,14 @@ def user_add(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             email = form.cleaned_data['email']
-            slug = slugify(username)
+            # slug = slugify(username)
             user = User.objects.create_user(username, email, password)
-            profile = Profile.objects.create(user=user, slug=slug)
+            if user is None:
+                return redirect('error_info', _('An error occured'))
+            # Changed profile to be created on post_save signal
+            # profile = Profile.objects.create(user=user, slug=slug)
             user = authenticate(username=username, password=password)
-            if user is None or not user.is_active or profile is None:
+            if user is None or not user.is_active:
                 return redirect('error_info', _('An error occured'))
             login(request, user)
             return redirect('index')

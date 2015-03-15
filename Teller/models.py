@@ -1,5 +1,8 @@
+import random
 from django.db import models
 from ckeditor.fields import RichTextField
+from django.db.models.signals import post_save
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from decimal import *
@@ -18,6 +21,17 @@ class Profile(models.Model):
 
     def is_following(self, target):
         return target in self.followed_users.all()
+
+
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        slug_this = instance.username
+        slug = slugify(slug_this)
+        while Profile.objects.filter(slug=slug).count() > 0:
+            slug_this += str(random.randint(0, 9))
+            slug = slugify(slug_this)
+        Profile.objects.create(user=instance, slug=slug)
+post_save.connect(create_profile, sender=User)
 
 
 class Tale(models.Model):

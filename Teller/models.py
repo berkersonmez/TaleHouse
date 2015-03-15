@@ -1,5 +1,5 @@
 import random
-from django.db import models
+from django.db import models, connection
 from ckeditor.fields import RichTextField
 from django.db.models.signals import post_save
 from django.utils.text import slugify
@@ -24,12 +24,12 @@ class Profile(models.Model):
 
 
 def create_profile(sender, instance, created, **kwargs):
-    if created:
+    if created and 'Teller_profile' in connection.introspection.table_names():
         slug_this = instance.username
-        slug = slugify(slug_this)
+        slug = slugify(unicode(slug_this))
         while Profile.objects.filter(slug=slug).count() > 0:
-            slug_this += str(random.randint(0, 9))
-            slug = slugify(slug_this)
+            slug_this += random.randint(0, 9)
+            slug = slugify(unicode(slug_this))
         Profile.objects.create(user=instance, slug=slug)
 post_save.connect(create_profile, sender=User)
 

@@ -1,4 +1,4 @@
-from fabric.api import run, env, cd, sudo, prefix
+from fabric.api import run, env, cd, sudo, prefix, local
 from contextlib import contextmanager as _contextmanager
 
 env.activate = 'source /home/env/bin/activate'
@@ -24,3 +24,13 @@ def deploy():
             run('python manage.py compilemessages')
 
         sudo('service apache2 restart')
+
+
+def setup_dev():
+    # run 'pip install Fabric==1.10.1' before this
+    local('python manage.py syncdb')
+    local('python manage.py migrate Teller')
+    local('python manage.py migrate captcha')
+    local('python manage.py migrate default')
+    local('python manage.py collectstatic')
+    local('python manage.py compilemessages')

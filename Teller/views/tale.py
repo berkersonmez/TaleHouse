@@ -255,6 +255,7 @@ def tale_add_link(request, tale_slug):
                 link_form = TaleLinkAddForm(tale, data=post_vals)
                 if not link_form.is_valid():
                     raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                name = link_form.cleaned_data['name']
                 action = link_form.cleaned_data['action']
                 source = link_form.cleaned_data['source']
                 destination = link_form.cleaned_data['destination']
@@ -263,6 +264,7 @@ def tale_add_link(request, tale_slug):
                                      {'max_links_per_part': settings.TELLER_MAX_LINKS_PER_PART})
                 tale_link = TaleLink.objects.create(source=source,
                                                     destination=destination,
+                                                    name=name,
                                                     action=action,
                                                     tale=tale)
                 if tale_link is None:
@@ -304,13 +306,15 @@ def tale_edit_link(request, tale_link_id):
         try:
             with transaction.atomic():
                 post_vals = json_data['postVals']
-                link_form = TaleLinkEditForm(tale, tale_link.action, data=post_vals)
+                link_form = TaleLinkEditForm(tale, tale_link.name, data=post_vals)
                 if not link_form.is_valid():
                     raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
                 action = link_form.cleaned_data['action']
+                name = link_form.cleaned_data['name']
                 source = link_form.cleaned_data['source']
                 destination = link_form.cleaned_data['destination']
                 tale_link.action = action
+                tale_link.name = name
                 tale_link.source = source
                 tale_link.destination = destination
                 tale_link.save()
@@ -326,7 +330,7 @@ def tale_edit_link(request, tale_link_id):
             return HttpResponse(_(e.message))
         return HttpResponse('OK')
     else:
-        form = TaleLinkEditForm(tale, tale_link.action, tale_link)
+        form = TaleLinkEditForm(tale, tale_link.name, tale_link)
         precons = TaleLinkPrecondition.objects.filter(tale_link=tale_link)
         conseqs = TaleLinkConsequence.objects.filter(tale_link=tale_link)
         preconditions_form = TalePreconditionAddForm(tale)
@@ -678,7 +682,7 @@ def tale_apply_graph(request, tale_slug):
                             raise ValueError(_('Could not find the tale link: ') + value.get('b_id'))
                         value['source'] = parts[value['source_node']]['b_id']
                         value['destination'] = parts[value['target_node']]['b_id']
-                        link_form = TaleLinkEditForm(tale, tale_link.action, data=value)
+                        link_form = TaleLinkEditForm(tale, tale_link.name, data=value)
                         if not link_form.is_valid():
                             raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
                         tale_link.action = link_form.cleaned_data['action']

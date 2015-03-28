@@ -34,6 +34,11 @@
                 </div>
                 <button type="submit" class="btn btn-success">{% trans 'Sign up' %}</button>
             </form>
+            <p>{% trans 'OR' %}</p>
+            <p>
+                <a href="{% url 'social:begin' 'facebook' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-facebook btn-logoandtext">{% trans 'Login with' %} <img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                <a href="{% url 'social:begin' 'google-oauth2' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-google btn-logoandtext">{% trans 'Login with' %} <img src="{% static 'Teller/img/google-logo.png' %}"></a>
+            </p>
         </div>
     </div>
 {% endblock %}

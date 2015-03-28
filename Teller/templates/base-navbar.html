@@ -64,6 +64,16 @@
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{% url 'user_profile' profile.slug %}">{% trans 'Profile' %}</a>
                                 </li>
+                                {% if not facebook_associated %}
+                                    <li>
+                                    <a href="{% url 'social:begin' 'facebook' %}">{% trans 'Connect Facebook Account' %}</a>
+                                    </li>
+                                {% endif %}
+                                {% if not google_associated %}
+                                    <li>
+                                    <a href="{% url 'social:begin' 'google-oauth2' %}">{% trans 'Connect Google Account' %}</a>
+                                    </li>
+                                {% endif %}
                                 <li class="divider"></li>
                                 <li><a href="{% url 'user_logout' %}">{% trans 'Log out' %}</a></li>
                             </ul>
@@ -83,7 +93,8 @@
                         </div>
                         <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
                         <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
-                        <a href="{% url 'social:begin' 'facebook' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-success">{% trans 'f' %}</a>
+                        <a href="{% url 'social:begin' 'facebook' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                        <a href="{% url 'social:begin' 'google-oauth2' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">

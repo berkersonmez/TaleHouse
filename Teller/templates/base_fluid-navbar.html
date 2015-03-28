@@ -79,6 +79,8 @@
                         </div>
                         <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
                         <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
+                        <a href="{% url 'social:begin' 'facebook' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                        <a href="{% url 'social:begin' 'google-oauth2' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">

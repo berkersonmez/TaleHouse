@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 from lxml import etree
 import pprint
@@ -7,14 +8,14 @@ from Teller.models import Tale, Profile, TalePart, TaleLink, Rating, TaleVariabl
     TaleLinkConsequence
 from Teller.shortcuts.tarjans_cycle_detection import TarjansCycleDetection
 from Teller.shortcuts.teller_content_parser import TellerContentParser
-from Teller.shortcuts.teller_shortcuts import render_with_defaults
+from Teller.shortcuts.teller_shortcuts import render_with_defaults, redirect_with_next
 from django.shortcuts import redirect
 from django.db.models import Q, Count
 from django.utils.translation import ugettext as _
 from django.utils import timezone
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from decimal import *
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 import json
 from django.db import IntegrityError, transaction
 from django.conf import settings
@@ -63,6 +64,9 @@ def get_last_part(tale, user, page_no):
         if len(links) == 0:
             return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
                     'part': current_part, 'page': i, 'variables': variables}
+        if user is None:
+            return {'part': current_part, 'status': part_status('VOTE'),
+                    'links': links, 'page': i, 'variables': variables}
         selected_link = [x for x in links if user.selected_links.filter(id=x.id)]
         if len(selected_link) == 0:
             return {'part': current_part, 'status': part_status('VOTE'),
@@ -165,13 +169,14 @@ def edit_preconditions_and_consequences(json_data, tale_link):
 
 
 def tale_read(request, tale_slug, page_no=-1):
-    if not request.user.is_authenticated():
-        return redirect('user_add')
-    profile = Profile.objects.get(user__id=request.user.id)
+    if request.user.is_authenticated():
+        profile = Profile.objects.get(user__id=request.user.id)
+    else:
+        profile = None
     try:
         tale = Tale.objects.get(slug=tale_slug)
     except Tale.DoesNotExist:
-        return redirect('user_add')
+        return redirect('error_info', _('Tale not found'))
     if tale.user != profile and not tale.is_published:
         return redirect('error_info', _('Tale not found'))
     if tale.is_poll_tale:
@@ -190,13 +195,14 @@ def tale_read(request, tale_slug, page_no=-1):
         except etree.Error:
             return redirect('error_info', _('An error occurred'))
 
-    context = {'tale': tale, 'profile': profile, 'result': result, 'status_enum': part_status_vals()}
+    context = {'tale': tale, 'profile': profile, 'result': result, 'status_enum': part_status_vals(),
+               'fb_app_id': settings.SOCIAL_AUTH_FACEBOOK_KEY}
     return render_with_defaults(request, 'Teller/tale_read.html', context)
 
 
 def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(slug=tale_slug)
@@ -225,7 +231,7 @@ def tale_vote(request, tale_slug, tale_link_id, tale_part_id, page_no):
 
 def tale_reset(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(slug=tale_slug)
@@ -348,7 +354,7 @@ def tale_edit_link(request, tale_link_id):
 
 def tale_delete_link(request, tale_link_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_link = TaleLink.objects.get(id=tale_link_id, tale__user=profile)
@@ -363,7 +369,7 @@ def tale_delete_link(request, tale_link_id):
 
 def tale_add_part(request, tale_slug=0):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
 
     tale = None
@@ -407,7 +413,7 @@ def tale_add_part(request, tale_slug=0):
 
 def tale_edit_part(request, tale_part_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
@@ -434,7 +440,7 @@ def tale_edit_part(request, tale_part_id):
 
 def tale_delete_part(request, tale_part_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
@@ -451,7 +457,7 @@ def tale_delete_part(request, tale_part_id):
 
 def tale_add_variable(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, slug=tale_slug)
@@ -481,7 +487,7 @@ def tale_add_variable(request, tale_slug):
 
 def tale_edit_variable(request, tale_variable_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_variable = TaleVariable.objects.get(id=tale_variable_id, tale__user=profile)
@@ -504,7 +510,7 @@ def tale_edit_variable(request, tale_variable_id):
 
 def tale_delete_variable(request, tale_variable_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale_variable = TaleVariable.objects.get(id=tale_variable_id, tale__user=profile)
@@ -517,7 +523,7 @@ def tale_delete_variable(request, tale_variable_id):
 
 def tale_add(request):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     if request.method == 'POST':
         form = TaleAddForm(request.POST)
@@ -553,7 +559,7 @@ def tale_add(request):
 
 def tale_delete(request, tale_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(id=tale_id, user=profile)
@@ -567,7 +573,7 @@ def tale_delete(request, tale_id):
 
 def tale_details(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, slug=tale_slug)
@@ -575,14 +581,14 @@ def tale_details(request, tale_slug):
         return redirect('error_info', _('Tale not found'))
     # tarjan = TarjansCycleDetection(tale.id, tale)
     # tarjan.detect_cycles()
-    context = {'tale': tale}
+    context = {'tale': tale, 'tale_full_url': request.build_absolute_uri(reverse('tale_read_continue', args=[tale.slug]))}
     context = add_lists_to_context(context, tale)
     return render_with_defaults(request, 'Teller/tale_details.html', context)
 
 
 def tale_edit_graph(request, tale_slug):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, slug=tale_slug)
@@ -714,7 +720,7 @@ def tale_apply_graph(request, tale_slug):
 
 def tale_list(request):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     list_of_tales = Tale.objects.filter(user=profile)
     context = {'tale_list': list_of_tales}
@@ -723,7 +729,7 @@ def tale_list(request):
 
 def tale_publish(request, tale_id):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(user=profile, id=tale_id)
@@ -732,12 +738,18 @@ def tale_publish(request, tale_id):
     if not tale.is_published:
         tale.is_published = True
         tale.save()
-    return redirect('tale_list')
+    if request.GET:
+        next_link = request.GET['next']
+        if next_link == '' or next_link == '/' or next_link is None:
+            return redirect('tale_list')
+        return HttpResponseRedirect(next_link)
+    else:
+        return redirect('tale_list')
 
 
 def tale_rate(request, tale_id, rate_amount):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     try:
         tale = Tale.objects.get(id=tale_id, is_published=True)
@@ -761,7 +773,7 @@ def tale_rate(request, tale_id, rate_amount):
 
 def tale_search(request):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     page_no = 1
     tale_name = ''

@@ -84,6 +84,16 @@ body {
     width: 19px;
 }
 
+.btn-twitter {
+    padding: 6px 8px 6px;
+    background-color: #55acee;
+    border-color: #3d80bd;
+}
+
+.btn-twitter img {
+    width: 19px;
+}
+
 .btn-logoandtext {
     padding: 8px 8px 4px;
     color: #ffffff;
@@ -94,4 +104,8 @@ body {
 .btn-logoandtext:hover,
 .btn-logoandtext:active {
     color: #ffffff;
+}
+
+.rate-buttons-container {
+    margin-bottom: 10px;
 }

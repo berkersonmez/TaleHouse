@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from social.apps.django_app.default.models import UserSocialAuth
 from Teller.models import Profile
@@ -21,3 +21,9 @@ def render_with_defaults(request, template_name, context):
         form = UserLoginForm()
         context.update({'user_login_form': form})
     return render(request, template_name, context)
+
+
+def redirect_with_next(url, next_url):
+    http_redirect = redirect(url)
+    http_redirect['Location'] += '?next=' + next_url
+    return http_redirect

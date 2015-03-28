@@ -69,7 +69,7 @@
                         </li>
                     </ul>
                 {% else %}
-                    <form class="navbar-form navbar-right" action="{% url 'user_login' %}" role="form" method="post">
+                    <form class="navbar-form navbar-right" action="{% url 'user_login' %}?next={% firstof request.GET.next request.path '/' %}" role="form" method="post">
                         {% csrf_token %}
                         <div class="form-group">
                             {% render_field user_login_form.username class="form-control" placeholder=user_login_form.username.label %}
@@ -79,8 +79,8 @@
                         </div>
                         <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
                         <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
-                        <a href="{% url 'social:begin' 'facebook' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
-                        <a href="{% url 'social:begin' 'google-oauth2' %}?next=http://talehouse.berkersonmez.com:8080" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
+                        <a href="{% url 'social:begin' 'facebook' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                        <a href="{% url 'social:begin' 'google-oauth2' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">

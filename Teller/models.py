@@ -66,10 +66,11 @@ class TaleLink(models.Model):
     destination = models.ForeignKey(TalePart, verbose_name=_('destination tale part'), blank=True, null=True,
                                     related_name='entrances')
     action = models.CharField(_('action'), max_length=200)
+    name = models.CharField(_('name'), max_length=40, blank=False, null=False, default='UNNAMED')
     tale = models.ForeignKey(Tale, verbose_name=_('tale'))
 
     def __unicode__(self):
-        return u"%s" % self.action
+        return u"%s" % self.name
 
     def check_conditions(self, tale_variables):
         for precondition in self.preconditions.all():

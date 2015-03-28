@@ -1,1 +1,4 @@
 .idea
+db.sqlite3
+TaleHouse/settings/server_settings.py
+locale/tr/LC_MESSAGES/django.mo

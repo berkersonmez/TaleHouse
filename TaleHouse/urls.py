@@ -14,6 +14,7 @@ urlpatterns = patterns('',
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^ckeditor/', include('ckeditor.urls')),
                        url(r'^captcha/', include('captcha.urls')),
+                       url('', include('social.apps.django_app.urls', namespace='social')),
                        url(r'', include('Teller.urls')),
 )
 

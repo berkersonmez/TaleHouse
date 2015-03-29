@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "Teller.profile", "fields": {"selected_links": [], "user": 1, "followed_users": [], "slug": "admin"}}, {"pk": 1, "model": "Teller.language", "fields": {"code": "enUS", "name": "English"}}, {"pk": 2, "model": "Teller.language", "fields": {"code": "tr", "name": "T\u00fcrk\u00e7e"}}]

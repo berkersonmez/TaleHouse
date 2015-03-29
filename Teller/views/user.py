@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.text import slugify
 from Teller.models import Profile
-from Teller.shortcuts.teller_shortcuts import render_with_defaults
+from Teller.shortcuts.teller_shortcuts import render_with_defaults, redirect_with_next
 from Teller.forms import UserLoginForm, UserAddForm, UserSearchForm
 from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import ugettext as _
@@ -11,7 +12,7 @@ from django.utils.translation import ugettext as _
 
 def user_list(request):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     page_no = 1
     username = ''
     if request.method == 'GET':
@@ -42,9 +43,9 @@ def user_list(request):
 
 def user_profile(request, user_username):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     if user_username is None:
-        return redirect('error_info', _('An error occured'))
+        return redirect('error_info', _('An error occurred'))
     try:
         profile = Profile.objects.get(slug=user_username)
     except Profile.DoesNotExist:
@@ -62,14 +63,23 @@ def user_add(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             email = form.cleaned_data['email']
-            slug = slugify(username)
+            # slug = slugify(username)
             user = User.objects.create_user(username, email, password)
-            profile = Profile.objects.create(user=user, slug=slug)
+            if user is None:
+                return redirect('error_info', _('An error occurred'))
+            # Changed profile to be created on post_save signal
+            # profile = Profile.objects.create(user=user, slug=slug)
             user = authenticate(username=username, password=password)
-            if user is None or not user.is_active or profile is None:
-                return redirect('error_info', _('An error occured'))
+            if user is None or not user.is_active:
+                return redirect('error_info', _('An error occurred'))
             login(request, user)
-            return redirect('index')
+            if request.GET:
+                next_link = request.GET['next']
+                if next_link == '' or next_link == '/' or next_link is None:
+                    return redirect('index')
+                return HttpResponseRedirect(next_link)
+            else:
+                return redirect('index')
     else:
         form = UserAddForm()
     context = {'user_add_form': form}
@@ -88,7 +98,13 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('index')
+                    if request.GET:
+                        next_link = request.GET['next']
+                        if next_link == '' or next_link == '/' or next_link is None:
+                            return redirect('index')
+                        return HttpResponseRedirect(next_link)
+                    else:
+                        return redirect('index')
                 else:
                     return redirect('error_info', _('User is disabled'))
             else:
@@ -105,7 +121,7 @@ def user_logout(request):
 
 def user_follow(request, target_username):
     if not request.user.is_authenticated():
-        return redirect('user_add')
+        return redirect_with_next('user_add', request.path)
     profile = Profile.objects.get(user__id=request.user.id)
     if profile.user.username == target_username:
         return redirect('error_info', _('That makes no sense'))

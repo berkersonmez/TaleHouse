@@ -13,7 +13,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{% url 'index' %}">Tale House</a>
+                <a class="navbar-brand" href="{% url 'index' %}">Interactale</a>
             </div>
             <div class="navbar-collapse collapse">
                 <form name="set-language" action="{% url 'set_language' %}" method="POST">
@@ -64,13 +64,23 @@
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{% url 'user_profile' profile.slug %}">{% trans 'Profile' %}</a>
                                 </li>
+                                {% if not facebook_associated %}
+                                    <li>
+                                    <a href="{% url 'social:begin' 'facebook' %}">{% trans 'Connect Facebook Account' %}</a>
+                                    </li>
+                                {% endif %}
+                                {% if not google_associated %}
+                                    <li>
+                                    <a href="{% url 'social:begin' 'google-oauth2' %}">{% trans 'Connect Google Account' %}</a>
+                                    </li>
+                                {% endif %}
                                 <li class="divider"></li>
                                 <li><a href="{% url 'user_logout' %}">{% trans 'Log out' %}</a></li>
                             </ul>
                         </li>
                     </ul>
                 {% else %}
-                    <form class="navbar-form navbar-right" action="{% url 'user_login' %}" role="form" method="post">
+                    <form class="navbar-form navbar-right" action="{% url 'user_login' %}?next={% firstof request.GET.next request.path '/' %}" role="form" method="post">
                         {% csrf_token %}
                         <div class="form-group">
                             {% render_field user_login_form.username class="form-control" placeholder=user_login_form.username.label %}
@@ -83,6 +93,8 @@
                         </div>
                         <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
                         <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
+                        <a href="{% url 'social:begin' 'facebook' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                        <a href="{% url 'social:begin' 'google-oauth2' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">

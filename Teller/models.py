@@ -1,5 +1,8 @@
-from django.db import models
+import random
+from django.db import models, connection
 from ckeditor.fields import RichTextField
+from django.db.models.signals import post_save
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from decimal import *
@@ -18,6 +21,17 @@ class Profile(models.Model):
 
     def is_following(self, target):
         return target in self.followed_users.all()
+
+
+def create_profile(sender, instance, created, **kwargs):
+    if created and 'Teller_profile' in connection.introspection.table_names():
+        slug_this = instance.username
+        slug = slugify(unicode(slug_this))
+        while Profile.objects.filter(slug=slug).count() > 0:
+            slug_this += random.randint(0, 9)
+            slug = slugify(unicode(slug_this))
+        Profile.objects.create(user=instance, slug=slug)
+post_save.connect(create_profile, sender=User)
 
 
 class Tale(models.Model):
@@ -52,10 +66,11 @@ class TaleLink(models.Model):
     destination = models.ForeignKey(TalePart, verbose_name=_('destination tale part'), blank=True, null=True,
                                     related_name='entrances')
     action = models.CharField(_('action'), max_length=200)
+    name = models.CharField(_('name'), max_length=40, blank=False, null=False, default='UNNAMED')
     tale = models.ForeignKey(Tale, verbose_name=_('tale'))
 
     def __unicode__(self):
-        return u"%s" % self.action
+        return u"%s" % self.name
 
     def check_conditions(self, tale_variables):
         for precondition in self.preconditions.all():

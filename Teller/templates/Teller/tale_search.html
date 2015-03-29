@@ -8,7 +8,7 @@
         <div class="col-md-12">
             <h2>{% trans 'Search Tale' %}</h2>
             {{ tale_search_form.non_field_errors }}
-            <form action="{% url 'tale_search' %}" role="form" method="get" class="form-inline" data-parsley-validate>
+            <form action="{% url 'tale_search' %}" role="form" method="get" class="form-inline">
                 <div class="form-group">
                     {% render_field tale_search_form.tale_name class="form-control" placeholder=tale_search_form.tale_name.label %}
                 </div>
@@ -72,7 +72,6 @@
     </div>
 {% endblock %}
 {% block scriptblock %}
-    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('input:checked').parent().addClass('active');

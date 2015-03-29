@@ -9,7 +9,7 @@
         <div class="col-md-12">
             <h2>{% trans 'Sign up' %}</h2>
             {{ user_add_form.non_field_errors }}
-            <form action="{% url 'user_add' %}" role="form" method="post" data-parsley-validate>
+            <form action="{% url 'user_add' %}?next={% firstof request.GET.next '/' %}" role="form" method="post" data-parsley-validate>
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_username">{{ user_add_form.username.label }}</label>
@@ -34,6 +34,11 @@
                 </div>
                 <button type="submit" class="btn btn-success">{% trans 'Sign up' %}</button>
             </form>
+            <p>{% trans 'OR' %}</p>
+            <p>
+                <a href="{% url 'social:begin' 'facebook' %}?next={% firstof request.GET.next '/' %}" class="btn btn-facebook btn-logoandtext">{% trans 'Login with' %} <img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                <a href="{% url 'social:begin' 'google-oauth2' %}?next={% firstof request.GET.next '/' %}" class="btn btn-google btn-logoandtext">{% trans 'Login with' %} <img src="{% static 'Teller/img/google-logo.png' %}"></a>
+            </p>
         </div>
     </div>
 {% endblock %}

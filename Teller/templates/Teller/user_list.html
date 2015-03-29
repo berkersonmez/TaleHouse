@@ -9,7 +9,7 @@
         <div class="col-md-12">
             <h2>{% trans 'Search User' %}</h2>
             {{ user_list_form.non_field_errors }}
-            <form action="{% url 'user_list' %}" role="form" method="get" class="form-inline" data-parsley-validate>
+            <form action="{% url 'user_list' %}" role="form" method="get" class="form-inline">
                 <div class="form-group">
                     {% render_field user_list_form.username class="form-control" placeholder=user_list_form.username.label %}
                 </div>
@@ -51,5 +51,4 @@
     </div>
 {% endblock %}
 {% block scriptblock %}
-    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
 {% endblock %}

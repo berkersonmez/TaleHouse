@@ -307,13 +307,21 @@ class TaleAddForm(forms.Form):
 
 @parsleyfy
 class TaleLinkAddForm(forms.Form):
-    action = forms.CharField(label=ugettext_lazy('Action Name'),
+    name = forms.CharField(label=ugettext_lazy('Name'),
                              validators=[
                                  validators.MinLengthValidator(3),
                                  validators.MaxLengthValidator(200)
                              ],
                              help_text=ugettext_lazy(
-                                 'Action name will be shown to the user to let them select as their choice.'
+                                 'Link name will not be shown to the readers. It is a unique name for the link'
+                                 'to conveniently distinguish it from the other links.'))
+    action = forms.CharField(label=ugettext_lazy('Action Text'),
+                             validators=[
+                                 validators.MinLengthValidator(3),
+                                 validators.MaxLengthValidator(200)
+                             ],
+                             help_text=ugettext_lazy(
+                                 'Action text will be shown to the reader to let them select as their choice.'
                                          'According to selected actions, story will advance'))
     source = forms.ModelChoiceField(label=ugettext_lazy('Source'), queryset=TalePart.objects.all(), required=True,
                                     help_text=ugettext_lazy('When this action is selected, the story will depart '
@@ -330,11 +338,11 @@ class TaleLinkAddForm(forms.Form):
             self.fields['source'].queryset = TalePart.objects.filter(tale=tale)
             self.fields['destination'].queryset = TalePart.objects.filter(tale=tale)
 
-    def clean_action(self):
-        action = self.cleaned_data.get("action")
-        if action and TaleLink.objects.filter(action=action, tale=self.tale).count() > 0:
-            raise forms.ValidationError(_("There is another link with the same action text."))
-        return action
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        if name and TaleLink.objects.filter(name=name, tale=self.tale).count() > 0:
+            raise forms.ValidationError(_("There is another link with the same name."))
+        return name
 
     def clean_destination(self):
         source = self.cleaned_data.get("source")
@@ -346,17 +354,25 @@ class TaleLinkAddForm(forms.Form):
 
 @parsleyfy
 class TaleLinkEditForm(TaleLinkAddForm):
-    def __init__(self, tale=None, tale_link_action=None, tale_link=None, *args, **kwargs):
+    def __init__(self, tale=None, tale_link_name=None, tale_link=None, *args, **kwargs):
         super(TaleLinkEditForm, self).__init__(tale, *args, **kwargs)
-        self.tale_link_action = tale_link_action
+        self.tale_link_name = tale_link_name
         if not tale_link is None:
             self.fields['source'].initial = tale_link.source.id
             self.fields['destination'].initial = tale_link.destination.id
             self.fields['action'].initial = tale_link.action
+            self.fields['name'].initial = tale_link.name
 
-    def clean_action(self):
-        action = self.cleaned_data.get("action")
-        if action and action != self.tale_link_action and TaleLink.objects.filter(action=action,
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        if name and name != self.tale_link_name and TaleLink.objects.filter(name=name,
                                                                                   tale=self.tale).count() > 0:
-            raise forms.ValidationError(_("There is another link with the same action text."))
-        return action
+            raise forms.ValidationError(_("There is another link with the same name."))
+        return name
+
+
+@parsleyfy
+class TaleCommentAddForm(forms.Form):
+    content = forms.CharField(widget=CKEditorWidget(config_name='comment'), label=ugettext_lazy('Content'),
+                              help_text=ugettext_lazy(
+                                  'Write comments to show your appreciation to the authors.'))

@@ -1,5 +1,7 @@
 {% extends "base-navbar.html" %}
 {% load i18n %}
+{% load staticfiles %}
+{% load teller_tags %}
 {% block title %}{{ tale.name }}{% endblock %}
 {% block body %}
     <div class="row">
@@ -7,22 +9,53 @@
             <h2>{{ tale.name }} <a href="{% url 'tale_read_continue' tale.slug %}"
                                    class="btn btn-primary btn-xs">{% trans 'Read' %}</a></h2>
 
-            <p></p>
+            <h3>
+            {% trans 'Publication' %}
+            <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+            title="{% trans 'Publish your tale here. When a tale is published, it can be seen by other people. You can then share your story anywhere you like.' %}"></span>
+            </h3>
+            {% if not tale.is_published %}
+                <p><a class="btn btn-success"
+                   href="{% url 'tale_publish' tale.id %}?next={% firstof request.path '/' %}">{% trans 'Publish' %}</a></p>
+            {% else %}
+                <p><a class="btn btn-success disabled"
+                       href="#">{% trans 'Published' %}</a>
+               {{ tale_full_url|print_tale_share_buttons:tale|safe }}
+               </p>
+            {% endif %}
 
-            <h3>{% trans 'Tale Parts' %}</h3>
-            <table class="table table-striped">
+            <h3>
+                {% trans 'Tale Parts' %}
+                <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                title="{% trans 'Tale parts are the pages of your story. You can edit and delete them here.' %}"></span>
+            </h3>
+            <table class="table table-striped" id="tale-table-parts">
+                <thead>
                 <tr>
                     <th>{% trans 'Part Name' %}</th>
                     <th>{% trans 'Is Start?' %}</th>
                     <th>{% trans 'Is Enabled?' %}</th>
+                    <th>{% trans 'Enable/Disable' %}</th>
                     <th>{% trans 'Edit' %}</th>
                     <th>{% trans 'Delete' %}</th>
                 </tr>
+                </thead>
+                <tbody>
                 {% for tale_part in tale_part_list %}
                     <tr>
                         <td>{{ tale_part.name }}</td>
-                        <td>{{ tale_part.is_start }}</td>
-                        <td>{{ tale_part.is_active }}</td>
+                        <td>{{ tale_part.is_start|yesno:'<span class="glyphicon glyphicon-ok-sign"></span>,<span class="glyphicon glyphicon-remove-sign"></span>'|safe }}</td>
+                        <td>{{ tale_part.is_active|yesno:'<span class="glyphicon glyphicon-ok-sign"></span>,<span class="glyphicon glyphicon-remove-sign"></span>'|safe }}</td>
+                        <td>
+                            <a class="btn btn-warning btn-xs"
+                               href="{% url 'tale_activate_part' tale_part.id %}">
+                                {% if tale_part.is_active %}
+                                    {% trans 'Disable' %}
+                                {% else %}
+                                    {% trans 'Enable' %}
+                                {% endif %}
+                            </a>
+                        </td>
                         <td><a class="btn btn-warning btn-xs"
                                href="{% url 'tale_edit_part' tale_part.id %}">{% trans 'Edit' %}</a></td>
                         <td>
@@ -34,21 +67,84 @@
                         </td>
                     </tr>
                 {% endfor %}
+                </tbody>
             </table>
             <p><a href="{% url 'tale_add_part_idgiven' tale.slug %}"
                   class="btn btn-success">{% trans 'Add New Part' %}</a></p>
 
-            <h3>{% trans 'Tale Links' %}</h3>
-            <table class="table table-striped">
+            <h3>
+            {% trans 'Tale Links' %}
+            <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+            title="{% trans 'Tale links are the decisions the readers will face. Click on the eye icon to show/hide the preconditions and the consequences of that link. If the preconditions are not met, link will not be shown to the reader. Consequences will be applied when the link is selected by the reader.' %}"></span>
+            </h3>
+            <table class="table table-striped" id="tale-table-links">
+                <thead>
                 <tr>
-                    <th>{% trans 'Link Action' %}</th>
+                    <th><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></th>
+                    <th><span class="glyphicon glyphicon-stats" aria-hidden="true"></span></th>
+                    <th>{% trans 'Link Name' %}</th>
+                    <th>{% trans 'Action' %}</th>
                     <th>{% trans 'Source' %}</th>
                     <th>{% trans 'Destination' %}</th>
                     <th>{% trans 'Edit' %}</th>
                     <th>{% trans 'Delete' %}</th>
                 </tr>
+                </thead>
+                <tbody>
                 {% for tale_link in tale_link_list %}
+                    <div id="link-pre-{{ tale_link.id }}" style="display: none">
+                        <h4>{% trans 'Preconditions' %}</h4>
+                        {% if tale_link.preconditions.all.count == 0 %}
+                            {% trans 'None' %}
+                        {% endif %}
+                        {% for tale_link_precon in tale_link.preconditions.all %}
+                            <p>
+                            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                            {{ tale_link_precon.tale_variable.name }} -
+                            {{ tale_link_precon.get_condition_display }} -
+                            {{ tale_link_precon.value }}
+                            </p>
+                        {% endfor %}
+                        <h4>{% trans 'Consequences' %}</h4>
+                        {% if tale_link.consequences.all.count == 0 %}
+                            {% trans 'None' %}
+                        {% endif %}
+                        {% for tale_link_conseq in tale_link.consequences.all %}
+                            <p>
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                            {{ tale_link_conseq.tale_variable.name }} -
+                            {{ tale_link_conseq.get_consequence_display }} -
+                            {{ tale_link_conseq.value }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                    <div id="link-stat-{{ tale_link.id }}" style="display: none">
+                        <h4>{% trans 'Statistics' %}</h4>
+                        <p>{% trans 'Readers selected this link:' %} {{ tale_link.profile_set.all.count }}</p>
+                        <p>{% trans 'Percent selected this link:' %} %{{ tale_link.get_users_selected_percent|floatformat }}</p>
+                    </div>
                     <tr>
+                        <td>
+                            <a tabindex="0" data-toggle="popover"
+                            role="button"
+                            data-content=""
+                            data-content-target="link-pre-{{ tale_link.id }}"
+                            data-trigger="focus"
+                             class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a tabindex="0" data-toggle="popover"
+                            role="button"
+                            data-content=""
+                            data-content-target="link-stat-{{ tale_link.id }}"
+                            data-trigger="focus"
+                             class="btn btn-default btn-xs">
+                                <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                        <td>{{ tale_link.name }}</td>
                         <td>{{ tale_link.action }}</td>
                         <td>{{ tale_link.source.name }}</td>
                         <td>{{ tale_link.destination.name }}</td>
@@ -58,11 +154,16 @@
                                href="{% url 'tale_delete_link' tale_link.id %}">{% trans 'Delete' %}</a></td>
                     </tr>
                 {% endfor %}
+                </tbody>
             </table>
             <p><a href="{% url 'tale_add_link' tale.slug %}"
                   class="btn btn-success">{% trans 'Add New Link' %}</a></p>
 
-            <h3>{% trans 'Tale Variables' %}</h3>
+            <h3>
+            {% trans 'Tale Variables' %}
+            <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+            title="{% trans 'Tale variables make it possible to show different texts and links to the readers. When a user starts reading the tale, all tale variables will start from their default values. As the links are selected, consequences will affect the variable values.' %}"></span>
+            </h3>
             <table class="table table-striped">
                 <tr>
                     <th>{% trans 'Variable Name' %}</th>
@@ -86,7 +187,11 @@
             <p><a href="{% url 'tale_add_variable' tale.slug %}"
                   class="btn btn-success">{% trans 'Add New Variable' %}</a></p>
 
-            <h3>{% trans 'Tale Graph' %}</h3>
+            <h3>
+            {% trans 'Tale Graph' %}
+            <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+            title="{% trans 'You can see the tale graph and enter the graph editor. The graph editor lets you edit your tale in a more visual and all-in-one-page way, although it lacks some features.' %}"></span>
+            </h3>
 
             <p><a href="{% url 'tale_edit_graph' tale.slug %}"
                   class="btn btn-primary">{% trans 'Open Tale Graph Editor' %}</a></p>
@@ -95,6 +200,23 @@
         </div>
     </div>
 {% endblock %}
+{% block ogmeta %}
+    <meta property="og:title" content="{{ tale.name }}" />
+    <meta property="og:site_name" content="Interactale"/>
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    <meta property="og:description" content="Interactive tale with the name '{{ tale.name }}'. Read now!" />
+    <meta property="og:image" content="http://i.imgur.com/1A5lBLs.png" />
+    <meta property="fb:app_id" content="{{ fb_app_id }}" />
+    <meta property="og:type" content="website" />
+{% endblock %}
 {% block scriptblock %}
     {% include "tale_tree.html" %}
+    <script src="{% static 'Teller/js/jquery.tablesorter.min.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% include 'Teller/snippets/form_js.html' %}
+            $("#tale-table-parts").tablesorter();
+            $("#tale-table-links").tablesorter();
+        });
+    </script>
 {% endblock %}

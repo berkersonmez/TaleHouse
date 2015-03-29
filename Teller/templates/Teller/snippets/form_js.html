@@ -1,3 +1,10 @@
 $('.glyphicon-info-sign').tooltip({
 placement : 'top',
-})
+});
+$('[data-toggle=popover]').popover({
+placement: 'top',
+html: true,
+'content': function() {
+    return $('#'+$(this).data('content-target')).html();
+}
+});

@@ -135,6 +135,22 @@
                 <a href="{% url 'tale_details' tale.slug %}" class="btn btn-primary">{% trans 'Go back to tale details' %}</a>
             </p>
             {% endif %}
+            <h3>{% trans 'Comments' %}</h3>
+            <div class="comments">
+                {% for comment in result.part.comments.all %}
+                    <div class="comment well">
+                        <fieldset>
+                            <div class="col-md-2">
+                                <p class="comment-username">{{ comment.user.user.username }}</p>
+                            </div>
+                            <div class="col-md-10">
+                                <p>{{ comment.content|safe }}</p>
+                            </div>
+                        </fieldset>
+                    </div>
+                {% endfor %}
+                <a href="{% url 'tale_add_comment' result.part.id %}?next={% firstof request.path '/' %}" class="btn btn-primary">{% trans 'Write a comment to this part' %}</a>
+            </div>
         </div>
     </div>
 {% endblock %}

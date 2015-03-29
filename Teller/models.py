@@ -68,9 +68,19 @@ class TaleLink(models.Model):
     action = models.CharField(_('action'), max_length=200)
     name = models.CharField(_('name'), max_length=40, blank=False, null=False, default='UNNAMED')
     tale = models.ForeignKey(Tale, verbose_name=_('tale'))
+    created_at = models.DateTimeField(_('creation date'), auto_now_add=True, default=datetime.datetime.now())
 
     def __unicode__(self):
         return u"%s" % self.name
+
+    def get_users_selected_percent(self):
+        source_links = self.source.choices.all()
+        total_user_selects = 0
+        for source_link in source_links:
+            total_user_selects += source_link.profile_set.all().count()
+        if total_user_selects == 0:
+            return 0
+        return (float(self.profile_set.all().count()) / total_user_selects) * 100
 
     def check_conditions(self, tale_variables):
         for precondition in self.preconditions.all():
@@ -105,6 +115,7 @@ class TaleVariable(models.Model):
     tale = models.ForeignKey(Tale, verbose_name=_('tale'), related_name='variables')
     name = models.CharField(_('name'), max_length=200)
     default_value = models.IntegerField(_('default_value'), default=0)
+    created_at = models.DateTimeField(_('creation date'), auto_now_add=True, default=datetime.datetime.now())
 
     def init_value(self):
         self.value = self.default_value
@@ -124,6 +135,7 @@ class TaleLinkPrecondition(models.Model):
     value = models.IntegerField(_('value'), default=0)
     condition = models.CharField(max_length=2, choices=PRECONDITION_CHOICES, default='LT')
     tale_variable = models.ForeignKey(TaleVariable, verbose_name=_('tale_variable'), related_name='preconditions')
+    created_at = models.DateTimeField(_('creation date'), auto_now_add=True, default=datetime.datetime.now())
 
 
 class TaleLinkConsequence(models.Model):
@@ -137,7 +149,17 @@ class TaleLinkConsequence(models.Model):
     value = models.IntegerField(_('value'), default=0)
     consequence = models.CharField(max_length=2, choices=CONSEQUENCE_CHOICES, default='AD')
     tale_variable = models.ForeignKey(TaleVariable, verbose_name=_('tale_variable'), related_name='consequences')
+    created_at = models.DateTimeField(_('creation date'), auto_now_add=True, default=datetime.datetime.now())
 
+
+class TalePartComment(models.Model):
+    tale_part = models.ForeignKey(TalePart, verbose_name=_('tale_part'), related_name='comments')
+    user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='comments')
+    content = RichTextField(_('content'), config_name='comment')
+    created_at = models.DateTimeField(_('creation date'), auto_now_add=True, default=datetime.datetime.now())
+
+    def __unicode__(self):
+        return u"%s" % self.content
 
 class Language(models.Model):
     name = models.CharField(_('language name'), max_length=20)

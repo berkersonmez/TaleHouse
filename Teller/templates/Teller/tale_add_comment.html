@@ -1,0 +1,42 @@
+{% extends "base-navbar.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% load staticfiles %}
+{% block title %}{% trans 'Write a Comment' %}{% endblock %}
+{% block body %}
+    {{ tale_add_comment_form.media }}
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{% trans 'Write a Comment' %} </h2>
+            {{ tale_add_comment_form.non_field_errors }}
+            <form action="{% url 'tale_add_comment' tale_part.id %}?next={% firstof request.GET.next '/' %}" role="form" method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_content">{{ tale_add_comment_form.content.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_add_comment_form.content.help_text }}"></span>
+                    </label>
+                    {{ tale_add_comment_form.content }}
+                    <span class="help-block">{{ tale_add_comment_form.content.errors }}</span>
+                </div>
+
+                <button type="submit" class="btn btn-success">{% trans 'Add Comment' %}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptblock %}
+    <script src="{% static 'parsley/js/parsley.min.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(':disabled').each(
+                    function () {
+                        $(this).after('<input type="hidden" name="' + $(this).attr('name') + '" value="' + $(this).val() + '" />');
+                    }
+            );
+            {% include 'Teller/snippets/form_js.html' %}
+        });
+    </script>
+{% endblock %}

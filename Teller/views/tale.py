@@ -1,11 +1,12 @@
+import datetime
 from django.core.urlresolvers import reverse
 from django.utils.text import slugify
 from lxml import etree
 import pprint
 from Teller.forms import TalePartForm, TaleAddForm, TaleLinkAddForm, TaleEditPartForm, TaleLinkEditForm, TaleSearchForm, \
-    TaleVariableAddForm, TaleVariableEditForm, TalePreconditionAddForm, TaleConsequenceAddForm
+    TaleVariableAddForm, TaleVariableEditForm, TalePreconditionAddForm, TaleConsequenceAddForm, TaleCommentAddForm
 from Teller.models import Tale, Profile, TalePart, TaleLink, Rating, TaleVariable, TaleLinkPrecondition, \
-    TaleLinkConsequence
+    TaleLinkConsequence, TalePartComment
 from Teller.shortcuts.tarjans_cycle_detection import TarjansCycleDetection
 from Teller.shortcuts.teller_content_parser import TellerContentParser
 from Teller.shortcuts.teller_shortcuts import render_with_defaults, redirect_with_next
@@ -57,7 +58,7 @@ def get_last_part(tale, user, page_no):
     while page_no == -1 or i < page_no:
         i += 1
         if not current_part.is_active:
-            return {'message': _('This tale part is not activated yet'), 'status': part_status('ERROR'), 'page': i}
+            return {'message': _('This tale part is not activated yet'), 'part': current_part, 'status': part_status('ERROR'), 'page': i}
         links = TaleLink.objects.filter(tale=tale, source=current_part)
 
         links = [x for x in links if x.check_conditions(variables)]
@@ -95,7 +96,7 @@ def get_last_part_poll(tale, user, page_no):
     while page_no == -1 or i < page_no:
         i += 1
         if not current_part.is_active:
-            return {'message': _('This tale part is not activated yet'), 'status': part_status('ERROR'), 'page': i}
+            return {'message': _('This tale part is not activated yet'), 'part': current_part, 'status': part_status('ERROR'), 'page': i}
         links = TaleLink.objects.filter(tale=tale, source=current_part)
         if links.count() == 0:
             return {'status': part_status('END'), 'message': _('Tale part does not have any links'),
@@ -455,6 +456,56 @@ def tale_delete_part(request, tale_part_id):
     return redirect('tale_details', tale.slug)
 
 
+def tale_activate_part(request, tale_part_id):
+    if not request.user.is_authenticated():
+        return redirect_with_next('user_add', request.path)
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
+    except TalePart.DoesNotExist:
+        return redirect('error_info', _('Tale part not found'))
+    tale_part.is_active = not tale_part.is_active
+    tale_part.save()
+    return redirect('tale_details', tale_part.tale.slug)
+
+
+def tale_add_comment(request, tale_part_id):
+    if not request.user.is_authenticated():
+        return redirect_with_next('user_add', request.path)
+    profile = Profile.objects.get(user__id=request.user.id)
+    try:
+        tale_part = TalePart.objects.get(id=tale_part_id, tale__user=profile)
+    except TalePart.DoesNotExist:
+        return redirect('error_info', _('Tale part not found'))
+    if profile.comments.all().count() > 0:
+        latest_comment = profile.comments.latest('created_at')
+        if (timezone.now() - latest_comment.created_at).seconds < settings.TELLER_COMMENT_COOLDOWN:
+            return redirect('error_info', _('You should wait approximately %(comment_cd)s minutes before commenting again')
+                            % {'comment_cd': settings.TELLER_COMMENT_COOLDOWN/60})
+
+    if request.method == 'POST':
+        form = TaleCommentAddForm(data=request.POST)
+        if form.is_valid():
+            teller_content_parser = TellerContentParser()
+            content = form.cleaned_data['content']
+            content = teller_content_parser.clean_html(content)
+            tale_part_comment = TalePartComment.objects.create(tale_part=tale_part, user=profile,
+                                                               content=content)
+            if tale_part_comment is None:
+                return redirect('error_info', _('Comment could not be created'))
+            if request.GET:
+                next_link = request.GET['next']
+                if next_link == '' or next_link == '/' or next_link is None:
+                    return redirect('tale_read_continue', tale_part.tale.slug)
+                return HttpResponseRedirect(next_link)
+            else:
+                return redirect('tale_read_continue', tale_part.tale.slug)
+    else:
+        form = TaleCommentAddForm()
+    context = {'tale_add_comment_form': form, 'tale_part': tale_part}
+    return render_with_defaults(request, 'Teller/tale_add_comment.html', context)
+
+
 def tale_add_variable(request, tale_slug):
     if not request.user.is_authenticated():
         return redirect_with_next('user_add', request.path)
@@ -665,6 +716,7 @@ def tale_apply_graph(request, tale_slug):
                         link_form = TaleLinkAddForm(tale, data=value)
                         if not link_form.is_valid():
                             raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                        name = link_form.cleaned_data['name']
                         action = link_form.cleaned_data['action']
                         source = link_form.cleaned_data['source']
                         destination = link_form.cleaned_data['destination']
@@ -674,6 +726,7 @@ def tale_apply_graph(request, tale_slug):
                         tale_link = TaleLink.objects.create(source=source,
                                                             destination=destination,
                                                             action=action,
+                                                            name=name,
                                                             tale=tale)
                         if tale_link is None:
                             raise ValueError(_('Tale link could not be created'))
@@ -691,6 +744,7 @@ def tale_apply_graph(request, tale_slug):
                         link_form = TaleLinkEditForm(tale, tale_link.name, data=value)
                         if not link_form.is_valid():
                             raise ValueError(link_form.errors.keys()[0] + ": " + link_form.errors.values()[0][0])
+                        tale_link.name = link_form.cleaned_data['name']
                         tale_link.action = link_form.cleaned_data['action']
                         tale_link.source = link_form.cleaned_data['source']
                         tale_link.destination = link_form.cleaned_data['destination']

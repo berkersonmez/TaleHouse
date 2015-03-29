@@ -369,3 +369,10 @@ class TaleLinkEditForm(TaleLinkAddForm):
                                                                                   tale=self.tale).count() > 0:
             raise forms.ValidationError(_("There is another link with the same name."))
         return name
+
+
+@parsleyfy
+class TaleCommentAddForm(forms.Form):
+    content = forms.CharField(widget=CKEditorWidget(config_name='comment'), label=ugettext_lazy('Content'),
+                              help_text=ugettext_lazy(
+                                  'Write comments to show your appreciation to the authors.'))

@@ -20,7 +20,7 @@
                 {% for tale in tale_list %}
                     <tr>
                         <td>{{ tale.name }}</td>
-                        <td>{{ tale.is_poll_tale }}</td>
+                        <td>{{ tale.is_poll_tale|yesno:'<span class="glyphicon glyphicon-ok-sign"></span>,<span class="glyphicon glyphicon-remove-sign"></span>'|safe }}</td>
                         <td>{{ tale.language.name }}</td>
                         <td>{{ tale.overall_rating }}/5</td>
                         <td>

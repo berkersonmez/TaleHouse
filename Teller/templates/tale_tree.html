@@ -190,10 +190,10 @@
     {% endfor %}
 
     {% for tale_link in tale_link_list %}
-        links[s_decode("{{ tale_link.action }}")] = link(
+        links[s_decode("{{ tale_link.name }}")] = link(
                 parts[s_decode("{{ tale_link.source.name }}")].id,
                 parts[s_decode("{{ tale_link.destination.name }}")].id,
-                s_decode("{{ tale_link.action }}"));
+                s_decode("{{ tale_link.name }}"));
     {% endfor %}
 
     joint.layout.DirectedGraph.layout(graph, {

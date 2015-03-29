@@ -109,3 +109,29 @@ body {
 .rate-buttons-container {
     margin-bottom: 10px;
 }
+
+tr.danger>td {
+    background-color: #FFE2E0 !important;
+    color: #D07D7D;
+}
+
+tr.success>td {
+    background-color: #E4F7E5 !important;
+    color: #4DA058;
+}
+
+#tale-table-parts th, #tale-table-links th {
+    cursor: pointer;
+}
+
+th.headerSortDown {
+    background: rgb(232, 232, 232) url('/static/Teller/img/down-arrow-triangle.png') no-repeat right 10px center;
+}
+
+th.headerSortUp {
+    background: rgb(232, 232, 232) url('/static/Teller/img/up-arrow-triangle.png') no-repeat right 10px center;
+}
+
+.comment-username {
+    font-weight: bold;
+}

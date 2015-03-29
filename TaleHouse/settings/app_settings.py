@@ -159,6 +159,25 @@ CKEDITOR_CONFIGS = {
         'filebrowserImageBrowseUrl': '',
         'filebrowserFlashBrowseUrl': ''
     },
+    'comment': {
+        'toolbar': [
+            ['Bold', 'Italic', 'Underline'
+             ],
+            ['BulletedList', 'NumberedList',
+             '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight',
+             ],
+            ['Maximize']
+        ],
+        'skin': 'bootstrapck',
+        'width': '100%',
+        'font_names': '"Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif',
+        'contentsCss': STATIC_URL + 'bootstrap-lumen/css/bootstrap.ckeditor.css',
+        'format_tags': 'p;h2;h3',
+        'removeDialogTabs': 'link:upload;image:Upload',
+        'filebrowserBrowseUrl': '',
+        'filebrowserImageBrowseUrl': '',
+        'filebrowserFlashBrowseUrl': ''
+    },
 }
 
 CKEDITOR_RESTRICT_BY_USER = True
@@ -172,6 +191,7 @@ TELLER_MAX_LINKS_PER_PART = 10
 TELLER_MAX_PARTS_PER_TALE = 50
 TELLER_MAX_TALES_PER_USER = 15
 TELLER_MAX_VARIABLES_PER_TALE = 20
+TELLER_COMMENT_COOLDOWN = 120
 
 TELLER_CONTENT_SAFE_ATTRS = frozenset([
     'abbr', 'accept', 'accept-charset', 'accesskey', 'action', 'align',

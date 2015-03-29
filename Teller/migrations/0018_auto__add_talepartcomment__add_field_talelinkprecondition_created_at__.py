@@ -1,0 +1,187 @@
+# -*- coding: utf-8 -*-
+from south.utils import datetime_utils as datetime
+from south.db import db
+from south.v2 import SchemaMigration
+from django.db import models
+
+
+class Migration(SchemaMigration):
+
+    def forwards(self, orm):
+        # Adding model 'TalePartComment'
+        db.create_table(u'Teller_talepartcomment', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('tale_part', self.gf('django.db.models.fields.related.ForeignKey')(related_name='comments', to=orm['Teller.TalePart'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='comments', to=orm['Teller.Profile'])),
+            ('content', self.gf('ckeditor.fields.RichTextField')()),
+            ('created_at', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2015, 3, 29, 0, 0), auto_now_add=True, blank=True)),
+        ))
+        db.send_create_signal(u'Teller', ['TalePartComment'])
+
+        # Adding field 'TaleLinkPrecondition.created_at'
+        db.add_column(u'Teller_talelinkprecondition', 'created_at',
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2015, 3, 29, 0, 0), auto_now_add=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'TaleLinkConsequence.created_at'
+        db.add_column(u'Teller_talelinkconsequence', 'created_at',
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2015, 3, 29, 0, 0), auto_now_add=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'TaleLink.created_at'
+        db.add_column(u'Teller_talelink', 'created_at',
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2015, 3, 29, 0, 0), auto_now_add=True, blank=True),
+                      keep_default=False)
+
+        # Adding field 'TaleVariable.created_at'
+        db.add_column(u'Teller_talevariable', 'created_at',
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2015, 3, 29, 0, 0), auto_now_add=True, blank=True),
+                      keep_default=False)
+
+
+    def backwards(self, orm):
+        # Deleting model 'TalePartComment'
+        db.delete_table(u'Teller_talepartcomment')
+
+        # Deleting field 'TaleLinkPrecondition.created_at'
+        db.delete_column(u'Teller_talelinkprecondition', 'created_at')
+
+        # Deleting field 'TaleLinkConsequence.created_at'
+        db.delete_column(u'Teller_talelinkconsequence', 'created_at')
+
+        # Deleting field 'TaleLink.created_at'
+        db.delete_column(u'Teller_talelink', 'created_at')
+
+        # Deleting field 'TaleVariable.created_at'
+        db.delete_column(u'Teller_talevariable', 'created_at')
+
+
+    models = {
+        u'Teller.language': {
+            'Meta': {'object_name': 'Language'},
+            'code': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '4'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'})
+        },
+        u'Teller.profile': {
+            'Meta': {'object_name': 'Profile'},
+            'followed_users': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['Teller.Profile']", 'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'selected_links': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['Teller.TaleLink']", 'null': 'True', 'blank': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '150'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'})
+        },
+        u'Teller.rating': {
+            'Meta': {'object_name': 'Rating'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 3, 29, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'rating': ('django.db.models.fields.DecimalField', [], {'default': "'0'", 'max_digits': '2', 'decimal_places': '1'}),
+            'tale': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ratings'", 'to': u"orm['Teller.Tale']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ratings'", 'to': u"orm['Teller.Profile']"})
+        },
+        u'Teller.tale': {
+            'Meta': {'object_name': 'Tale'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_poll_tale': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'language': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['Teller.Language']"}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'overall_rating': ('django.db.models.fields.DecimalField', [], {'default': "'0'", 'max_digits': '3', 'decimal_places': '2'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '150'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tales'", 'to': u"orm['Teller.Profile']"})
+        },
+        u'Teller.talelink': {
+            'Meta': {'object_name': 'TaleLink'},
+            'action': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 3, 29, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'destination': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'entrances'", 'null': 'True', 'to': u"orm['Teller.TalePart']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'default': "'UNNAMED'", 'max_length': '40'}),
+            'source': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'choices'", 'to': u"orm['Teller.TalePart']"}),
+            'tale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['Teller.Tale']"})
+        },
+        u'Teller.talelinkconsequence': {
+            'Meta': {'object_name': 'TaleLinkConsequence'},
+            'consequence': ('django.db.models.fields.CharField', [], {'default': "'AD'", 'max_length': '2'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 3, 29, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'tale_link': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'consequences'", 'to': u"orm['Teller.TaleLink']"}),
+            'tale_variable': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'consequences'", 'to': u"orm['Teller.TaleVariable']"}),
+            'value': ('django.db.models.fields.IntegerField', [], {'default': '0'})
+        },
+        u'Teller.talelinkprecondition': {
+            'Meta': {'object_name': 'TaleLinkPrecondition'},
+            'condition': ('django.db.models.fields.CharField', [], {'default': "'LT'", 'max_length': '2'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 3, 29, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'tale_link': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'preconditions'", 'to': u"orm['Teller.TaleLink']"}),
+            'tale_variable': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'preconditions'", 'to': u"orm['Teller.TaleVariable']"}),
+            'value': ('django.db.models.fields.IntegerField', [], {'default': '0'})
+        },
+        u'Teller.talepart': {
+            'Meta': {'object_name': 'TalePart'},
+            'content': ('ckeditor.fields.RichTextField', [], {}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_start': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'poll_end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'tale': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['Teller.Tale']"})
+        },
+        u'Teller.talepartcomment': {
+            'Meta': {'object_name': 'TalePartComment'},
+            'content': ('ckeditor.fields.RichTextField', [], {}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 3, 29, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'tale_part': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'comments'", 'to': u"orm['Teller.TalePart']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'comments'", 'to': u"orm['Teller.Profile']"})
+        },
+        u'Teller.talevariable': {
+            'Meta': {'object_name': 'TaleVariable'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 3, 29, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'default_value': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'tale': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'variables'", 'to': u"orm['Teller.Tale']"})
+        },
+        u'auth.group': {
+            'Meta': {'object_name': 'Group'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
+            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
+        },
+        u'auth.permission': {
+            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
+            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'auth.user': {
+            'Meta': {'object_name': 'User'},
+            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
+            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
+        },
+        u'contenttypes.contenttype': {
+            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
+            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        }
+    }
+
+    complete_apps = ['Teller']

@@ -46,7 +46,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware'
+    'django.middleware.locale.LocaleMiddleware',
+    'Teller.middleware.TellerSocialAuthExceptionMiddleware'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -73,7 +74,6 @@ LOGIN_REDIRECT_URL = '/'
 ROOT_URLCONF = 'TaleHouse.urls'
 
 WSGI_APPLICATION = 'TaleHouse.wsgi.application'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/

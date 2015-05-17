@@ -50,12 +50,13 @@ body {
     width: 86px;
 }
 
-.navbar-form img.captcha {
+.login-menu img.captcha {
     max-height: 36px;
+    max-width: 75px;
 }
 
 .btn-facebook {
-    padding: 6px 8px 6px;
+    padding: 8px 8px 8px;
     background-color: #3b5998;
     border-color: #273f6f;
 }
@@ -65,7 +66,7 @@ body {
 }
 
 .btn-google {
-    padding: 6px 8px 6px;
+    padding: 8px 8px 8px;
     background-color: #F44336;
     border-color: #D32F2F;
 }
@@ -75,7 +76,7 @@ body {
 }
 
 .btn-pinterest {
-    padding: 6px 8px 6px;
+    padding: 8px 8px 8px;
     background-color: #bd081c;
     border-color: #85000f;
 }
@@ -85,7 +86,7 @@ body {
 }
 
 .btn-twitter {
-    padding: 6px 8px 6px;
+    padding: 8px 8px 8px;
     background-color: #55acee;
     border-color: #3d80bd;
 }
@@ -95,7 +96,7 @@ body {
 }
 
 .btn-logoandtext {
-    padding: 8px 8px 4px;
+    padding: 8px 8px 8px;
     color: #ffffff;
 }
 
@@ -134,4 +135,14 @@ th.headerSortUp {
 
 .comment-username {
     font-weight: bold;
+}
+
+.dropdown-menu.login-menu {
+    width: 286px;
+    padding: 17px;
+}
+
+.form-control.form-captcha {
+    width: 170px;
+    display: inline;
 }

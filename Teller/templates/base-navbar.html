@@ -80,33 +80,40 @@
                         </li>
                     </ul>
                 {% else %}
-                    <form class="navbar-form navbar-right" action="{% url 'user_login' %}?next={% firstof request.GET.next request.path '/' %}" role="form" method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            {% render_field user_login_form.username class="form-control" placeholder=user_login_form.username.label %}
-                        </div>
-                        <div class="form-group">
-                            {% render_field user_login_form.password class="form-control" placeholder=user_login_form.password.label %}
-                        </div>
-                        <div class="form-group">
-                            {% render_field user_login_form.captcha class="form-control" placeholder=user_login_form.captcha.label %}
-                        </div>
-                        <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
-                        <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
-                        <a href="{% url 'social:begin' 'facebook' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
-                        <a href="{% url 'social:begin' 'google-oauth2' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
-                    </form>
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                {{ LANGUAGE_CODE }}
-                                <span
-                                        class="caret"></span></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#" id="lang-en">{% trans 'English' %} (en)</a></li>
-                                <li><a href="#" id="lang-tr">{% trans 'Turkish' %} (tr)</a></li>
-                            </ul>
-                        </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            {{ LANGUAGE_CODE }}
+                            <span
+                                    class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" id="lang-en">{% trans 'English' %} (en)</a></li>
+                            <li><a href="#" id="lang-tr">{% trans 'Turkish' %} (tr)</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            {% trans 'Login' %}
+                            <span class="caret"></span></a>
+                        <div class="dropdown-menu login-menu" role="menu">
+                            <form class="form" action="{% url 'user_login' %}?next={% firstof request.GET.next request.path '/' %}" role="form" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    {% render_field user_login_form.username class="form-control" placeholder=user_login_form.username.label %}
+                                </div>
+                                <div class="form-group">
+                                    {% render_field user_login_form.password class="form-control" placeholder=user_login_form.password.label %}
+                                </div>
+                                <div class="form-group">
+                                    {% render_field user_login_form.captcha class="form-control form-captcha" placeholder=user_login_form.captcha.label %}
+                                </div>
+                                <button type="submit" class="btn btn-primary">{% trans 'Sign in' %}</button>
+                                <a href="{% url 'user_add' %}" class="btn btn-success">{% trans 'Sign up' %}</a>
+                                <a href="{% url 'social:begin' 'facebook' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-facebook"><img src="{% static 'Teller/img/fb-logo.png' %}"></a>
+                                <a href="{% url 'social:begin' 'google-oauth2' %}?next={% firstof request.GET.next request.path '/' %}" class="btn btn-google"><img src="{% static 'Teller/img/google-logo.png' %}"></a>
+                            </form>
+                        </div>
+                    </li>
                     </ul>
                 {% endif %}
             </div>

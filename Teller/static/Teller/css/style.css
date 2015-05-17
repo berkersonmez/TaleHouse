@@ -146,3 +146,21 @@ th.headerSortUp {
     width: 170px;
     display: inline;
 }
+
+body {
+    font-family: "Raleway","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}
+
+.tooltip {
+    font-family: "Raleway","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 12px;
+}
+
+.tale-text {
+    font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+.tale-text-read {
+    font-size: 18px;
+}

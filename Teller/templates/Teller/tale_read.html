@@ -28,7 +28,9 @@
                     </div>
                 </div>
             {% else %}
-                {{ result.part.content|safe }}
+                <div class="tale-text tale-text-read">
+                    {{ result.part.content|safe }}
+                </div>
                 {% if result.status == status_enum.VOTE %}
                     {% for link in result.links %}
                         {% if not profile %}

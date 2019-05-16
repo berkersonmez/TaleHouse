@@ -12,6 +12,14 @@
             <form action="{% url 'tale_edit_link' tale_link.id %}" role="form" method="post" data-parsley-validate>
                 {% csrf_token %}
                 <div class="form-group">
+                    <label for="id_name">{{ tale_edit_link_form.name.label }}
+                        <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
+                              title="{{ tale_edit_link_form.name.help_text }}"></span>
+                    </label>
+                    {% render_field tale_edit_link_form.name class="form-control" %}
+                    <span class="help-block">{{ tale_edit_link_form.name.errors }}</span>
+                </div>
+                <div class="form-group">
                     <label for="id_action">{{ tale_edit_link_form.action.label }}
                         <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip"
                               title="{{ tale_edit_link_form.action.help_text }}"></span>
@@ -241,6 +249,7 @@
         function postForm()
         {
             var postVals = {
+                name: $('#id_name').val(),
                 action: $('#id_action').val(),
                 source: $('#id_source').val(),
                 destination: $('#id_destination').val()

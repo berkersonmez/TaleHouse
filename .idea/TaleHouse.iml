@@ -7,20 +7,25 @@
         <option name="settingsModule" value="TaleHouse/settings.py" />
         <option name="manageScript" value="manage.py" />
         <option name="environment" value="&lt;map/&gt;" />
+        <option name="commandsToSkip" value="" />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 2.7.6 virtualenv at ~/Documents/VirtualEnvironments/TaleHouse" jdkType="Python SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="sass-stdlib" level="application" />
   </component>
-  <component name="PackageRequirementsSettings">
-    <option name="requirementsPath" value="D:\Archive\Projects\TaleHouse\requirements.txt" />
+  <component name="PyDocumentationSettings">
+    <option name="myDocStringFormat" value="Epytext" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/Teller/templates" />
+      </list>
+    </option>
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />

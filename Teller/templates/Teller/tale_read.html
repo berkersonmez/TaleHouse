@@ -1,5 +1,6 @@
 {% extends "base-navbar.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% load teller_tags %}
 {% block title %}{% trans 'Read' %} {{ tale.name }}{% endblock %}
 {% block body %}
@@ -30,12 +31,21 @@
                 {{ result.part.content|safe }}
                 {% if result.status == status_enum.VOTE %}
                     {% for link in result.links %}
-                        <p class="bs-component tale-action-button">
-                            <a href="{% url 'tale_vote' tale.slug link.id result.part.id result.page %}" type="button"
-                               class="btn btn-default btn-block">
-                                {{ link.action }}
-                            </a>
-                        </p>
+                        {% if not profile %}
+                            <p class="bs-component tale-action-button">
+                                <a href="{% url 'user_add' %}?next={% firstof request.path '/' %}" type="button"
+                                   class="btn btn-default btn-block">
+                                    {{ link.action }}
+                                </a>
+                            </p>
+                        {% else %}
+                            <p class="bs-component tale-action-button">
+                                <a href="{% url 'tale_vote' tale.slug link.id result.part.id result.page %}" type="button"
+                                   class="btn btn-default btn-block">
+                                    {{ link.action }}
+                                </a>
+                            </p>
+                        {% endif %}
                     {% endfor %}
                 {% elif result.status == status_enum.READ and tale.is_poll_tale %}
                     {% for link, vote_count in result.links %}
@@ -101,11 +111,64 @@
                     {% endif %}
                 </ul>
             </div>
-            <div>
-                {% if result.status != status_enum.ERROR %}
+            <div class="rate-buttons-container">
+                {% if profile and result.status != status_enum.ERROR %}
                     {{ profile|print_rate_buttons:tale|safe }}
                 {% endif %}
             </div>
+            {% if tale.is_published %}
+            <div>
+                <p>
+                    {{ request.build_absolute_uri|print_tale_share_buttons:tale|safe }}
+                </p>
+            </div>
+            {% endif %}
+            {% if profile and tale.user.id == profile.id %}
+            <h3 class="text-center">
+                {% trans 'Tale Author Controls' %}
+                <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" title="{% trans 'These will not be shown to the readers.' %}"></span>
+            </h3>
+            <p class="text-center">
+                {% if result.status != status_enum.ERROR %}
+                <a href="{% url 'tale_edit_part' result.part.id %}" class="btn btn-warning">{% trans 'Edit this part' %}</a>
+                {% endif %}
+                <a href="{% url 'tale_details' tale.slug %}" class="btn btn-primary">{% trans 'Go back to tale details' %}</a>
+            </p>
+            {% endif %}
+            <h3>{% trans 'Comments' %}</h3>
+            <div class="comments">
+                {% for comment in result.part.comments.all %}
+                    <div class="comment well">
+                        <fieldset>
+                            <div class="col-md-2">
+                                <p class="comment-username">{{ comment.user.user.username }}</p>
+                            </div>
+                            <div class="col-md-10">
+                                <p>{{ comment.content|safe }}</p>
+                            </div>
+                        </fieldset>
+                    </div>
+                {% endfor %}
+                <a href="{% url 'tale_add_comment' result.part.id %}?next={% firstof request.path '/' %}" class="btn btn-primary">{% trans 'Write a comment to this part' %}</a>
+            </div>
         </div>
     </div>
+{% endblock %}
+{% if result.status != status_enum.ERROR %}
+    {% block ogmeta %}
+        <meta property="og:title" content="{{ tale.name }}" />
+        <meta property="og:site_name" content="Interactale"/>
+        <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+        <meta property="og:description" content="{{ result.part.content|striptags|truncatechars:300|safe }}" />
+        <meta property="og:image" content="http://i.imgur.com/1A5lBLs.png" />
+        <meta property="fb:app_id" content="{{ fb_app_id }}" />
+        <meta property="og:type" content="website" />
+    {% endblock %}
+{% endif %}
+{% block scriptblock %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% include 'Teller/snippets/form_js.html' %}
+        });
+    </script>
 {% endblock %}
